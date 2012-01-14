@@ -62,10 +62,12 @@ void test_linpk(void);
 double wtime(void);
 void gauleg(double x1, double x2, double x[], double w[], int n);
 
+#ifdef FFTLOG
 /* in fftlog.c */
 void compute_discrete_spherical_fft(double *data, int N, double r0, double L, double q, double *result, double *k0);
 double get_k0_fftlog(int N, double mu, double q, double r0, double L, double k0guess);
 void um_fftlog(int m, double mu, double q, double k0, double r0, double L, double *realpart, double *imagpart);
+#endif
 
 /* distances.c - computes distances - assumes flat lambda */
 void init_cosmocalc_comvdist_table(void);

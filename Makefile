@@ -1,4 +1,5 @@
 #compile time options
+OPTS += -DFFTLOG #define to compile fft log function
 #OPTS += -DDEBUG_IO #define for some debuggin I/O - none implemented so far
 #OPTS += -DDEBUG -DDEBUG_LEVEL=0 #leave undefined for no debugging - 0,1, and 2 give progressively more output to stderr
 #OPTS += -DTEST_CODE #define to run some basic test code
@@ -54,9 +55,15 @@ else
 TESTCODE=test_code.o
 endif
 
-OBJS = $(TESTCODE) distances.o linear_powspec.o transfer_function.o \
+ifneq (FFTLOG,$(findstring FFTLOG,$(CFLAGS)))
+FFTLOG=
+else
+FFTLOG=fftlog.o
+endif
+
+OBJS = $(TESTCODE) $(FFTLOG) distances.o linear_powspec.o transfer_function.o \
 	growth_function.o hubble.o peakheight.o mass_bias_functions.o \
-	linear_corrfunc.o fftlog.o utils.o nonlinear_powspec.o nonlinear_corrfunc.o
+	linear_corrfunc.o utils.o nonlinear_powspec.o nonlinear_corrfunc.o
 
 EXEC = computecosmo
 TEST =
