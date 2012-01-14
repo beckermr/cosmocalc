@@ -1,11 +1,10 @@
 #compile time options
 #OPTS += -DDEBUG_IO #define for some debuggin I/O - none implemented so far
-OPTS += -DDEBUG -DDEBUG_LEVEL=0 #leave undefined for no debugging - 0,1, and 2 give progressively more output to stderr
+#OPTS += -DDEBUG -DDEBUG_LEVEL=0 #leave undefined for no debugging - 0,1, and 2 give progressively more output to stderr
 #OPTS += -DTEST_CODE #define to run some basic test code
-#OPTS += -DCOMPUTE_SIGMAM #set to compute sigmam for a list of masses in a file
 
 #select your computer
-COMP="orange"
+#COMP="orange"
 #COMP="mandor-icc"
 #COMP="mandor-gcc"
 
@@ -28,8 +27,6 @@ GSLI        =  -I/home/beckermr/include
 GSLL        =  -L/home/beckermr/lib -lgsl -lgslcblas
 FFTWI       =  -I/home/beckermr/include
 FFTWL       =  -L/home/beckermr/lib -lfftw3 -lfftw3f
-FITSI       =  -I/home/beckermr/include
-FITSL       =  -L/home/beckermr/lib -lcfitsio
 EXTRACFLAGS =  -Wall -wd981 #-wd1419 -wd810
 EXTRACLIB   =  
 endif
@@ -41,8 +38,6 @@ GSLI        =  -I/home/beckermr/include
 GSLL        =  -L/home/beckermr/lib -lgsl -lgslcblas
 FFTWI       =  -I/home/beckermr/include
 FFTWL       =  -L/home/beckermr/lib -lfftw3 -lfftw3f
-FITSI       =  -I/home/beckermr/include
-FITSL       =  -L/home/beckermr/lib -lcfitsio
 EXTRACFLAGS =  -ansi -std=c99 -pedantic -Wall -W -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align \
 	-Wwrite-strings -Wnested-externs -fshort-enums -fno-common -Dinline= 
 EXTRACLIB   =  

@@ -21,7 +21,7 @@ gsl_interp_accel *cosmocalc_comvdist2aexpn_acc = NULL;
 /* function for integration using gsl integration */
 double comvdist_integ_funct(double a, void *p)
 {
-  return 1.0/sqrt(a*(*((double*)p)) + a*a*a*a*(1.0-(*((double*)p))));
+  return 1.0/a/a/hubble_noscale(a);
 }
 
 double comvdist_exact(double a)
@@ -32,14 +32,12 @@ double comvdist_exact(double a)
 
   gsl_integration_workspace *workspace;
   gsl_function F;
-  double result,abserr,afact;
+  double result,abserr;
   
   workspace = gsl_integration_workspace_alloc((size_t) WORKSPACE_NUM);
   
-  afact = a;
   F.function = &comvdist_integ_funct;
-  F.params = &(cosmoData.OmegaM);
-  gsl_integration_qag(&F,afact,1.0,ABSERR,RELERR,(size_t) WORKSPACE_NUM,GSL_INTEG_GAUSS51,workspace,&result,&abserr);
+  gsl_integration_qag(&F,a,1.0,ABSERR,RELERR,(size_t) WORKSPACE_NUM,GSL_INTEG_GAUSS51,workspace,&result,&abserr);
   
   gsl_integration_workspace_free(workspace);
 
@@ -158,6 +156,11 @@ double comvdist(double a)
 double angdist(double a)
 {
   return comvdist(a)*a;
+}
+
+double lumdist(double a)
+{
+  return comvdist(a)/a;
 }
 
 double angdistdiff(double amin, double amax)

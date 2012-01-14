@@ -38,6 +38,8 @@ typedef struct {
   double SpectralIndex;
   double OmegaB;
   double delta;
+  double w0;
+  double wa;
 } cosmocalcData;
 
 extern cosmocalcData cosmoData;
@@ -69,7 +71,8 @@ void um_fftlog(int m, double mu, double q, double k0, double r0, double L, doubl
 void init_cosmocalc_comvdist_table(void);
 double comvdist_integ_funct(double a, void *p);
 double angdist(double a);
-double comvdist(double z);
+double lumdist(double a);
+double comvdist(double a);
 double angdistdiff(double amin, double amax);
 double acomvdist(double dist);
 double comvdist_exact(double a);

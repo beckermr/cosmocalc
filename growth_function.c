@@ -15,13 +15,11 @@
 /* function for integration using gsl integration */
 double growth_function_integ_funct(double a, void *p)
 {
-  double WA = 0.0;
-  double W0 = -1.0;
-  double hubblefac = sqrt(cosmoData.OmegaM/a/a/a + (1.0-cosmoData.OmegaM)*exp(3.0*(WA*(a-1) - log(a)*(1.0 + W0 + WA))));
+  double hubblefac = hubble_noscale(a);
   double adot = a*hubblefac;
   double alim = (*((double*)p));
   
-  return 1.0/adot/adot/adot*sqrt(cosmoData.OmegaM/alim/alim/alim + (1.0-cosmoData.OmegaM)*exp(3.0*(WA*(alim-1) - log(alim)*(1.0 + W0 + WA))));
+  return 1.0/adot/adot/adot*hubble_noscale(alim);
 }
 
 double growth_function_exact(double a)
