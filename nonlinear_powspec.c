@@ -134,7 +134,7 @@ static double nonlinear_gaussnorm_scale_funct(double gaussR, void *p)
 
 static double get_nonlinear_gaussnorm_scale(double a)
 {
-  double gf = growth_function_exact(a);
+  double gf = growth_function(a);
   double Rsigma,Rlow=0.001,Rhigh=10.0;
   int itr,maxItr=1000,status;
   

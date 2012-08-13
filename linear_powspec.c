@@ -86,7 +86,7 @@ double linear_powspec_exact(double k, double a)
   static int initFlag = 1;
   static int currCosmoNum;
   static double linear_powspec_norm;
-  double gf = growth_function_exact(a);
+  double gf = growth_function(a);
   
   if(initFlag == 1 || currCosmoNum != cosmoData.cosmoNum)
     {
