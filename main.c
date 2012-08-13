@@ -26,20 +26,38 @@ int main(int argc, char **argv)
   cosmoData.w0 = -1.0;
   cosmoData.wa = 0.0;
   
-  double lnkmin = log(1e-4);
-  double lnkmax = log(1e2);
-  double dlnk,k,a;
-  int N = 10000,i;
-      
-  dlnk = (lnkmax - lnkmin)/N;
-  
-  a = atof(argv[2]);
-  for(i=0;i<N;++i)
+  if(0)
     {
-      k = exp(dlnk*i + lnkmin);
-      fprintf(stdout,"%.20e\t%.20e\t%.20e\n",k,nonlinear_powspec(k,a),linear_powspec(k,a));
+      double lnkmin = log(1e-4);
+      double lnkmax = log(1e2);
+      double dlnk,k,a;
+      int N = 10000,i;
+      
+      dlnk = (lnkmax - lnkmin)/N;
+      
+      a = atof(argv[2]);
+      for(i=0;i<N;++i)
+	{
+	  k = exp(dlnk*i + lnkmin);
+	  fprintf(stdout,"%.20e\t%.20e\t%.20e\n",k,nonlinear_powspec(k,a),linear_powspec(k,a));
+	}
     }
-  
+  else
+    {
+      double amin = 1.0/31.0;
+      double amax = 1.0;
+      int Na = 100;
+      double da = (amax-amin)/(Na-1.0);
+      double a;
+      int i;
+            
+      for(i=0;i<Na;++i)
+	{
+	  a = amin + da*i;
+	  fprintf(stdout,"%.20e\t%.20e\n",a,growth_function(a));
+	}
+    }
+    
 #else
   test_nonlinear_corrfunc();
   test_nonlinear_powspec();
