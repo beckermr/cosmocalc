@@ -1,5 +1,5 @@
 #compile time options
-OPTS += -DFFTLOG #define to compile fft log function
+#OPTS += -DFFTLOG #define to compile fft log function
 #OPTS += -DDEBUG_IO #define for some debuggin I/O - none implemented so far
 #OPTS += -DDEBUG -DDEBUG_LEVEL=0 #leave undefined for no debugging - 0,1, and 2 give progressively more output to stderr
 #OPTS += -DTEST_CODE #define to run some basic test code
@@ -7,7 +7,7 @@ OPTS += -DFFTLOG #define to compile fft log function
 #select your computer
 #COMP="orange"
 #COMP="mandor-icc"
-#COMP="mandor-gcc"
+COMP="mandor-gcc"
 
 #edit/add to match your machine
 ifeq ($(COMP),"orange")

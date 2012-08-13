@@ -126,7 +126,7 @@ double nonlinear_gaussnorm_scale_funct(double gaussR, void *p)
 double get_nonlinear_gaussnorm_scale(double a)
 {
   double gf = growth_function_exact(a);
-  double Rsigma,Rlow=0.01,Rhigh=3.0;
+  double Rsigma,Rlow=0.001,Rhigh=10.0;
   int itr,maxItr=1000,status;
   
 #define ABSERR 1e-6
@@ -187,7 +187,7 @@ double nonlinear_powspec_exact(double k, double a)
       neff = -1.0*Rsigma/sigma2*dsigma2dR - 3.0;
       C = -1.0*(d2sigma2d2R*Rsigma*Rsigma/sigma2 + dsigma2dR*Rsigma/sigma2 - dsigma2dR*dsigma2dR*Rsigma*Rsigma/sigma2/sigma2);
       
-      fprintf(stderr,"a = %f, sigma = %f, ksigma = %f, neff = %f, C = %f\n",a,sqrt(sigma2),ksigma,neff,C);
+      //FIXME fprintf(stderr,"a = %f, sigma = %f, ksigma = %f, neff = %f, C = %f\n",a,sqrt(sigma2),ksigma,neff,C);
       
       an = pow(10.0,1.4861 + 1.8369*neff + 1.6762*neff*neff + 0.7940*neff*neff*neff + 0.1670*neff*neff*neff*neff - 0.6206*C);
       bn = pow(10.0,0.9463 + 0.9466*neff + 0.3084*neff*neff - 0.9400*C);
