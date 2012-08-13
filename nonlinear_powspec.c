@@ -11,14 +11,23 @@
 
 #include "cosmocalc.h"
 
-double gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p)
+static double gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p);
+static double onederiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p);
+static double twoderiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p);
+static double gaussiannorm_linear_powspec_exact(double gaussRad);
+static double onederiv_gaussiannorm_linear_powspec_exact(double gaussRad);
+static double twoderiv_gaussiannorm_linear_powspec_exact(double gaussRad);
+static double nonlinear_gaussnorm_scale_funct(double gaussR, void *p);
+static double get_nonlinear_gaussnorm_scale(double a);
+
+static double gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p)
 {
   double gaussRad = ((double*)p)[0];
   double k = exp(lnk);
   return linear_powspec_exact(k,1.0)*k*k*k/2.0/M_PI/M_PI*exp(-1.0*k*k*gaussRad*gaussRad);
 }
 
-double gaussiannorm_linear_powspec_exact(double gaussRad)
+static double gaussiannorm_linear_powspec_exact(double gaussRad)
 {
   double I0,I1;
   double abserr;
@@ -46,14 +55,14 @@ double gaussiannorm_linear_powspec_exact(double gaussRad)
   return I0 + I1;
 }
 
-double onederiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p)
+static double onederiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p)
 {
   double gaussRad = ((double*)p)[0];
   double k = exp(lnk);
   return linear_powspec_exact(k,1.0)*k*k*k/2.0/M_PI/M_PI*exp(-1.0*k*k*gaussRad*gaussRad)*(-1.0*k*k*2.0*gaussRad);
 }
 
-double onederiv_gaussiannorm_linear_powspec_exact(double gaussRad)
+static double onederiv_gaussiannorm_linear_powspec_exact(double gaussRad)
 {
   double I0,I1;
   double abserr;
@@ -81,14 +90,14 @@ double onederiv_gaussiannorm_linear_powspec_exact(double gaussRad)
   return I0 + I1;
 }
 
-double twoderiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p)
+static double twoderiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p)
 {
   double gaussRad = ((double*)p)[0];
   double k = exp(lnk);
   return linear_powspec_exact(k,1.0)*k*k*k/2.0/M_PI/M_PI*exp(-1.0*k*k*gaussRad*gaussRad)*(-2.0*k*k + 4.0*k*k*k*k*gaussRad*gaussRad);
 }
 
-double twoderiv_gaussiannorm_linear_powspec_exact(double gaussRad)
+static double twoderiv_gaussiannorm_linear_powspec_exact(double gaussRad)
 {
   double I0,I1;
   double abserr;
@@ -116,14 +125,14 @@ double twoderiv_gaussiannorm_linear_powspec_exact(double gaussRad)
   return I0 + I1;
 }
 
-double nonlinear_gaussnorm_scale_funct(double gaussR, void *p)
+static double nonlinear_gaussnorm_scale_funct(double gaussR, void *p)
 {
   double gf = ((double*)p)[0];
   
   return gaussiannorm_linear_powspec_exact(gaussR)*gf*gf-1.0;
 }
 
-double get_nonlinear_gaussnorm_scale(double a)
+static double get_nonlinear_gaussnorm_scale(double a)
 {
   double gf = growth_function_exact(a);
   double Rsigma,Rlow=0.001,Rhigh=10.0;

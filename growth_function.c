@@ -12,8 +12,19 @@
 #define AEXPN_MIN 0.001
 #define AEXPN_MAX 1.0
 
+//#define ODEGROWTH //the integral formulation is onyl correct for LCDM, any wCDM cosmology will not work
+
+#ifdef ODEGROWTH
+
+
+
+
+#else
+
+static double growth_function_integ_funct(double a, void *p);
+
 /* function for integration using gsl integration */
-double growth_function_integ_funct(double a, void *p)
+static double growth_function_integ_funct(double a, void *p)
 {
   double hubblefac = hubble_noscale(a);
   double adot = a*hubblefac;
@@ -111,7 +122,9 @@ double growth_function(double a)
 #undef ABSERR
 #undef RELERR
 }
+#endif
 
+#undef ODEGROWTH
 #undef COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH
 #undef AEXPN_MIN
 #undef AEXPN_MAX

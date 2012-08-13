@@ -15,7 +15,11 @@
 #define K_MAX 1e20
 #define COSMOCALC_LINEAR_POWSPEC_FIT_LENGTH 20
 
-double fourierTransformTopHat(double y)
+static double fourierTransformTopHat(double y);
+static double tophatradnorm_linear_powspec_exact_nonorm_lnk_integ_funct_I0(double lnk, void *p);
+static double tophatradnorm_linear_powspec_exact_nonorm_k_integ_funct_I0(double k, void *p);
+
+static double fourierTransformTopHat(double y)
 {
   if(y < 1e-3)
     return 1.0;
@@ -23,7 +27,7 @@ double fourierTransformTopHat(double y)
     return 3.0/y/y/y*(sin(y) - y*cos(y));
 }
 
-double tophatradnorm_linear_powspec_exact_nonorm_lnk_integ_funct_I0(double lnk, void *p)
+static double tophatradnorm_linear_powspec_exact_nonorm_lnk_integ_funct_I0(double lnk, void *p)
 {
   // topHatRad = (*((double*)p));
   double k = exp(lnk);
@@ -32,7 +36,7 @@ double tophatradnorm_linear_powspec_exact_nonorm_lnk_integ_funct_I0(double lnk, 
     *k*k/2.0/M_PI/M_PI*k;
 }
 
-double tophatradnorm_linear_powspec_exact_nonorm_k_integ_funct_I0(double k, void *p)
+static double tophatradnorm_linear_powspec_exact_nonorm_k_integ_funct_I0(double k, void *p)
 {
   // topHatRad = (*((double*)p));
   return fourierTransformTopHat(k*(*((double*)p)))*fourierTransformTopHat(k*(*((double*)p)))

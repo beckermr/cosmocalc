@@ -14,7 +14,9 @@
 #define R_MIN 1e-10
 #define R_MAX 3e2
 
-double linear_corrfunc_integ_funct(double k, void *p)
+static double linear_corrfunc_integ_funct(double k, void *p);
+
+static double linear_corrfunc_integ_funct(double k, void *p)
 {
   double r = ((double*)p)[0];
   double a = ((double*)p)[1];

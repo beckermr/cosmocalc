@@ -87,24 +87,12 @@ double transfunct_eh98(double kin);
 double linear_powspec(double k, double a);
 double linear_powspec_exact(double k, double a);
 double tophatradnorm_linear_powspec_exact_nonorm(double topHatRad);
-double tophatradnorm_linear_powspec_exact_nonorm_k_integ_funct_I0(double k, void *p);
-double tophatradnorm_linear_powspec_exact_nonorm_lnk_integ_funct_I0(double lnk, void *p);
-double fourierTransformTopHat(double y);
 
 /* linear_corrfunc.c */
-double linear_corrfunc_integ_funct(double k, void *p);
 double linear_corrfunc_exact(double r, double a);
 double linear_corrfunc(double r, double a);
 
 /* in nonlinear_powspec.c */
-double gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p);
-double gaussiannorm_linear_powspec_exact(double gaussRad);
-double onederiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p);
-double onederiv_gaussiannorm_linear_powspec_exact(double gaussRad);
-double twoderiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p);
-double twoderiv_gaussiannorm_linear_powspec_exact(double gaussRad);
-double nonlinear_gaussnorm_scale_funct(double gaussR, void *p);
-double get_nonlinear_gaussnorm_scale(double a);
 double nonlinear_powspec_exact(double k, double a);
 double nonlinear_powspec(double k, double a);
 
@@ -114,7 +102,6 @@ double nonlinear_corrfunc_exact(double r, double a);
 double nonlinear_corrfunc(double r, double a);
 
 /* in growth_function.c */
-double growth_function_integ_funct(double a, void *p);
 double growth_function_exact(double a);
 double growth_function(double a);
 
