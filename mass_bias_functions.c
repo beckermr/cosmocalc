@@ -24,13 +24,18 @@ static double etaTm[9] = {-0.243, -0.261, -0.261, -0.273, -0.278, -0.301, -0.301
 static double tinker2008_mass_function(double m, double a, double delta);
 static double tinker2010_mass_function(double m, double a, double delta);
 static double tinker2010_bias(double nu, double delta);
-
+static double tinker2010_mf_norm_integ(double nu, void *p);
+  
 double mass_function(double m, double a)
 {
+  return tinker2008_mass_function(m,a,cosmoData.delta);
+  
+  /* the tinker 2010 MF does not work
   if(cosmoData.delta > 0.0)
     return tinker2008_mass_function(m,a,cosmoData.delta);
   else
     return tinker2010_mass_function(m,a,-cosmoData.delta);
+  */
 }
 
 static double tinker2008_mass_function(double m, double a, double delta)
@@ -87,12 +92,18 @@ static double tinker2010_mass_function(double m, double a, double delta)
   double dm = 1e-6*m;
   double alpha,beta,gamma,phi,eta;
   double params[5];
-  gsl_function *f;
+  gsl_function f;
+  size_t limit = 1000;
+  double epsabs,epsrel;
+  double abserr;
+  double numin,numax,dnu;
+  int i,Nnu;
   
   static int init = 1;
   static gsl_spline *betaTm_spline,*gammaTm_spline,*phiTm_spline,*etaTm_spline;
   static gsl_interp_accel *betaTm_acc,*gammaTm_acc,*phiTm_acc,*etaTm_acc;
   static gsl_integration_glfixed_table *gltab;
+  static gsl_integration_workspace *w;
   
   if(init)
     {
@@ -111,7 +122,8 @@ static double tinker2010_mass_function(double m, double a, double delta)
       phiTm_acc = gsl_interp_accel_alloc();
       etaTm_acc = gsl_interp_accel_alloc();
       
-      gltab = gsl_integration_glfixed_table_alloc((size_t) 100);
+      gltab = gsl_integration_glfixed_table_alloc((size_t) 10);
+      w = gsl_integration_workspace_alloc(limit);
       
       init = 0;
     }
@@ -139,7 +151,32 @@ static double tinker2010_mass_function(double m, double a, double delta)
   params[4] = delta;
   f.function = &tinker2010_mf_norm_integ;
   f.params = params;
-  alpha = 1.0/gsl_integration_glfixed(f,0.0,1e5,gltab);
+  numin = 0.0;
+  numax = 20.0;
+  epsabs = 0.0;
+  epsrel = 0.05;
+  
+  if(1)
+    gsl_integration_qag(&f,numin,numax,epsabs,epsrel,limit,GSL_INTEG_GAUSS61,w,&alpha,&abserr);
+  else if(0)
+    alpha = gsl_integration_glfixed(&f,numin,numax,gltab);
+  else if(0)
+    {
+      alpha = 0.0;
+      Nnu = 100;
+      
+      dnu = (numax-numin)/Nnu;
+      for(i=0;i<Nnu;++i)
+	{
+	  alpha += tinker2010_mf_norm_integ(numin+dnu*i,f.params)*dnu;
+	  //fprintf(stderr,"nu = %lf, integ = %lf\n",numin+dnu*i,tinker2010_mf_norm_integ(numin+dnu*i,f.params)*dnu);
+	}
+    }
+  else if(0)
+    gsl_integration_qng(&f,numin,numax,epsabs,epsrel,&alpha,&abserr,&limit);
+  
+  alpha = 1.0/alpha;
+  //fprintf(stderr,"alpha = %lf\n",alpha);
   
   gsigma = alpha*(1.0 + pow(beta*nu,-2.0*phi))*pow(nu,2.0*eta)*exp(-1.0*gamma*nu*nu/2.0)*nu;
   dlnsiginvdm = log(sigmaMtophat(m-dm/2.0,a)/sigmaMtophat(m+dm/2.0,a))/dm;
@@ -152,10 +189,14 @@ static double tinker2010_mf_norm_integ(double nu, void *p)
   double *params = (double*) p;
   double fnu,bnu;
   
-  fnu = (1.0 + pow(params[0]*nu,-2.0*params[1]))*pow(nu,2.0*params[2])*exp(-1.0*params[3]*nu*nu/2.0);
-  bnu = tinker2010_bias(nu,params[4]);
-  
-  return bnu*fnu;
+  if(nu == 0.0)
+    return 0.0;
+  else
+    {
+      fnu = (1.0 + pow(params[0]*nu,-2.0*params[1]))*pow(nu,2.0*params[2])*exp(-1.0*params[3]*nu*nu/2.0);
+      bnu = tinker2010_bias(nu,params[4]);
+      return bnu*fnu;
+    }
 }
 
 double bias_function(double m, double a)
