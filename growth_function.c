@@ -36,7 +36,7 @@ static int growth_ode_sys_w0wa(double t, const double y[], double dydt[], void *
   if(t != 0.0)
     weffa = w0 + wa - wa*(a - 1.0)/t;
   else
-    weffa = 0.0;
+    weffa = w0;
   
   double ha = hubble_noscale(a);
   double omegaDEa = (1.0-cosmoData.OmegaM)/ha/ha/pow(a,3.0*(1.0 + weffa));
