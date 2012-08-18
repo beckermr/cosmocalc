@@ -171,6 +171,8 @@ static double get_nonlinear_gaussnorm_scale(double a)
   return Rsigma;
 }
 
+#define SMITH03
+
 double nonlinear_powspec_exact(double k, double a)
 {
   static int initFlag = 1;
@@ -181,7 +183,10 @@ double nonlinear_powspec_exact(double k, double a)
   static double f1,f2,f3;
   double DeltakNL,dsigma2dR,d2sigma2d2R,PkNL,PkL;
   double y,DeltakL,fy,DeltakQ,DeltakHprime,DeltakH;
-  
+#ifndef SMITH03
+  double weffa,omegaDEwz,omegaMz,ha;
+#endif
+    
   if(initFlag == 1 || currCosmoNum != cosmoData.cosmoNum || aint != a)
     {
       initFlag = 0;
@@ -197,7 +202,7 @@ double nonlinear_powspec_exact(double k, double a)
       C = -1.0*(d2sigma2d2R*Rsigma*Rsigma/sigma2 + dsigma2dR*Rsigma/sigma2 - dsigma2dR*dsigma2dR*Rsigma*Rsigma/sigma2/sigma2);
       
       //FIXME fprintf(stderr,"a = %f, sigma = %f, ksigma = %f, neff = %f, C = %f\n",a,sqrt(sigma2),ksigma,neff,C);
-      
+#ifdef SMITH03      
       an = pow(10.0,1.4861 + 1.8369*neff + 1.6762*neff*neff + 0.7940*neff*neff*neff + 0.1670*neff*neff*neff*neff - 0.6206*C);
       bn = pow(10.0,0.9463 + 0.9466*neff + 0.3084*neff*neff - 0.9400*C);
       cn = pow(10.0,-0.2807 + 0.6669*neff + 0.3214*neff*neff - 0.0793*C);
@@ -210,6 +215,28 @@ double nonlinear_powspec_exact(double k, double a)
       f1 = pow(cosmoData.OmegaM,-0.0307);
       f2 = pow(cosmoData.OmegaM,-0.0585);
       f3 = pow(cosmoData.OmegaM,0.0743);
+#else
+      ha = hubble_noscale(a);
+      if(a != 1.0)
+	weffa = w0 + wa - wa*(a - 1.0)/log(a);
+      else
+	weffa = w0;
+      omegaMz = cosmoData.OmegaM/a/a/a/ha/ha;
+      omegaDEwz = (1.0-cosmoData.OmegaM)/ha/ha/pow(a,3.0*(1.0 + weffa));
+      
+      an = pow(10.0,1.5222 + 2.8553*neff + 2.3706*neff*neff + 0.9903*neff*neff*neff + 0.2250*neff*neff*neff*neff - 0.6038*C + 0.1749*omegaDEwz*(1.0 + weffa));
+      bn = pow(10.0,-0.5642 + 0.5864*neff + 0.5716*neff*neff - 1.5474*C + 0.2279*omegaDEwz*(1.0 + weffa));
+      cn = pow(10.0,0.3698 + 2.0404*neff + 0.8161*neff*neff + 0.5869*C);
+      gamman = 0.1971 - 0.0843*neff + 0.8460*C;
+      alphan = fabs(6.0835 + 1.3373*neff - 0.1959*neff*neff - 5.5274*C);
+      betan = 2.0379 - 0.7354*neff + 0.3157*neff*neff + 1.2490*neff*neff*neff + 0.3980*neff*neff*neff*neff - 0.1682*C;
+      mun = 0.0;
+      nun = pow(10.0,5.2105 + 3.6902*neff);
+      
+      f1 = pow(omegaMz,-0.0307);
+      f2 = pow(omegaMz,-0.0585);
+      f3 = pow(omegaMz,0.0743);
+#endif
     }
   
   PkL = linear_powspec_exact(k,a);
