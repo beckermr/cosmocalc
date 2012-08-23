@@ -24,7 +24,8 @@ int main(int argc, char **argv)
   cosmoData.OmegaB = 0.04;
   cosmoData.w0 = -1.0;
   cosmoData.wa = 0.0;
-      
+  cosmoData.useSmoothTransFunc = 0;
+  
 #else
   test_nonlinear_corrfunc();
   test_nonlinear_powspec();

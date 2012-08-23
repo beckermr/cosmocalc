@@ -40,6 +40,7 @@ typedef struct {
   double delta;
   double w0;
   double wa;
+  int useSmoothTransFunc;
 } cosmocalcData;
 
 extern cosmocalcData cosmoData;
@@ -82,6 +83,7 @@ double comvdist_exact(double a);
 /* in transfer_function.c */
 double transfer_function(double k);
 double transfunct_eh98(double kin);
+double transfunct_eh98_smooth(double kin);
 
 /* in linear_powspec.c */
 double linear_powspec(double k, double a);

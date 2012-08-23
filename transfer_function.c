@@ -33,7 +33,10 @@ double transfer_function(double k)
       for(i=0;i<COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH;++i)
         {
           k_table[i] = log(K_MAX/K_MIN)/(COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH-1.0)*((double) i) + log(K_MIN);
-          transfer_function_table[i] = log(transfunct_eh98(exp(k_table[i])));
+          if(cosmoData.useSmoothTransFunc)
+	    transfer_function_table[i] = log(transfunct_eh98_smooth(exp(k_table[i])));
+	  else
+	    transfer_function_table[i] = log(transfunct_eh98(exp(k_table[i])));
         }
       
       //init the spline and accelerators
@@ -171,6 +174,48 @@ double transfunct_eh98(double kin)
   // total transfer function
   //------------------------
   Tk = omb/om0*Tb + omc/om0*Tc;
+  
+  return Tk;
+}	
+
+double transfunct_eh98_smooth(double kin)
+{
+  //vars
+  double k,Tk;
+  double omb,om0,omc,h;
+  double theta2p7,s,q;
+  double Gamma,alphaGamma,L0,C0;
+  
+  //get cosmoparms
+  omb = cosmoData.OmegaB;
+  om0 = cosmoData.OmegaM;
+  omc = cosmoData.OmegaM - cosmoData.OmegaB;
+  h = cosmoData.h;
+  
+  //convert k from hMpc^-1 to Mpc^-1
+  k = kin*h;
+  
+  //-----------
+  //input parms 
+  //-----------
+  theta2p7 = 2.728/2.7;
+  
+  //eqn 26
+  s = 44.5*log(9.83/om0/h/h)/sqrt(1.0 + 10.0*pow(omb*h*h,0.75));
+  
+  //eqn 31
+  alphaGamma = 1.0 - 0.328*log(431.0*om0*h*h)*omb/om0 + 0.38*log(22.3*om0*h*h)*(omb/om0)*(omb/om0);
+  
+  //eqn 30
+  Gamma = om0*h*(alphaGamma + (1.0 - alphaGamma)/(1.0 + pow(0.43*k*s,4.0)));
+  
+  //eqn 28
+  q = kin*theta2p7*theta2p7/Gamma;
+  
+  //eqns 29
+  C0 = 14.2 + 731.0/(1.0 + 62.5*q);
+  L0 = log(2.0*exp(1.0) + 1.8*q);
+  Tk = L0/(L0 + C0*q*q);
   
   return Tk;
 }	

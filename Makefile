@@ -34,7 +34,7 @@ endif
 
 ifeq ($(COMP),"mandor-gcc")
 CC          =  gcc
-OPTIMIZE    =  -pg -g #-Werror
+OPTIMIZE    =  -g -O3 #-Werror
 GSLI        =  -I/home/beckermr/include
 GSLL        =  -L/home/beckermr/lib -lgsl -lgslcblas
 FFTWI       =  -I/home/beckermr/include

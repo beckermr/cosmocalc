@@ -171,7 +171,8 @@ static double get_nonlinear_gaussnorm_scale(double a)
   return Rsigma;
 }
 
-#define SMITH03
+//uses Takahashi et al. (2012) arXiv:1208.2701 unless macro below is set to use true Smith+03
+//#define SMITH03
 
 double nonlinear_powspec_exact(double k, double a)
 {
@@ -184,7 +185,7 @@ double nonlinear_powspec_exact(double k, double a)
   double DeltakNL,dsigma2dR,d2sigma2d2R,PkNL,PkL;
   double y,DeltakL,fy,DeltakQ,DeltakHprime,DeltakH;
 #ifndef SMITH03
-  double weffa,omegaDEwz,omegaMz,ha;
+  double weffa,omegaDEwz,omegaMz,ha,w0,wa;
 #endif
     
   if(initFlag == 1 || currCosmoNum != cosmoData.cosmoNum || aint != a)
@@ -216,6 +217,8 @@ double nonlinear_powspec_exact(double k, double a)
       f2 = pow(cosmoData.OmegaM,-0.0585);
       f3 = pow(cosmoData.OmegaM,0.0743);
 #else
+      w0 = cosmoData.w0;
+      wa = cosmoData.wa;
       ha = hubble_noscale(a);
       if(a != 1.0)
 	weffa = w0 + wa - wa*(a - 1.0)/log(a);
