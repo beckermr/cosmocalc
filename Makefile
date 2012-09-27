@@ -63,7 +63,7 @@ endif
 
 OBJS = $(TESTCODE) $(FFTLOG) distances.o linear_powspec.o transfer_function.o \
 	growth_function.o hubble.o peakheight.o mass_bias_functions.o \
-	linear_corrfunc.o utils.o nonlinear_powspec.o nonlinear_corrfunc.o
+	linear_corrfunc.o utils.o nonlinear_powspec.o nonlinear_corrfunc.o weaklens.o
 
 EXEC = computecosmo
 TEST =

@@ -14,11 +14,7 @@
 static double gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p);
 static double onederiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p);
 static double twoderiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p);
-static double gaussiannorm_linear_powspec_exact(double gaussRad);
-static double onederiv_gaussiannorm_linear_powspec_exact(double gaussRad);
-static double twoderiv_gaussiannorm_linear_powspec_exact(double gaussRad);
 static double nonlinear_gaussnorm_scale_funct(double gaussR, void *p);
-static double get_nonlinear_gaussnorm_scale(double a);
 
 static double gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p)
 {
@@ -27,7 +23,7 @@ static double gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void
   return linear_powspec_exact(k,1.0)*k*k*k/2.0/M_PI/M_PI*exp(-1.0*k*k*gaussRad*gaussRad);
 }
 
-static double gaussiannorm_linear_powspec_exact(double gaussRad)
+double gaussiannorm_linear_powspec_exact(double gaussRad)
 {
   double I0,I1;
   double abserr;
@@ -62,7 +58,7 @@ static double onederiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double 
   return linear_powspec_exact(k,1.0)*k*k*k/2.0/M_PI/M_PI*exp(-1.0*k*k*gaussRad*gaussRad)*(-1.0*k*k*2.0*gaussRad);
 }
 
-static double onederiv_gaussiannorm_linear_powspec_exact(double gaussRad)
+double onederiv_gaussiannorm_linear_powspec_exact(double gaussRad)
 {
   double I0,I1;
   double abserr;
@@ -97,7 +93,7 @@ static double twoderiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double 
   return linear_powspec_exact(k,1.0)*k*k*k/2.0/M_PI/M_PI*exp(-1.0*k*k*gaussRad*gaussRad)*(-2.0*k*k + 4.0*k*k*k*k*gaussRad*gaussRad);
 }
 
-static double twoderiv_gaussiannorm_linear_powspec_exact(double gaussRad)
+double twoderiv_gaussiannorm_linear_powspec_exact(double gaussRad)
 {
   double I0,I1;
   double abserr;
@@ -132,7 +128,7 @@ static double nonlinear_gaussnorm_scale_funct(double gaussR, void *p)
   return gaussiannorm_linear_powspec_exact(gaussR)*gf*gf-1.0;
 }
 
-static double get_nonlinear_gaussnorm_scale(double a)
+double get_nonlinear_gaussnorm_scale(double a)
 {
   double gf = growth_function(a);
   double Rsigma,Rlow=0.001,Rhigh=10.0;
