@@ -8,8 +8,10 @@
 #include <gsl/gsl_math.h>
 
 #include "cosmocalc.h"
+#include "weaklens.h"
 
 cosmocalcData cosmoData;
+weaklensData wlData;
 
 int main(int argc, char **argv)
 {
