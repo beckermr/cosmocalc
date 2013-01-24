@@ -18,7 +18,7 @@ int main(int argc, char **argv)
   
   omp_set_dynamic(0);   
   omp_set_num_threads(4);
-  #pragma omp parallel
+#pragma omp parallel
   {
 #pragma omp single nowait
     fprintf(stderr,"\n%d threads being used.\n",omp_get_num_threads());
