@@ -1,84 +1,70 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_spline.h>
-#include <gsl/gsl_sort.h>
+#include <gsl/gsl_errno.h>
 #include <gsl/gsl_roots.h>
-#include <gsl/gsl_sf_bessel.h>
 
 #include "cosmocalc.h"
 #include "cosmocalc_assert.h"
 
-static double nonlinear_powspec_interp(double k, double a)
+void cosmoCalc::init_cosmocalc_nonlinear_powspec_table(void)
 {
-#define NTAB 100
-  static int initFlag = 1;
-  static int currCosmoNum;
-  static gsl_spline *spline[4];
-  static gsl_interp_accel *accel[4];
-  int i;
-  double t,xtab[NTAB],ytab[NTAB];
+  long i;
+  double *xtab = (double*)malloc(sizeof(double)*COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH);
+  double *ytab = (double*)malloc(sizeof(double)*COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH);
+  
+  cosmocalc_assert(xtab != NULL,"out of memory for nonlinear powspec table!");
+  cosmocalc_assert(ytab != NULL,"out of memory for nonlinear powspec table!");
+  
+  for(i=0;i<2;++i)
+    {
+      if(cosmocalc_nonlinear_powspec_spline[i] != NULL)
+	gsl_spline_free(cosmocalc_nonlinear_powspec_spline[i]);
+      cosmocalc_nonlinear_powspec_spline[i] = gsl_spline_alloc(gsl_interp_cspline,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
+      cosmocalc_assert(cosmocalc_nonlinear_powspec_spline[i] != NULL,"could not alloc spline %ld for nonlinear powspec!",i);
+            
+      if(cosmocalc_nonlinear_powspec_acc[i] != NULL)
+	gsl_interp_accel_reset(cosmocalc_nonlinear_powspec_acc[i]);
+      else
+	{
+	  cosmocalc_nonlinear_powspec_acc[i] = gsl_interp_accel_alloc();
+	  cosmocalc_assert(cosmocalc_nonlinear_powspec_acc[i] != NULL,"could not alloc accel %ld for nonlinear powspec table!",i);
+	}
+    }
+  
+  for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
+    {
+      xtab[i] = i*(PNL_A_MAX-PNL_A_MIN)/(COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH-1.0) + PNL_A_MIN;
+      ytab[i] = get_nonlinear_gaussnorm_scale(xtab[i]);
+    }
+  gsl_spline_init(cosmocalc_nonlinear_powspec_spline[0],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
+      
+  for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
+    xtab[i] = ytab[i];
+  for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
+    ytab[i] = gaussiannorm_linear_powspec_exact(xtab[i]);
+  gsl_spline_init(cosmocalc_nonlinear_powspec_spline[1],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
+  
+  free(xtab);
+  free(ytab);
+}
+
+double cosmoCalc::nonlinear_powspec(double k, double a)
+{
   double Rsigma,C,neff,ksigma,sigma2;
   double an,bn,cn,alphan,gamman,betan,mun,nun;
   double f1,f2,f3;
   double DeltakNL,dsigma2dR,d2sigma2d2R,PkNL,PkL;
   double y,DeltakL,fy,DeltakQ,DeltakHprime,DeltakH;
   
-  if(initFlag == 1 || currCosmoNum != cosmoData.cosmoNum)
-    {
-      currCosmoNum = cosmoData.cosmoNum;
-      
-      if(initFlag)
-	{
-	  for(i=0;i<4;++i)
-	    spline[i] = gsl_spline_alloc(gsl_interp_akima,(size_t) (NTAB));
-	  for(i=0;i<4;++i)
-	    accel[i] = gsl_interp_accel_alloc();
-	  
-	  initFlag = 0;
-	}
-      else
-	{
-	  for(i=0;i<4;++i)
-	    gsl_spline_free(spline[i]);
-	  for(i=0;i<4;++i)
-	    spline[i] = gsl_spline_alloc(gsl_interp_akima,(size_t) (NTAB));
-	  for(i=0;i<4;++i)
-	    gsl_interp_accel_reset(accel[i]);
-	}
-      
-      t = -wtime();
-      
-      for(i=0;i<NTAB;++i)
-	{
-	  xtab[i] = i*(1.0-0.2)/(NTAB-1.0) + 0.2;
-	  ytab[i] = get_nonlinear_gaussnorm_scale(xtab[i]);
-	}
-      gsl_spline_init(spline[0],xtab,ytab,(size_t) (NTAB));
-      
-      gsl_sort(ytab,(size_t) 1,(size_t) (NTAB));
-      for(i=0;i<NTAB;++i)
-	{
-	  xtab[i] = ytab[i];
-	  ytab[i] = gaussiannorm_linear_powspec_exact(xtab[i]);
-	}
-      gsl_spline_init(spline[1],xtab,ytab,(size_t) (NTAB));
-      
-      for(i=0;i<NTAB;++i)
-	ytab[i] = onederiv_gaussiannorm_linear_powspec_exact(xtab[i]);
-      gsl_spline_init(spline[2],xtab,ytab,(size_t) (NTAB));
-      
-      for(i=0;i<NTAB;++i)
-	ytab[i] = twoderiv_gaussiannorm_linear_powspec_exact(xtab[i]);
-      gsl_spline_init(spline[3],xtab,ytab,(size_t) (NTAB));
-      
-      t += wtime();
-      fprintf(stderr,"comp of non-linear Pk took %f seconds.\n",t);
-    }
-  
-  Rsigma = gsl_spline_eval(spline[0],a,accel[0]); //get_nonlinear_gaussnorm_scale(a);
-  sigma2 = gsl_spline_eval(spline[1],Rsigma,accel[1]); //gaussiannorm_linear_powspec_exact(Rsigma);
-  dsigma2dR = gsl_spline_eval(spline[2],Rsigma,accel[2]); //onederiv_gaussiannorm_linear_powspec_exact(Rsigma);
-  d2sigma2d2R = gsl_spline_eval(spline[3],Rsigma,accel[3]); //twoderiv_gaussiannorm_linear_powspec_exact(Rsigma);
+  Rsigma = gsl_spline_eval(cosmocalc_nonlinear_powspec_spline[0],
+			   a,cosmocalc_nonlinear_powspec_acc[0]); //get_nonlinear_gaussnorm_scale(a);
+  sigma2 = gsl_spline_eval(cosmocalc_nonlinear_powspec_spline[1],
+			   Rsigma,cosmocalc_nonlinear_powspec_acc[1]); //gaussiannorm_linear_powspec_exact(Rsigma);
+  dsigma2dR = gsl_spline_eval_deriv(cosmocalc_nonlinear_powspec_spline[1],
+				    Rsigma,cosmocalc_nonlinear_powspec_acc[1]); //onederiv_gaussiannorm_linear_powspec_exact(Rsigma);
+  d2sigma2d2R = gsl_spline_eval_deriv2(cosmocalc_nonlinear_powspec_spline[1],
+				       Rsigma,cosmocalc_nonlinear_powspec_acc[1]); //twoderiv_gaussiannorm_linear_powspec_exact(Rsigma);
   
   ksigma = 1.0/Rsigma;
   neff = -1.0*Rsigma/sigma2*dsigma2dR - 3.0;
@@ -100,15 +86,15 @@ static double nonlinear_powspec_interp(double k, double a)
 #else
   double w0,wa,ha,weffa,omegaMz,omegaDEwz;
   
-  w0 = cosmoData.w0;
-  wa = cosmoData.wa;
+  w0 = _w0;
+  wa = _wa;
   ha = hubble_noscale(a);
   if(a != 1.0)
     weffa = w0 + wa - wa*(a - 1.0)/log(a);
   else
     weffa = w0;
-  omegaMz = cosmoData.OmegaM/a/a/a/ha/ha;
-  omegaDEwz = (1.0-cosmoData.OmegaM)/ha/ha/pow(a,3.0*(1.0 + weffa));
+  omegaMz = _om/a/a/a/ha/ha;
+  omegaDEwz = _ol/ha/ha/pow(a,3.0*(1.0 + weffa));
       
   an = pow(10.0,1.5222 + 2.8553*neff + 2.3706*neff*neff + 0.9903*neff*neff*neff + 0.2250*neff*neff*neff*neff - 0.6038*C + 0.1749*omegaDEwz*(1.0 + weffa));
   bn = pow(10.0,-0.5642 + 0.5864*neff + 0.5716*neff*neff - 1.5474*C + 0.2279*omegaDEwz*(1.0 + weffa));
@@ -138,286 +124,102 @@ static double nonlinear_powspec_interp(double k, double a)
   PkNL = DeltakNL/(k*k*k/2.0/M_PI/M_PI);
   
   return PkNL;
-#undef NTAB
 }
 
-static void comp_lens_power_spectrum(lensPowerSpectra lps);
+struct nonlinear_powspec_data {
+  double param;
+  cosmoCalc *cd;
+};
 
-double lens_power_spectrum(double ell, lensPowerSpectra lps)
+static double gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p)
 {
-  if(lps->initFlag == 1 || lps->currCosmoNum != cosmoData.cosmoNum || lps->currWLNum != wlData.wlNum)
-    {
-      lps->initFlag = 0;
-      lps->currCosmoNum = cosmoData.cosmoNum;
-      lps->currWLNum = wlData.wlNum;
-      
-      comp_lens_power_spectrum(lps);
-    }
-  
-  return exp(gsl_spline_eval(lps->spline,log(ell),lps->accel));
+  struct nonlinear_powspec_data *dat = (struct nonlinear_powspec_data*)p;
+  double gaussRad = dat->param;
+  double k = exp(lnk);
+  return dat->cd->linear_powspec(k,1.0)*k*k*k/2.0/M_PI/M_PI*exp(-1.0*k*k*gaussRad*gaussRad);
 }
 
-double nonlinear_powspec_for_lens(double k, double a)
+double cosmoCalc::gaussiannorm_linear_powspec_exact(double gaussRad)
 {
-  return nonlinear_powspec_interp(k,a);
-}
-
-static double lenskern(double chi, double chis)
-{
-  if(chi > chis)
-    return 0.0;
-  else
-    return 1.5*cosmoData.OmegaM*(100.0/CSOL)*(100.0/CSOL)/acomvdist(chi)*(chis-chi)/chis;
-}
-
-static double lenspk_integrand(double chi, void *p)
-{
-  lensPowerSpectra lps = (lensPowerSpectra) p;
-  double sn = lps->sn;
-  
-  if(chi == 0.0 || chi < chiLim)
-    return 0.0;
-  else
-    return lenskern(chi,lps->chis1)*lenskern(chi,lps->chis2)*(nonlinear_powspec_for_lens(lps->ell/chi,acomvdist(chi)) + sn);
-}
-
-static void comp_lens_power_spectrum(lensPowerSpectra lps)
-{
-#define WORKSPACE_NUM 100000
-#define ABSERR 1e-12
-#define RELERR 1e-12
-#define TABLE_LENGTH 1000
-  
+  double I0,I1;
+  double abserr;
   gsl_integration_workspace *workspace;
   gsl_function F;
-  double result,abserr;
-  double logltab[TABLE_LENGTH];
-  double logpkltab[TABLE_LENGTH];
-  double chimax;
-  int i;
+  struct nonlinear_powspec_data dat;  
   
-  //fill in bin information
-  chiLim = lps->chiLim;
-  if(lps->chis1 > lps->chis2)
-    chimax = lps->chis1;
-  else
-    chimax = lps->chis2;
+  dat.param = gaussRad;
+  dat.cd = this;
   
-  fprintf(stderr,"doing lens pk - chiLim = %lf, chiMax = %lf\n",chiLim,chimax);
-  
-  //init
+#define WORKSPACE_NUM 10000000
+#define ABSERR 1e-6
+#define RELERR 0.0 
   workspace = gsl_integration_workspace_alloc((size_t) WORKSPACE_NUM);
-  F.function = &lenspk_integrand;
-  F.params = lps;
+  cosmocalc_assert(workspace != NULL,"could not alloc workspace for GSL integration in gauss norm for nonlinear powspec!");
   
-  //make table
-  double lnlmin = log(wlData.lmin);
-  double lnlmax = log(wlData.lmax);
-  for(i=0;i<TABLE_LENGTH;++i)
-    {
-      logltab[i] = i*(lnlmax-lnlmin)/(TABLE_LENGTH-1) + lnlmin;
-      
-      lps->ell = exp(logltab[i]);
-      gsl_integration_qag(&F,0.0,chimax,ABSERR,RELERR,(size_t) WORKSPACE_NUM,GSL_INTEG_GAUSS51,workspace,&result,&abserr);
-      
-      logpkltab[i] = log(result);
-    }
+  F.params = &dat;
+  F.function = &gaussiannorm_linear_powspec_exact_lnk_integ_funct;
+  gsl_integration_qags(&F,log(1e-4),log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
+  gsl_integration_qags(&F,log(2.0*M_PI/gaussRad),log(1e3),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
   
-  //free
+  //gsl_integration_qagil(&F,log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
+  //gsl_integration_qagiu(&F,log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
+  
   gsl_integration_workspace_free(workspace);
-  
-  //init splines and accels
-  if(lps->spline != NULL)
-    gsl_spline_free(lps->spline);
-  lps->spline = gsl_spline_alloc(gsl_interp_akima,(size_t) (TABLE_LENGTH));
-  gsl_spline_init(lps->spline,logltab,logpkltab,(size_t) (TABLE_LENGTH));
-  if(lps->accel != NULL)
-    gsl_interp_accel_reset(lps->accel);
-  else
-    lps->accel = gsl_interp_accel_alloc();
-    
-#undef TABLE_LENGTH
 #undef ABSERR
 #undef RELERR
 #undef WORKSPACE_NUM
+  
+  return I0 + I1;
 }
 
-lensPowerSpectra init_lens_power_spectrum(double zs1, double zs2)
+static double nonlinear_gaussnorm_scale_funct(double gaussR, void *p)
 {
-  lensPowerSpectra lps;
+  struct nonlinear_powspec_data *dat = (struct nonlinear_powspec_data*)p;
+  double gf = dat->param;
   
-  lps = (lensPowerSpectra)malloc(sizeof(_lensPowerSpectra));
-  assert(lps != NULL);
-  
-  lps->initFlag = 1;
-  lps->zs1 = zs1;
-  lps->zs2 = zs2;
-  lps->chis1 = comvdist(1.0/(1.0 + zs1));
-  lps->chis2 = comvdist(1.0/(1.0 + zs2));
-  lps->spline = NULL;
-  lps->accel = NULL;
-  
-  return lps;
+  return dat->cd->gaussiannorm_linear_powspec_exact(gaussR)*gf*gf-1.0;
 }
 
-void free_lens_power_spectrum(lensPowerSpectra lps)
+double cosmoCalc::get_nonlinear_gaussnorm_scale(double a)
 {
-  if(lps->spline != NULL)
-    gsl_spline_free(lps->spline);
-  if(lps->accel != NULL)
-    gsl_interp_accel_free(lps->accel);
-  free(lps);
-}
-
-////////////////////////////////////////
-// corr. funcs!
-//////////////////////////////////////
-
-static double lenscfp_integrand(double ell, void *p)
-{
-  lensCorrFunc lcf = (lensCorrFunc) p;
+  double gf = growth_function(a);
+  double Rsigma,Rlow=0.001,Rhigh=10.0;
+  int itr,maxItr=1000,status;
+  struct nonlinear_powspec_data dat;  
+  dat.param = gf;
+  dat.cd = this;
   
-  return ell/2.0/M_PI*lens_power_spectrum(ell,lcf->lps)*gsl_sf_bessel_J0(ell*lcf->theta/60.0/180.0*M_PI);
-  
-}
-
-static double lenscfm_integrand(double ell, void *p)
-{
-  lensCorrFunc lcf = (lensCorrFunc) p;
-  
-  return ell/2.0/M_PI*lens_power_spectrum(ell,lcf->lps)*gsl_sf_bessel_Jn(4,ell*lcf->theta/60.0/180.0*M_PI);
-}
-
-static void comp_lens_corr_funcs(lensCorrFunc lcf)
-{
-#define WORKSPACE_NUM 100000
-#define ABSERR 1e-12
-#define RELERR 1e-12
-#define TABLE_LENGTH 1000
-  
-  gsl_integration_workspace *workspace;
+#define ABSERR 1e-6
+#define RELERR 1e-6
+  const gsl_root_fsolver_type *T;
+  gsl_root_fsolver *s;
   gsl_function F;
-  double result,abserr;
-  double logttab[TABLE_LENGTH];
-  double logcfptab[TABLE_LENGTH];
-  double logcfmtab[TABLE_LENGTH];
-  int i;
-  double lntmin;
-  double lntmax;
+       
+  F.function = &nonlinear_gaussnorm_scale_funct;
+  F.params = &dat;
   
-  //init
-  workspace = gsl_integration_workspace_alloc((size_t) WORKSPACE_NUM);
-  F.params = lcf;
-  lntmin = log(wlData.tmin);
-  lntmax = log(wlData.tmax);
+  T = gsl_root_fsolver_brent;
+  s = gsl_root_fsolver_alloc(T);
+  cosmocalc_assert(s != NULL,"could not alloc GSL root solver for nonlinear powspec non-lin k computation!");
   
-  //make tables
-  F.function = &lenscfp_integrand;
-  for(i=0;i<TABLE_LENGTH;++i)
+  gsl_root_fsolver_set(s,&F,Rlow,Rhigh);
+  itr = 0;
+  
+  do
     {
-      logttab[i] = i*(lntmax-lntmin)/(TABLE_LENGTH-1) + lntmin;
-      
-      lcf->theta = exp(logttab[i]);
-      gsl_integration_qag(&F,wlData.lmin,wlData.lmax,ABSERR,RELERR,(size_t) WORKSPACE_NUM,GSL_INTEG_GAUSS51,workspace,&result,&abserr);
-      
-      logcfptab[i] = log(result);
+      itr++;
+      status = gsl_root_fsolver_iterate(s);
+      Rsigma = gsl_root_fsolver_root(s);
+      Rlow = gsl_root_fsolver_x_lower(s);
+      Rhigh = gsl_root_fsolver_x_upper(s);
+      status = gsl_root_test_interval(Rlow,Rhigh,ABSERR,RELERR);
     }
+  while(status == GSL_CONTINUE && itr < maxItr);
   
-  F.function = &lenscfm_integrand;
-  for(i=0;i<TABLE_LENGTH;++i)
-    {
-      logttab[i] = i*(lntmax-lntmin)/(TABLE_LENGTH-1) + lntmin;
-      
-      lcf->theta = exp(logttab[i]);
-      gsl_integration_qag(&F,wlData.lmin,wlData.lmax,ABSERR,RELERR,(size_t) WORKSPACE_NUM,GSL_INTEG_GAUSS51,workspace,&result,&abserr);
-      
-      logcfmtab[i] = log(result);
-    }
-    
-  //free
-  gsl_integration_workspace_free(workspace);
-  
-  //init splines and accels
-  if(lcf->splineP != NULL)
-    gsl_spline_free(lcf->splineP);
-  lcf->splineP = gsl_spline_alloc(gsl_interp_akima,(size_t) (TABLE_LENGTH));
-  gsl_spline_init(lcf->splineP,logttab,logcfptab,(size_t) (TABLE_LENGTH));
-  if(lcf->accelP != NULL)
-    gsl_interp_accel_reset(lcf->accelP);
-  else
-    lcf->accelP = gsl_interp_accel_alloc();
-  
-  if(lcf->splineM != NULL)
-    gsl_spline_free(lcf->splineM);
-  lcf->splineM = gsl_spline_alloc(gsl_interp_akima,(size_t) (TABLE_LENGTH));
-  gsl_spline_init(lcf->splineM,logttab,logcfmtab,(size_t) (TABLE_LENGTH));
-  if(lcf->accelM != NULL)
-    gsl_interp_accel_reset(lcf->accelM);
-  else
-    lcf->accelM = gsl_interp_accel_alloc();
-      
-#undef TABLE_LENGTH
 #undef ABSERR
 #undef RELERR
-#undef WORKSPACE_NUM  
-}
 
-double lens_corr_func_minus(double theta, lensCorrFunc lcf)
-{
-  if(lcf->initFlag == 1 || lcf->currCosmoNum != cosmoData.cosmoNum || lcf->currWLNum != wlData.wlNum)
-    {
-      lcf->initFlag = 0;
-      lcf->currCosmoNum = cosmoData.cosmoNum;
-      lcf->currWLNum = wlData.wlNum;
-
-      comp_lens_corr_funcs(lcf);
-    }
-
-  return exp(gsl_spline_eval(lcf->splineM,log(theta),lcf->accelM));
-}
-
-double lens_corr_func_plus(double theta, lensCorrFunc lcf)
-{
-  if(lcf->initFlag == 1 || lcf->currCosmoNum != cosmoData.cosmoNum || lcf->currWLNum != wlData.wlNum)
-    {
-      lcf->initFlag = 0;
-      lcf->currCosmoNum = cosmoData.cosmoNum;
-      lcf->currWLNum = wlData.wlNum;
-
-      comp_lens_corr_funcs(lcf);
-    }
-
-  return exp(gsl_spline_eval(lcf->splineP,log(theta),lcf->accelP));
-}
-
-lensCorrFunc init_lens_corr_func(lensPowerSpectra lps)
-{
-  lensCorrFunc lcf;
+  gsl_root_fsolver_free(s);
   
-  lcf = (lensCorrFunc)malloc(sizeof(_lensCorrFunc));
-  assert(lcf != NULL);
-  
-  lcf->initFlag = 1;
-  lcf->lps = lps;
-  lcf->splineM = NULL;
-  lcf->accelM = NULL;
-  lcf->splineP = NULL;
-  lcf->accelP = NULL;
-  
-  return lcf;
-}
-
-void free_lens_corr_func(lensCorrFunc lcf)
-{
-  if(lcf->splineM != NULL)
-    gsl_spline_free(lcf->splineM);
-  if(lcf->accelM != NULL)
-    gsl_interp_accel_free(lcf->accelM);
-    
-  if(lcf->splineP != NULL)
-    gsl_spline_free(lcf->splineP);
-  if(lcf->accelP != NULL)
-    gsl_interp_accel_free(lcf->accelP);
-  
-  free(lcf);
+  return Rsigma;
 }

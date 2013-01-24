@@ -90,9 +90,6 @@ class cosmoCalc {
   double PNL_A_MIN; //min scale factor for nonlinear powspec gaussn norm table 
   double PNL_A_MAX; //max scale factor for nonlinear powspec gaussn norm table 
   double get_nonlinear_gaussnorm_scale(double a);
-  double gaussiannorm_linear_powspec_exact(double gaussRad);
-  double onederiv_gaussiannorm_linear_powspec_exact(double gaussRad);
-  double twoderiv_gaussiannorm_linear_powspec_exact(double gaussRad);
   void init_cosmocalc_nonlinear_powspec_table(void);
   gsl_spline *cosmocalc_nonlinear_powspec_spline[2];
   gsl_interp_accel *cosmocalc_nonlinear_powspec_acc[2];
@@ -102,6 +99,8 @@ class cosmoCalc {
   //con- and de-structors
   cosmoCalc ()
     {
+      long i;
+      
       //constants
       RHO_CRIT = 2.77519737e11; // Critial mass density  in h^2 M_sun/Mpc^3
       CSOL =  299792.458; // velocity of light in km/s
@@ -155,10 +154,11 @@ class cosmoCalc {
       COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH = 100;
       PNL_A_MIN = 0.2;
       PNL_A_MAX = 1.0;
-      cosmocalc_nonlinear_powspec_spline[0] = NULL;
-      cosmocalc_nonlinear_powspec_spline[1] = NULL;
-      cosmocalc_nonlinear_powspec_acc[0] = NULL;
-      cosmocalc_nonlinear_powspec_acc[1] = NULL;
+      for(i=0;i<2;++i)
+	{
+	  cosmocalc_nonlinear_powspec_spline[i] = NULL;
+	  cosmocalc_nonlinear_powspec_acc[i] = NULL;
+	}
       _pnl_cosmo_num = -1;
     };
   
@@ -339,6 +339,7 @@ class cosmoCalc {
   };
 
   //nonlinear powspec
+  double gaussiannorm_linear_powspec_exact(double gaussRad);
   double nonlinear_powspec(double k, double a);
   
 };

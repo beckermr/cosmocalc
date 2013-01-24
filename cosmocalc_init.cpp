@@ -75,7 +75,6 @@ void cosmoCalc::init_linear_powspec(void)
     }
 };
 
-/*
 void cosmoCalc::init_nonlinear_powspec(void)
 {
   init_growth_function();
@@ -87,7 +86,6 @@ void cosmoCalc::init_nonlinear_powspec(void)
       _pnl_cosmo_num = _cosmo_num;
     }
 };
-*/
 
 void cosmoCalc::init_all(void)
 {
@@ -95,4 +93,5 @@ void cosmoCalc::init_all(void)
   init_growth_function();
   init_transfer_function();
   init_linear_powspec();
+  init_nonlinear_powspec();
 };
