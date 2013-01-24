@@ -90,8 +90,9 @@ void cosmoCalc::init_cosmocalc_growth_function_table(void)
   double lna_final,y[2];
   int status;
   double da,amin;
+  double amax = AEXPN_MAX+1e-3;
   
-  da = (AEXPN_MAX - AEXPN_MIN_GROWTH)/(COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH-1.0);
+  da = (amax - AEXPN_MIN_GROWTH)/(COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH-1.0);
   amin = AEXPN_MIN_GROWTH;
 
 #ifdef _OPENMP

@@ -7,6 +7,19 @@
 #include "cosmocalc.h"
 #include "cosmocalc_assert.h"
 
+struct nonlinear_powspec_data {
+  double param;
+  cosmoCalc *cd;
+};
+
+static double gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p)
+{
+  struct nonlinear_powspec_data *dat = (struct nonlinear_powspec_data*)p;
+  double gaussRad = dat->param;
+  double k = exp(lnk);
+  return dat->cd->linear_powspec(k,1.0)*k*k*k/2.0/M_PI/M_PI*exp(-1.0*k*k*gaussRad*gaussRad);
+}
+
 void cosmoCalc::init_cosmocalc_nonlinear_powspec_table(void)
 {
   long i;
@@ -16,7 +29,7 @@ void cosmoCalc::init_cosmocalc_nonlinear_powspec_table(void)
   cosmocalc_assert(xtab != NULL,"out of memory for nonlinear powspec table!");
   cosmocalc_assert(ytab != NULL,"out of memory for nonlinear powspec table!");
   
-  for(i=0;i<2;++i)
+  for(i=0;i<3;++i)
     {
       if(cosmocalc_nonlinear_powspec_spline[i] != NULL)
 	gsl_spline_free(cosmocalc_nonlinear_powspec_spline[i]);
@@ -32,17 +45,58 @@ void cosmoCalc::init_cosmocalc_nonlinear_powspec_table(void)
 	}
     }
   
+  double dlnr = log(PNL_RGAUSS_MAX/PNL_RGAUSS_MIN)/(COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH-1.0);
+  double lnrmin = log(PNL_RGAUSS_MIN);
+  double lnr;
+  
+  double I0,I1;
+  double abserr;
+  gsl_integration_workspace *workspace;
+  gsl_function F;
+  struct nonlinear_powspec_data dat;
+  double gaussRad;
+  
+  dat.cd = this;
+  F.params = &dat;
+  F.function = &gaussiannorm_linear_powspec_exact_lnk_integ_funct;
+  
+#define WORKSPACE_NUM 10000000
+#define ABSERR 1e-6
+#define RELERR 0.0
+  workspace = gsl_integration_workspace_alloc((size_t) WORKSPACE_NUM);
+  cosmocalc_assert(workspace != NULL,"could not alloc workspace for GSL integration in gauss norm for nonlinear powspec!");
+  
+  for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
+    {
+      lnr = dlnr*i + lnrmin;
+      xtab[i] = lnr;
+      gaussRad = exp(lnr);
+      dat.param = gaussRad;
+      
+      gsl_integration_qags(&F,log(1e-4),log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
+      gsl_integration_qags(&F,log(2.0*M_PI/gaussRad),log(1e3),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
+            
+      ytab[i] = log(I0 + I1);
+    }
+
+  gsl_integration_workspace_free(workspace);
+#undef ABSERR
+#undef RELERR
+#undef WORKSPACE_NUM
+  
+  gsl_spline_init(cosmocalc_nonlinear_powspec_spline[2],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
+    
   for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
     {
       xtab[i] = i*(PNL_A_MAX-PNL_A_MIN)/(COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH-1.0) + PNL_A_MIN;
       ytab[i] = get_nonlinear_gaussnorm_scale(xtab[i]);
     }
   gsl_spline_init(cosmocalc_nonlinear_powspec_spline[0],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
-      
+  
   for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
     xtab[i] = ytab[i];
   for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
-    ytab[i] = gaussiannorm_linear_powspec_exact(xtab[i]);
+    ytab[i] = gaussiannorm_linear_powspec(xtab[i]);
   gsl_spline_init(cosmocalc_nonlinear_powspec_spline[1],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
   
   free(xtab);
@@ -126,19 +180,6 @@ double cosmoCalc::nonlinear_powspec(double k, double a)
   return PkNL;
 }
 
-struct nonlinear_powspec_data {
-  double param;
-  cosmoCalc *cd;
-};
-
-static double gaussiannorm_linear_powspec_exact_lnk_integ_funct(double lnk, void *p)
-{
-  struct nonlinear_powspec_data *dat = (struct nonlinear_powspec_data*)p;
-  double gaussRad = dat->param;
-  double k = exp(lnk);
-  return dat->cd->linear_powspec(k,1.0)*k*k*k/2.0/M_PI/M_PI*exp(-1.0*k*k*gaussRad*gaussRad);
-}
-
 double cosmoCalc::gaussiannorm_linear_powspec_exact(double gaussRad)
 {
   double I0,I1;
@@ -152,7 +193,7 @@ double cosmoCalc::gaussiannorm_linear_powspec_exact(double gaussRad)
   
 #define WORKSPACE_NUM 10000000
 #define ABSERR 1e-6
-#define RELERR 0.0 
+#define RELERR 1e-2
   workspace = gsl_integration_workspace_alloc((size_t) WORKSPACE_NUM);
   cosmocalc_assert(workspace != NULL,"could not alloc workspace for GSL integration in gauss norm for nonlinear powspec!");
   
@@ -160,10 +201,7 @@ double cosmoCalc::gaussiannorm_linear_powspec_exact(double gaussRad)
   F.function = &gaussiannorm_linear_powspec_exact_lnk_integ_funct;
   gsl_integration_qags(&F,log(1e-4),log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
   gsl_integration_qags(&F,log(2.0*M_PI/gaussRad),log(1e3),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
-  
-  //gsl_integration_qagil(&F,log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
-  //gsl_integration_qagiu(&F,log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
-  
+    
   gsl_integration_workspace_free(workspace);
 #undef ABSERR
 #undef RELERR
@@ -177,13 +215,13 @@ static double nonlinear_gaussnorm_scale_funct(double gaussR, void *p)
   struct nonlinear_powspec_data *dat = (struct nonlinear_powspec_data*)p;
   double gf = dat->param;
   
-  return dat->cd->gaussiannorm_linear_powspec_exact(gaussR)*gf*gf-1.0;
+  return dat->cd->gaussiannorm_linear_powspec(gaussR)*gf*gf-1.0;
 }
 
-double cosmoCalc::get_nonlinear_gaussnorm_scale(double a)
+inline double cosmoCalc::get_nonlinear_gaussnorm_scale(double a)
 {
   double gf = growth_function(a);
-  double Rsigma,Rlow=0.001,Rhigh=10.0;
+  double Rsigma,Rlow=PNL_RGAUSS_MIN,Rhigh=PNL_RGAUSS_MAX;
   int itr,maxItr=1000,status;
   struct nonlinear_powspec_data dat;  
   dat.param = gf;

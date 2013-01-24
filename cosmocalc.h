@@ -91,9 +91,11 @@ class cosmoCalc {
   double PNL_A_MAX; //max scale factor for nonlinear powspec gaussn norm table 
   double get_nonlinear_gaussnorm_scale(double a);
   void init_cosmocalc_nonlinear_powspec_table(void);
-  gsl_spline *cosmocalc_nonlinear_powspec_spline[2];
-  gsl_interp_accel *cosmocalc_nonlinear_powspec_acc[2];
+  gsl_spline *cosmocalc_nonlinear_powspec_spline[3];
+  gsl_interp_accel *cosmocalc_nonlinear_powspec_acc[3];
   long _pnl_cosmo_num;
+  double PNL_RGAUSS_MIN;
+  double PNL_RGAUSS_MAX;
   
  public:
   //con- and de-structors
@@ -154,7 +156,9 @@ class cosmoCalc {
       COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH = 100;
       PNL_A_MIN = 0.2;
       PNL_A_MAX = 1.0;
-      for(i=0;i<2;++i)
+      PNL_RGAUSS_MIN = 0.0001;
+      PNL_RGAUSS_MAX = 100.0;
+      for(i=0;i<3;++i)
 	{
 	  cosmocalc_nonlinear_powspec_spline[i] = NULL;
 	  cosmocalc_nonlinear_powspec_acc[i] = NULL;
@@ -195,7 +199,7 @@ class cosmoCalc {
 	gsl_interp_accel_free(cosmocalc_linear_powspec_acc);
       
       //nonlinear powspec
-      for(i=0;i<2;++i)
+      for(i=0;i<3;++i)
 	{
 	  if(cosmocalc_nonlinear_powspec_spline[i] != NULL)
 	    gsl_spline_free(cosmocalc_nonlinear_powspec_spline[i]);
@@ -340,6 +344,10 @@ class cosmoCalc {
 
   //nonlinear powspec
   double gaussiannorm_linear_powspec_exact(double gaussRad);
+  double gaussiannorm_linear_powspec(double gaussRad)
+  {
+    return exp(gsl_spline_eval(cosmocalc_nonlinear_powspec_spline[2],log(gaussRad),cosmocalc_nonlinear_powspec_acc[2]));
+  }
   double nonlinear_powspec(double k, double a);
   
 };

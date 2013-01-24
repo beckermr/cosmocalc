@@ -1,8 +1,8 @@
 #vars
-CXX         = g++ -g
+CXX         = g++ -fopenmp
 GSLI        = -I/opt/local/include
-CXXFLAGS    = -Wall -O3 ${GSLI}
 GSLL        = -L/opt/local/lib
+CXXFLAGS    = -Wall -g -O3 ${GSLI}
 LDFLAGS     = -lm -lgsl -lgslcblas
 
 EXEC = computecosmo
