@@ -106,11 +106,6 @@ void cosmoCalc::init_cosmocalc_growth_function_table(void)
     d = gsl_odeiv2_driver_alloc_y_new(&odesys,gsl_odeiv2_step_rk8pd,HSTART,ABSERR,RELERR);
     cosmocalc_assert(d != NULL,"could not alloc GSL ODE driver for growth function table!");
 
-#ifdef _OPENMP
-#pragma omp single nowait
-    fprintf(stderr,"%d threads in growth!\n",omp_get_num_threads());
-#endif
-    
 #pragma omp for
     for(i=0;i<COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH;++i)
       {

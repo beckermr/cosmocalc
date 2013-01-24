@@ -1,4 +1,3 @@
-#include <iostream>
 #include <cstdlib>
 #include <cstdio>
 #include "cosmocalc.h"
@@ -14,29 +13,21 @@ static double wtime(void)
 
 int main(int argc, char **argv)
 {
-  std::cout << "Testing the cosmology routines..." << std::endl;
-  
-  omp_set_dynamic(0);   
-  omp_set_num_threads(4);
-#pragma omp parallel
-  {
-#pragma omp single nowait
-    fprintf(stderr,"\n%d threads being used.\n",omp_get_num_threads());
-  }
-    
   cosmoCalc cd;
   
+  fprintf(stderr,"Testing the cosmology routines...\n\n");
+    
   double t = -wtime();
   cd.init_cosmology(0.25,0.75,0.145,0.0,0.7,0.8,1.0,-1.0,0.0,COSMOCALC_TRANS_FUNC_EH98);
   cd.init_all();
   t += wtime();
-  fprintf(stderr,"\ninit took %g seconds.\n\n",t);
+  fprintf(stderr,"first init took %g seconds.\n",t);
 
   t = -wtime();
   cd.init_cosmology(0.20,0.80,0.045,0.0,0.7,0.8,1.0,-1.0,0.0,COSMOCALC_TRANS_FUNC_EH98);
   cd.init_all();
   t += wtime();
-  fprintf(stderr,"\ninit took %g seconds.\n\n",t);
+  fprintf(stderr,"second init took %g seconds.\n\n",t);
   
   fprintf(stderr,"omegam = %f\n",cd.omegam());
   fprintf(stderr,"omegal = %f\n",cd.omegal());
