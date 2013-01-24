@@ -8,6 +8,7 @@ LDFLAGS     = -lm -lgsl -lgslcblas
 EXEC = computecosmo
 
 all: $(EXEC)
+lib: sharedlib staticlib
 sharedlib: libcosmocalc.so
 staticlib: libcosmocalc.a
 
