@@ -61,6 +61,9 @@ int main(int argc, char **argv)
   double k = atof(argv[2]);
   fprintf(stderr,"transfer function(%f) = %e\n",k,cd.transfer_function(k));
   
+  fprintf(stderr,"\n");
+  fprintf(stderr,"sigma(R=8 Mpc/h) = %e\n",cd.sigmaRtophat(8.0,1.0));
+  
   FILE *fp;
   double kmin = 1e-6;
   double kmax = 1e4;

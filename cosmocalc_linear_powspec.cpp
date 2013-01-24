@@ -31,7 +31,7 @@ static double tophatradnorm_linear_powspec_exact_nonorm_lnk_integ_funct_I0(doubl
   double ft = fourierTransformTopHat(k*lpp->topHatRad);
   double tf = lpp->cd->transfer_function(k);
   
-  return ft*ft*tf*tf*pow(k,lpp->cd->ns())*k*k/2.0/M_PI/M_PI;
+  return ft*ft*tf*tf*pow(k,lpp->cd->ns())*k*k*k/2.0/M_PI/M_PI;
 }
 
 static double tophatradnorm_linear_powspec_exact_nonorm_k_integ_funct_I0(double k, void *p)
@@ -91,10 +91,14 @@ void cosmoCalc::init_cosmocalc_linear_powspec_table(void)
   double *lnk_table = (double*)malloc(sizeof(double)*COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH);
   long i;
   double cov00,cov01,cov11,sumsq;
-  double lntf,dlnk,lnkmin;
+  double lntf,dlnk,lnkmin,lnnorm;
   
   cosmocalc_assert(ln_linear_powspec_table != NULL,"out of memory for linear powspec table!");
   cosmocalc_assert(lnk_table != NULL,"out of memory for linear powspec");
+  
+  //get norm
+  _linear_powspec_norm = _s8*_s8/tophatradnorm_linear_powspec_exact_nonorm(8.0);
+  lnnorm = log(_linear_powspec_norm);
   
   dlnk = log(PL_K_MAX/PL_K_MIN)/(COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH-1.0);
   lnkmin = log(PL_K_MIN);
@@ -103,12 +107,12 @@ void cosmoCalc::init_cosmocalc_linear_powspec_table(void)
   if(_num_threads > 0) omp_set_num_threads(_num_threads);
 #endif
 
-#pragma omp parallel for default(none) private(lntf,i) shared(lnk_table,ln_linear_powspec_table,dlnk,lnkmin)
+#pragma omp parallel for default(none) private(lntf,i) shared(lnk_table,ln_linear_powspec_table,dlnk,lnkmin,lnnorm)
   for(i=0;i<COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH;++i)
     {
       lnk_table[i] = dlnk*i + lnkmin;
       lntf = log(transfer_function(exp(lnk_table[i])));
-      ln_linear_powspec_table[i] = 2.0*lntf + _ns*lnk_table[i];
+      ln_linear_powspec_table[i] = 2.0*lntf + _ns*lnk_table[i] + lnnorm;
     }
             
   //init the spline and accelerators
@@ -128,9 +132,6 @@ void cosmoCalc::init_cosmocalc_linear_powspec_table(void)
   gsl_fit_linear(lnk_table+COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH-COSMOCALC_LINEAR_POWSPEC_FIT_LENGTH,(size_t) 1,
 		 ln_linear_powspec_table+COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH-COSMOCALC_LINEAR_POWSPEC_FIT_LENGTH,(size_t) 1,
 		 (size_t) COSMOCALC_LINEAR_POWSPEC_FIT_LENGTH,&_linear_powspec_c0,&_linear_powspec_c1,&cov00,&cov01,&cov11,&sumsq);
-  
-  if(_linear_powspec_norm < 0.0)
-    _linear_powspec_norm = _s8*_s8/tophatradnorm_linear_powspec_exact_nonorm(8.0);
   
   free(ln_linear_powspec_table);
   free(lnk_table);

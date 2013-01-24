@@ -17,7 +17,10 @@ void cosmoCalc::init_cosmology(double omegam, double omegal, double omegab, doub
   _wa = wa;
   _ok = 1.0 - _om - _ol - _onu; //curvature density is a derived parameter                                                                                                                               
   DH_sqrtok = DH/sqrt(fabs(_ok));
-
+  
+  _growth_function_norm = -1.0;
+  _linear_powspec_norm = -1.0;
+  
   ++_cosmo_num;
 
   if(transfer_function_type == COSMOCALC_TRANS_FUNC_EH98)
@@ -87,6 +90,17 @@ void cosmoCalc::init_nonlinear_powspec(void)
     }
 };
 
+void cosmoCalc::init_peakheight(void)
+{
+  init_growth_function();
+  init_linear_powspec();
+  if(_cosmo_num != _ph_cosmo_num)
+    {
+      init_cosmocalc_peakheight_table();
+      _ph_cosmo_num = _cosmo_num;
+    }
+}
+
 void cosmoCalc::init_all(void)
 {
   init_distances();
@@ -94,4 +108,5 @@ void cosmoCalc::init_all(void)
   init_transfer_function();
   init_linear_powspec();
   init_nonlinear_powspec();
+  init_peakheight();
 };

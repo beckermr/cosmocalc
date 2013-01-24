@@ -97,6 +97,17 @@ class cosmoCalc {
   double PNL_RGAUSS_MIN;
   double PNL_RGAUSS_MAX;
   
+  //peak heights
+  int COSMOCALC_PEAKHEIGHT_TABLE_LENGTH; //number of spline points in radius for getting peak height
+  double PH_R_MIN; //min scale for peak height table
+  double PH_R_MAX; //max scale for peak height table
+  int _ph_cosmo_num;
+  gsl_spline *cosmocalc_R2sigma_spline;
+  gsl_interp_accel *cosmocalc_R2sigma_acc;
+  gsl_spline *cosmocalc_sigma2R_spline;
+  gsl_interp_accel *cosmocalc_sigma2R_acc;
+  void init_cosmocalc_peakheight_table(void);
+
  public:
   //con- and de-structors
   cosmoCalc ()
@@ -164,6 +175,16 @@ class cosmoCalc {
 	  cosmocalc_nonlinear_powspec_acc[i] = NULL;
 	}
       _pnl_cosmo_num = -1;
+      
+      //peak heights
+      COSMOCALC_PEAKHEIGHT_TABLE_LENGTH = 50;
+      PH_R_MIN = 1e-2;
+      PH_R_MAX = 50.0;
+      cosmocalc_R2sigma_spline = NULL;
+      cosmocalc_R2sigma_acc = NULL;
+      cosmocalc_sigma2R_spline = NULL;
+      cosmocalc_sigma2R_acc = NULL;
+      _ph_cosmo_num = -1;
     };
   
   ~cosmoCalc () 
@@ -206,12 +227,20 @@ class cosmoCalc {
 	  if(cosmocalc_nonlinear_powspec_acc[i] != NULL)
 	    gsl_interp_accel_free(cosmocalc_nonlinear_powspec_acc[i]);
 	}
+      
+      //peak heights
+      if(cosmocalc_R2sigma_spline != NULL)
+	gsl_spline_free(cosmocalc_R2sigma_spline);
+      if(cosmocalc_R2sigma_acc != NULL)
+	gsl_interp_accel_free(cosmocalc_R2sigma_acc);
+      if(cosmocalc_sigma2R_spline != NULL)
+	gsl_spline_free(cosmocalc_sigma2R_spline);
+      if(cosmocalc_sigma2R_acc != NULL)
+	gsl_interp_accel_free(cosmocalc_sigma2R_acc);
     };
 
   //deal with threads
-#ifdef _OPENMP
   void num_threads(int num_threads) {_num_threads = num_threads;};
-#endif
   
   //function to init params
   void init_cosmology(double omegam, double omegal, double omegab, double omeganu, 
@@ -224,6 +253,7 @@ class cosmoCalc {
   void init_transfer_function(void);
   void init_linear_powspec(void);
   void init_nonlinear_powspec(void);
+  void init_peakheight(void);
   void init_all(void);
   
   //parameters
@@ -321,10 +351,7 @@ class cosmoCalc {
     double gf = growth_function(a);
     double tf = transfer_function(k);
   
-    if(_linear_powspec_norm < 0.0)
-      _linear_powspec_norm = _s8*_s8/tophatradnorm_linear_powspec_exact_nonorm(8.0);
-  
-    return tf*tf*pow(k,_ns)*gf*gf*_linear_powspec_norm;
+    return tf*tf*pow(k,_ns)*gf*gf*_s8*_s8/tophatradnorm_linear_powspec_exact_nonorm(8.0);
   }
   double linear_powspec(double k, double a)
   {
@@ -337,9 +364,9 @@ class cosmoCalc {
 	return tf*tf*pow(k,_ns)*_linear_powspec_norm*gf*gf;
       }
     else if(k < PL_K_MAX)
-      return exp(gsl_spline_eval(cosmocalc_linear_powspec_spline,log(k),cosmocalc_linear_powspec_acc))*_linear_powspec_norm*gf*gf;
+      return exp(gsl_spline_eval(cosmocalc_linear_powspec_spline,log(k),cosmocalc_linear_powspec_acc))*gf*gf;
     else
-      return exp(_linear_powspec_c0+_linear_powspec_c1*log(k))*_linear_powspec_norm*gf*gf;
+      return exp(_linear_powspec_c0+_linear_powspec_c1*log(k))*gf*gf;
   };
 
   //nonlinear powspec
@@ -347,8 +374,39 @@ class cosmoCalc {
   double gaussiannorm_linear_powspec(double gaussRad)
   {
     return exp(gsl_spline_eval(cosmocalc_nonlinear_powspec_spline[2],log(gaussRad),cosmocalc_nonlinear_powspec_acc[2]));
-  }
+  };
   double nonlinear_powspec(double k, double a);
+  
+  //peak heights
+  double sigmaRtophat_exact(double topHatRad, double a)
+  {
+    return sqrt(_linear_powspec_norm*tophatradnorm_linear_powspec_exact_nonorm(topHatRad))*growth_function(a);
+  };
+  double sigmaRtophat(double topHatRad, double a)
+  {
+    return exp(gsl_spline_eval(cosmocalc_R2sigma_spline,log(topHatRad),cosmocalc_R2sigma_acc))*growth_function(a);
+  };
+  double sigmaMtophat(double m, double a)
+  {
+    return sigmaRtophat(pow(m/(4.0/3.0*M_PI*RHO_CRIT*_om),1.0/3.0),a);
+  };
+  double Rsigmatophat(double sigmaR, double a)
+  {
+    return exp(gsl_spline_eval(cosmocalc_sigma2R_spline,log(sigmaR/growth_function(a)),cosmocalc_sigma2R_acc));
+  };
+  double Msigmatophat(double sigmaR, double a)
+  {
+    return (4.0/3.0*M_PI*RHO_CRIT*_om)*pow(Rsigmatophat(sigmaR,a),3.0);
+  };
+  double Mnutophat(double nu, double a)
+  {
+    return (4.0/3.0*M_PI*RHO_CRIT*_om)*pow(Rsigmatophat(DELTAC/nu,a),3.0);
+  };
+  double Rnutophat(double nu, double a)
+  {
+    return Rsigmatophat(DELTAC/nu,a);
+  };
+  
   
 };
 
@@ -391,15 +449,6 @@ double nonlinear_powspec_exact(double k, double a);
 double nonlinear_corrfunc_integ_funct(double k, void *p);
 double nonlinear_corrfunc_exact(double r, double a);
 double nonlinear_corrfunc(double r, double a);
-
-// in peakheight.c 
-double sigmaRtophat_exact(double topHatRad, double a);
-double sigmaRtophat(double topHatRad, double a);
-double sigmaMtophat(double m, double a);
-double inverse_sigmaRtophat(double sigmaR, double a);
-double inverse_sigmaMtophat(double sigmaR, double a);
-double inverse_nuMtophat(double nu, double a);
-double inverse_nuRtophat(double nu, double a);
 
 // in mass_bias_functions.c 
 double mass_function(double m, double a);

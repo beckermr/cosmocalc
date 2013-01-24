@@ -16,7 +16,7 @@ CXXSOURCES = main.cpp
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)
 
 CCALCSOURCES = cosmocalc_init.cpp cosmocalc_distances.cpp cosmocalc_growth.cpp cosmocalc_transfer_function.cpp \
-	cosmocalc_linear_powspec.cpp cosmocalc_nonlinear_powspec.cpp
+	cosmocalc_linear_powspec.cpp cosmocalc_nonlinear_powspec.cpp cosmocalc_peakheight.cpp
 CCALCOBJECTS = $(CCALCSOURCES:.cpp=.o)
 
 $(EXEC): $(CXXOBJECTS) $(CCALCOBJECTS)

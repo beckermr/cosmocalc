@@ -44,7 +44,7 @@ double cosmoCalc::growth_function_exact(double a)
   
   double lna_init;
   double lna_final,y[2];
-  double ga;
+  double ga,gnorm;
   int status;
   
   //do g(a) unormalized
@@ -57,22 +57,19 @@ double cosmoCalc::growth_function_exact(double a)
   ga = y[0]*a;
   cosmocalc_assert(status == GSL_SUCCESS,"error in integrating growth function to a = %lf for exact growth function computation!",a);
   
-  if(_growth_function_norm < 0.0)
-    {
-      //do g(a = 1.0) to get normalization
-      y[0] = 1.0;
-      y[1] = 0.0;
-      lna_init = LOG_AEXPN_MIN_GROWTH;
-      lna_final = 0.0;
-      
-      status = gsl_odeiv2_driver_apply(d,&lna_init,lna_final,y);
-      _growth_function_norm = y[0];
-      cosmocalc_assert(status == GSL_SUCCESS,"error getting growth function norm for exact growth function computation!");
-      
-      gsl_odeiv2_driver_free(d);
-    }
+  //do g(a = 1.0) to get normalization
+  y[0] = 1.0;
+  y[1] = 0.0;
+  lna_init = LOG_AEXPN_MIN_GROWTH;
+  lna_final = 0.0;
   
-  return ga/_growth_function_norm;
+  status = gsl_odeiv2_driver_apply(d,&lna_init,lna_final,y);
+  gnorm = y[0];
+  cosmocalc_assert(status == GSL_SUCCESS,"error getting growth function norm for exact growth function computation!");
+  
+  gsl_odeiv2_driver_free(d);
+  
+  return ga/gnorm;
 }
 
 void cosmoCalc::init_cosmocalc_growth_function_table(void)
@@ -131,17 +128,16 @@ void cosmoCalc::init_cosmocalc_growth_function_table(void)
   //get normalization
   d = gsl_odeiv2_driver_alloc_y_new(&odesys,gsl_odeiv2_step_rk8pd,HSTART,ABSERR,RELERR);
   cosmocalc_assert(d != NULL,"could not alloc GSL ODE driver for growth function table!");
-  if(_growth_function_norm < 0.0)
-    {
-      y[0] = 1.0;
-      y[1] = 0.0;
-      lna_init = LOG_AEXPN_MIN_GROWTH;
-      lna_final = 0.0;
-      
-      status = gsl_odeiv2_driver_apply(d,&lna_init,lna_final,y);
-      _growth_function_norm = y[0];
-      cosmocalc_assert(status == GSL_SUCCESS,"error getting growth function norm for growth function table!");
-    }
+
+  y[0] = 1.0;
+  y[1] = 0.0;
+  lna_init = LOG_AEXPN_MIN_GROWTH;
+  lna_final = 0.0;
+  
+  status = gsl_odeiv2_driver_apply(d,&lna_init,lna_final,y);
+  _growth_function_norm = y[0];
+  cosmocalc_assert(status == GSL_SUCCESS,"error getting growth function norm for growth function table!");
+  
   gsl_odeiv2_driver_free(d);
   
   //init the spline and accelerators
