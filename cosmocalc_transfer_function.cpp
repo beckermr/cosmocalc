@@ -19,6 +19,10 @@ void cosmoCalc::init_cosmocalc_transfer_function_table(void)
   dlnk = log(TF_K_MAX/TF_K_MIN)/(COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH-1.0);
   lnkmin = log(TF_K_MIN);
 
+#ifdef _OPENMP
+  if(_num_threads > 0) omp_set_num_threads(_num_threads);
+#endif
+
 #pragma omp parallel for default(none) private(i) shared(dlnk,lnkmin,lnk_table,ln_transfer_function_table)
   for(i=0;i<COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH;++i)
     {

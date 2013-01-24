@@ -36,6 +36,8 @@ class cosmoCalc {
   long _cosmo_num; //used to track states of various interpolation tables - if table states (i.e. _dist_cosmo_num) differ
                    // from the global state (_cosmo_num), then tables are remade
   
+  int _num_threads; //sets number of threads if wanted
+  
   //distances
   int COSMOCALC_COMVDIST_TABLE_LENGTH; //number of spline points in a for distances
   gsl_spline *cosmocalc_aexpn2comvdist_spline;
@@ -109,6 +111,7 @@ class cosmoCalc {
       AEXPN_MAX = 1.0; //maximum expansion factor for standard splines
       
       _cosmo_num = -1;
+      _num_threads = -1;
       
       //distances
       COSMOCALC_COMVDIST_TABLE_LENGTH = 1000;
@@ -201,6 +204,11 @@ class cosmoCalc {
 	}
     };
 
+  //deal with threads
+#ifdef _OPENMP
+  void num_threads(int num_threads) {_num_threads = num_threads;};
+#endif
+  
   //function to init params
   void init_cosmology(double omegam, double omegal, double omegab, double omeganu, 
 		      double hubble, double sigma8, double spectral_index, 

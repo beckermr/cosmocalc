@@ -98,6 +98,11 @@ void cosmoCalc::init_cosmocalc_linear_powspec_table(void)
   
   dlnk = log(PL_K_MAX/PL_K_MIN)/(COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH-1.0);
   lnkmin = log(PL_K_MIN);
+
+#ifdef _OPENMP
+  if(_num_threads > 0) omp_set_num_threads(_num_threads);
+#endif
+
 #pragma omp parallel for default(none) private(lntf,i) shared(lnk_table,ln_linear_powspec_table,dlnk,lnkmin)
   for(i=0;i<COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH;++i)
     {

@@ -94,6 +94,10 @@ void cosmoCalc::init_cosmocalc_growth_function_table(void)
   da = (AEXPN_MAX - AEXPN_MIN_GROWTH)/(COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH-1.0);
   amin = AEXPN_MIN_GROWTH;
 
+#ifdef _OPENMP
+  if(_num_threads > 0) omp_set_num_threads(_num_threads);
+#endif
+
 #pragma omp parallel default(none) \
   private(d,y,lna_init,status,lna_final,i,afact)	\
   shared(odesys,a_table,growth_function_table,gsl_odeiv2_step_rk8pd,da,amin,stderr)

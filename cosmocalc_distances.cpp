@@ -37,6 +37,10 @@ void cosmoCalc::init_cosmocalc_comvdist_table(void)
   F.params = (void*)this;
   amin = AEXPN_MIN;
   da = (AEXPN_MAX - AEXPN_MIN)/(COSMOCALC_COMVDIST_TABLE_LENGTH-1.0);
+
+#ifdef _OPENMP
+  if(_num_threads > 0) omp_set_num_threads(_num_threads);
+#endif
   
 #pragma omp parallel default(none) \
   private(i,workspace,result,abserr,afact)		\
