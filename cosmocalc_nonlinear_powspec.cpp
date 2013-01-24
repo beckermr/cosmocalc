@@ -56,47 +56,60 @@ void cosmoCalc::init_cosmocalc_nonlinear_powspec_table(void)
   struct nonlinear_powspec_data dat;
   double gaussRad;
   
-  dat.cd = this;
-  F.params = &dat;
-  F.function = &gaussiannorm_linear_powspec_exact_lnk_integ_funct;
-  
 #define WORKSPACE_NUM 10000000
 #define ABSERR 1e-6
 #define RELERR 0.0
-  workspace = gsl_integration_workspace_alloc((size_t) WORKSPACE_NUM);
-  cosmocalc_assert(workspace != NULL,"could not alloc workspace for GSL integration in gauss norm for nonlinear powspec!");
-  
-  for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
-    {
-      lnr = dlnr*i + lnrmin;
-      xtab[i] = lnr;
-      gaussRad = exp(lnr);
-      dat.param = gaussRad;
-      
-      gsl_integration_qags(&F,log(1e-4),log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
-      gsl_integration_qags(&F,log(2.0*M_PI/gaussRad),log(1e3),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
-            
-      ytab[i] = log(I0 + I1);
-    }
 
-  gsl_integration_workspace_free(workspace);
+#ifdef _OPENMP
+  if(_num_threads > 0) omp_set_num_threads(_num_threads);
+#endif
+  
+#pragma omp parallel default(none)			\
+  private(i,lnr,gaussRad,workspace,I0,I1,abserr,F,dat)	\
+  shared(xtab,ytab,dlnr,lnrmin)
+  {
+    workspace = gsl_integration_workspace_alloc((size_t) WORKSPACE_NUM);
+    cosmocalc_assert(workspace != NULL,"could not alloc workspace for GSL integration in gauss norm for nonlinear powspec!");
+    
+    dat.cd = this;
+    F.params = &dat;
+    F.function = &gaussiannorm_linear_powspec_exact_lnk_integ_funct;
+
+#pragma omp for schedule(guided)
+    for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
+      {
+	lnr = dlnr*i + lnrmin;
+	xtab[i] = lnr;
+	gaussRad = exp(lnr);
+	dat.param = gaussRad;
+	
+	gsl_integration_qags(&F,log(1e-4),log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
+	gsl_integration_qags(&F,log(2.0*M_PI/gaussRad),log(1e3),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
+	
+	ytab[i] = log(I0 + I1);
+      }
+    
+    gsl_integration_workspace_free(workspace);
+  }
+  
 #undef ABSERR
 #undef RELERR
 #undef WORKSPACE_NUM
-  
+
   gsl_spline_init(cosmocalc_nonlinear_powspec_spline[2],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
-    
+  
   for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
     {
       xtab[i] = i*(PNL_A_MAX-PNL_A_MIN)/(COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH-1.0) + PNL_A_MIN;
       ytab[i] = get_nonlinear_gaussnorm_scale(xtab[i]);
     }
+  
   gsl_spline_init(cosmocalc_nonlinear_powspec_spline[0],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
   
   for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
-    xtab[i] = ytab[i];
+      xtab[i] = ytab[i];
   for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
-    ytab[i] = gaussiannorm_linear_powspec(xtab[i]);
+      ytab[i] = gaussiannorm_linear_powspec(xtab[i]);
   gsl_spline_init(cosmocalc_nonlinear_powspec_spline[1],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
   
   free(xtab);

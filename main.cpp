@@ -20,6 +20,12 @@ int main(int argc, char **argv)
   double t = -wtime();
   cd.init_cosmology(0.25,0.75,0.145,0.0,0.7,0.8,1.0,-1.0,0.0,COSMOCALC_TRANS_FUNC_EH98);
   cd.init_all();
+  if(argc > 3)
+    {
+      fprintf(stderr,"setting library to use %d threads!\n",atoi(argv[3]));
+      cd.num_threads(atoi(argv[3]));
+    }
+    
   t += wtime();
   fprintf(stderr,"first init took %g seconds.\n",t);
 
