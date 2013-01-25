@@ -9,7 +9,7 @@
 #endif
 
 class cosmoCalc {
- private:
+ protected:
   //constants
   double RHO_CRIT;  // Critial mass density  in h^2 M_sun/Mpc^3
   double CSOL;      // velocity of light in km/s
