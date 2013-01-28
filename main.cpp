@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include "flrw_distances.h"
 #include "w0wacosmo.h"
  
 #ifndef _OPENMP
@@ -20,16 +21,21 @@ static double wtime(void)
 }
 #endif
 
-void print_h0(class Hubble& h, double a)
+void printcosmo(double a, class Hubble& h, class Distances& d, class GrowthFunction& gf)
 {
   fprintf(stderr,"H(%f)/H100 = %f\n",a,h(a));
+  fprintf(stderr,"comvdist(%f) = %f\n",a,d.comvdist(a));
+  fprintf(stderr,"exact comvdist(%f) = %f\n",a,d.comvdist_exact(a,h));
+  fprintf(stderr,"angdist(%f) = %f\n",a,d.angdist(a));
+  fprintf(stderr,"lumdist(%f) = %f\n",a,d.lumdist(a));
+  fprintf(stderr,"growth function(%f) = %f\n",a,gf(1.0,a));
 }
 
 int main(int argc, char **argv)
 {
   w0wa_CosmoData cd;
   w0wa_Hubble h;
-  w0wa_Distances d;
+  FLRWDistances d;
   w0wa_GrowthFunction gf;
   double t,a = atof(argv[1]);
   
@@ -49,17 +55,13 @@ int main(int argc, char **argv)
   
   t = -wtime();
   h.init(cd);
-  d.init(cd,h);
+  d.init(cd.ok,h);
   gf.init(cd,h);
   t += wtime();
   fprintf(stderr,"\nfirst init took %g seconds.\n\n",t);
   
-  print_h0(h,a);
-  fprintf(stderr,"comvdist(%f) = %f\n",a,d.comvdist(a));
-  fprintf(stderr,"exact comvdist(%f) = %f\n",a,d.comvdist_exact(a,h));
-  fprintf(stderr,"angdist(%f) = %f\n",a,d.angdist(a));
-  fprintf(stderr,"lumdist(%f) = %f\n",a,d.lumdist(a));
-  fprintf(stderr,"growth function(%f) = %f|%f, norm = %f\n",a,gf(1.0,a),gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
+  printcosmo(a,h,d,gf);
+  fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
   
   //set params
   cd.om = 0.3;
@@ -75,20 +77,15 @@ int main(int argc, char **argv)
   
   t = -wtime();
   h.init(cd);
-  d.init(cd,h);
+  d.init(cd.ok,h);
   gf.init(cd,h);
   t += wtime();
   fprintf(stderr,"\nsecond init took %g seconds.\n\n",t);
   
-  print_h0(h,a);
-  fprintf(stderr,"comvdist(%f) = %f\n",a,d.comvdist(a));
-  fprintf(stderr,"exact comvdist(%f) = %f\n",a,d.comvdist_exact(a,h));
-  fprintf(stderr,"angdist(%f) = %f\n",a,d.angdist(a));
-  fprintf(stderr,"lumdist(%f) = %f\n",a,d.lumdist(a));
+  printcosmo(a,h,d,gf);
+  fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
     
-  fprintf(stderr,"growth function(%f) = %f|%f, norm = %f\n",a,gf(1.0,a),gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
-  
-  fprintf(stderr,"%ld size of cd. offset of w0 = %ld\n",sizeof(cd),offsetof(w0wa_CosmoData,w0));
+  fprintf(stderr,"\n%ld size of cd. offset of w0 = %ld\n",sizeof(cd),offsetof(w0wa_CosmoData,w0));
   
   cosmocalc_assert(cd == h.cosmology(),"cosmology in h object is not the same as that use to init!");
   

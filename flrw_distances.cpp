@@ -3,7 +3,7 @@
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_sort.h>
 
-#include "w0wacosmo.h"
+#include "flrw_distances.h"
 
 #define WORKSPACE_NUM 100000
 #define ABSERR 0.0
@@ -17,7 +17,7 @@ static double comvdist_integ_funct(double a, void *p)
 }
 
 /* init function  - some help from Gadget-2 applied here */
-void w0wa_Distances::init_comvdist_table(class Hubble& h)
+void FLRWDistances::init_comvdist_table(class Hubble& h)
 {
   gsl_integration_workspace *workspace;
   gsl_function F;
@@ -108,7 +108,7 @@ void w0wa_Distances::init_comvdist_table(class Hubble& h)
   free(tmpDouble);
 }
 
-double w0wa_Distances::comvdist_exact(double a, class Hubble& h)
+double FLRWDistances::comvdist_exact(double a, class Hubble& h)
 {
   gsl_integration_workspace *workspace;
   gsl_function F;
