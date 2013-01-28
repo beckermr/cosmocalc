@@ -30,6 +30,7 @@ int main(int argc, char **argv)
   w0wa_CosmoData cd;
   w0wa_Hubble h;
   w0wa_Distances d;
+  w0wa_GrowthFunction gf;
   double t,a = atof(argv[1]);
   
   fprintf(stderr,"Testing the cosmology routines...\n\n");
@@ -47,17 +48,18 @@ int main(int argc, char **argv)
   cd.wa = 0.0;
   
   t = -wtime();
-  w0wa_Hubble h2(cd);
   h.init(cd);
   d.init(cd,h);
+  gf.init(cd,h);
   t += wtime();
-  fprintf(stderr,"first init took %g seconds.\n",t);
+  fprintf(stderr,"\nfirst init took %g seconds.\n\n",t);
   
   print_h0(h,a);
   fprintf(stderr,"comvdist(%f) = %f\n",a,d.comvdist(a));
   fprintf(stderr,"exact comvdist(%f) = %f\n",a,d.comvdist_exact(a,h));
   fprintf(stderr,"angdist(%f) = %f\n",a,d.angdist(a));
   fprintf(stderr,"lumdist(%f) = %f\n",a,d.lumdist(a));
+  fprintf(stderr,"growth function(%f) = %f|%f, norm = %f\n",a,gf(1.0,a),gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
   
   //set params
   cd.om = 0.3;
@@ -72,21 +74,23 @@ int main(int argc, char **argv)
   cd.wa = 0.0;
   
   t = -wtime();
-  h2.init(cd);
-  d.init(cd,h2);
+  h.init(cd);
+  d.init(cd,h);
+  gf.init(cd,h);
   t += wtime();
-  fprintf(stderr,"second init took %g seconds.\n",t);
+  fprintf(stderr,"\nsecond init took %g seconds.\n\n",t);
   
-  print_h0(h2,a);
+  print_h0(h,a);
   fprintf(stderr,"comvdist(%f) = %f\n",a,d.comvdist(a));
-  fprintf(stderr,"exact comvdist(%f) = %f\n",a,d.comvdist_exact(a,h2));
+  fprintf(stderr,"exact comvdist(%f) = %f\n",a,d.comvdist_exact(a,h));
   fprintf(stderr,"angdist(%f) = %f\n",a,d.angdist(a));
   fprintf(stderr,"lumdist(%f) = %f\n",a,d.lumdist(a));
     
+  fprintf(stderr,"growth function(%f) = %f|%f, norm = %f\n",a,gf(1.0,a),gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
+  
   fprintf(stderr,"%ld size of cd. offset of w0 = %ld\n",sizeof(cd),offsetof(w0wa_CosmoData,w0));
   
   cosmocalc_assert(cd == h.cosmology(),"cosmology in h object is not the same as that use to init!");
-  cosmocalc_assert(cd == h2.cosmology(),"cosmology in h2 object is not the same as that use to init!");
   
   /*
   cd.init_cosmology(0.25,0.75,0.145,0.0,0.7,0.8,1.0,-1.0,0.0,COSMOCALC_TRANS_FUNC_EH98);

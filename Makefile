@@ -16,7 +16,7 @@ CXXSOURCES = main.cpp
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)
 
 CCALCHEADERS = cosmocalc.h cosmocalc_assert.h w0wacosmo.h
-CCALCSOURCES = w0wa_distances.cpp
+CCALCSOURCES = w0wa_distances.cpp w0wa_growth.cpp
 CCALCOBJECTS = $(CCALCSOURCES:.cpp=.o)
 
 $(EXEC): $(CXXOBJECTS) $(CCALCOBJECTS)

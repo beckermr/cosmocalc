@@ -42,7 +42,6 @@ class w0wa_Hubble : public Hubble {
   
  public:
   w0wa_Hubble() {};
-  w0wa_Hubble(class w0wa_CosmoData& _cd) {cd = _cd;};
   void init(class w0wa_CosmoData& _cd) {cd = _cd;};
   
   class w0wa_CosmoData cosmology(void) {return cd;};
@@ -96,12 +95,6 @@ class w0wa_Distances : public Distances {
       gsl_spline_free(comvdist2aexpn_spline);
     if(comvdist2aexpn_acc != NULL)
       gsl_interp_accel_free(comvdist2aexpn_acc);
-  };
-  w0wa_Distances(class w0wa_CosmoData& _cd, class Hubble& h) {
-    init_table_vars();
-    cd = _cd;
-    DH_sqrtok = DH/sqrt(fabs(cd.ok));
-    init_comvdist_table(h);    
   };
   void init(class w0wa_CosmoData& _cd,  class Hubble& h) {
     init_table_vars();
@@ -162,5 +155,52 @@ class w0wa_Distances : public Distances {
   };
 };
 
+class w0wa_GrowthFunction : public GrowthFunction {
+ protected:
+  class w0wa_CosmoData cd;
+  int GROWTH_FUNCTION_TABLE_LENGTH; //number of spline points for growth function
+  double AEXPN_MAX; 
+  double AEXPN_MIN; //needs to be in the matter dominated era of your cosmology!
+  double LOG_AEXPN_MIN;
+  double _growth_function_norm;
+  gsl_spline *growth_function_spline;
+  gsl_interp_accel *growth_function_acc;
+  void init_growth_function_table(class Hubble& h);
+  
+  void init_table_vars(void)
+  {
+    //constants
+    GROWTH_FUNCTION_TABLE_LENGTH = 50;
+    AEXPN_MAX = 1.0;
+    AEXPN_MIN = 1.0/31.0;
+    LOG_AEXPN_MIN = log(AEXPN_MIN);
+    _growth_function_norm = -1.0;
+    growth_function_spline = NULL;
+    growth_function_acc = NULL;
+  }
+  
+ public:
+  w0wa_GrowthFunction() {
+    init_table_vars();
+  };
+  ~w0wa_GrowthFunction() {
+    if(growth_function_spline != NULL)
+      gsl_spline_free(growth_function_spline);
+    if(growth_function_acc != NULL)
+      gsl_interp_accel_free(growth_function_acc);
+  };
+  void init(class w0wa_CosmoData& _cd,  class Hubble& h) {
+    init_table_vars();
+    cd = _cd;
+    init_growth_function_table(h);
+  };
+  class w0wa_CosmoData cosmology(void) {return cd;};
+  
+  double operator()(double k, double a) {
+    return gsl_spline_eval(growth_function_spline,a,growth_function_acc);
+  };
+  double growth_function_exact(double k, double a, class Hubble& h);
+  double growth_function_norm(void) {return _growth_function_norm;};
+};
 
 #endif _W0WACOSMO_ /* _W0WACOSMO_ */

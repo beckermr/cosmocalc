@@ -46,5 +46,15 @@ class Distances {
   };
 };
 
+/*GrowthFunction base class.
+  This base class just defines the interface. You must define your own class
+  to actually use it. See the w0wacosmo.h header file for details.   
+*/
+class GrowthFunction {
+ public:
+  virtual double operator()(double k, double a) {
+    cosmocalc_assert(false,"In operator() method, GrowthFunction base class cannot be used alone!");
+  };
+};
 
 #endif /* _COSMOCALC_ */
