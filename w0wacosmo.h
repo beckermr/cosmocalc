@@ -1,5 +1,6 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_spline.h>
+#include <cstdlib>
 
 #include "cosmocalc.h"
 
@@ -7,7 +8,7 @@
 #define _W0WACOSMO_
 
 //cosmological parameters
-class w0wa_CosmoData {
+class w0wa_CosmoData : public CosmoData {
  public:
   double om;   // total matter density in units of critical at z = 0
   double ol;   // dark energy density in units of critical at z = 0
@@ -33,6 +34,42 @@ class w0wa_CosmoData {
 	    ns == rhs.ns &&
 	    w0 == rhs.w0 &&
 	    wa == rhs.wa);
+  };
+  
+  //required methods
+  void print_header(FILE *fp) {
+    fprintf(fp,"#omegm omegal omegab omeganu omegak h sigma8 ns w0 wa\n");
+  };
+  void print_cosmo(FILE *fp) {
+    fprintf(fp,"%g %g %g %g %g %g %g %g %g %g\n",om,ol,ob,onu,ok,h,s8,ns,w0,wa);
+  };
+  double *pack(void) {
+    double *data = (double*)malloc(sizeof(double)*10);
+    
+    data[0] = om;
+    data[1] = ol;
+    data[2] = ob;
+    data[3] = onu;
+    data[4] = ok;
+    data[5] = h;
+    data[6] = s8;
+    data[7] = ns;
+    data[8] = w0;
+    data[9] = wa;
+    
+    return data;
+  }
+  void unpack(double *data) {
+    om = data[0];
+    ol = data[1];
+    ob = data[2];
+    onu = data[3];
+    ok = data[4];
+    h = data[5];
+    s8 = data[6];
+    ns = data[7];
+    w0 = data[8];
+    wa = data[9];
   };
 };
 

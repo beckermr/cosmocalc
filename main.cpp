@@ -85,8 +85,6 @@ int main(int argc, char **argv)
   printcosmo(a,h,d,gf);
   fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
     
-  fprintf(stderr,"\n%ld size of cd. offset of w0 = %ld\n",sizeof(cd),offsetof(w0wa_CosmoData,w0));
-  
   cosmocalc_assert(cd == h.cosmology(),"cosmology in h object is not the same as that use to init!");
   
   /*

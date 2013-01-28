@@ -1,3 +1,4 @@
+#include <cstdio>
 #include "cosmocalc_assert.h"
 
 #ifndef _COSMOCALC_
@@ -7,6 +8,29 @@
 #define RHO_CRIT 2.77519737e11 // Critial mass density  in h^2 M_sun/Mpc^3
 #define CSOL 299792.458 // velocity of light in km/s
 #define DH 2997.92458 // Hubble Distance assuming H0 = 100 km/s
+
+/*CosmoData base class
+  This base class just defines the interface. You must define your own class 
+  to actually use it. See the w0wacosmo.h header file for details.
+*/
+class CosmoData {
+ public:
+  //public methods to output parameters to a file
+  virtual void print_header(FILE *fp) {
+    cosmocalc_assert(false,"In print_header method, CosmoData base class cannot be used alone!");
+  };
+  virtual void print_cosmo(FILE *fp) {
+    cosmocalc_assert(false,"In print_cosmo method, CosmoData base class cannot be used alone!");
+  };
+  
+  //methods to pack and unpack parameters for sending over MPI, binary I/O, etc.
+  virtual double *pack(void) {
+    cosmocalc_assert(false,"In pack method, CosmoData base class cannot be used alone!");
+  };
+  virtual void unpack(double *data) {
+    cosmocalc_assert(false,"In unpack method, CosmoData base class cannot be used alone!");
+  };    
+};
 
 /*Hubble factor base class 
   This base class just defines the interface. You must define your own class 
