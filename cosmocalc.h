@@ -81,4 +81,26 @@ class GrowthFunction {
   };
 };
 
+/*TransferFunction base class.
+  This base class just defines the interface. You must define your own class
+  to actually use it. See the w0wacosmo.h header file for details.   
+*/
+class TransferFunction {
+ public: 
+  virtual double operator()(double k) {
+    cosmocalc_assert(false,"In operator() method, TransferFunction base class cannot be used alone!");
+  };
+};
+
+/*PowerSpectrum base class.
+  This base class just defines the interface. You must define your own class
+  to actually use it. See the w0wacosmo.h header file for details.   
+*/
+class PowerSpectrum {
+ public: 
+  virtual double operator()(double k, double a) {
+    cosmocalc_assert(false,"In operator() method, PowerSpectrum base class cannot be used alone!");
+  };
+};
+
 #endif /* _COSMOCALC_ */

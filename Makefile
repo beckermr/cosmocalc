@@ -15,8 +15,8 @@ staticlib: libcosmocalc.a
 CXXSOURCES = main.cpp
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)
 
-CCALCHEADERS = cosmocalc.h cosmocalc_assert.h flrw_distances.h w0wacosmo.h
-CCALCSOURCES = flrw_distances.cpp w0wa_growth.cpp
+CCALCHEADERS = cosmocalc.h cosmocalc_assert.h flrw_distances.h w0wacosmo.h eh98_transfunct.h
+CCALCSOURCES = flrw_distances.cpp w0wacosmo.cpp eh98_transfunct.cpp
 CCALCOBJECTS = $(CCALCSOURCES:.cpp=.o)
 
 $(EXEC): $(CXXOBJECTS) $(CCALCOBJECTS)

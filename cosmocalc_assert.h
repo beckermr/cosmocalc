@@ -24,6 +24,7 @@
 #define cosmocalc_assert(ex, format, ...) ((void)0)
 #else
 #include <cstdio>
+#include <cstdlib>
 #define cosmocalc_assert(ex, format, ...) do { \
     if(!(ex)) {\
       printf("cosmoCalc ERROR: %s:%u: '%s' - "format"\n", __FILE__, __LINE__, #ex, ## __VA_ARGS__); \
