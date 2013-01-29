@@ -28,6 +28,25 @@ int main(int argc, char **argv)
   cosmoData.wa = 0.0;
   cosmoData.useSmoothTransFunc = 0;
   
+  double a = atof(argv[1]);
+  
+  double kmin = 1e-6;
+  double kmax = 1e4;
+  long Nk = 2000;
+  double k,dlnk = log(kmax/kmin)/Nk;
+  long i;
+
+  FILE *fp;
+  fp = fopen("test.dat","w");
+  for(i=0;i<Nk;++i)
+    {
+      k = exp(dlnk*i)*kmin;
+      //fprintf(fp,"%e %e %e %e %e\n",k,tf(k),tfs(k),lp(k,a),pknl(k,a));                                                                                                                                                                                                                    
+      fprintf(fp,"%e %e %e %e %e\n",k,transfer_function(k),transfer_function(k),linear_powspec(k,a),nonlinear_powspec(k,a));
+      //fprintf(fp,"%e %e %e %e %e\n",k,transfer_function(k),transfer_function(k),linear_powspec(k,a),nonlinear_powspec_for_lens(k,a));
+    }
+  fclose(fp);
+  
 #else
   test_nonlinear_corrfunc();
   test_nonlinear_powspec();

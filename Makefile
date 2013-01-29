@@ -1,5 +1,5 @@
 #vars
-CXX         = g++ -fopenmp
+CXX         = g++ #-fopenmp
 GSLI        = -I/opt/local/include
 GSLL        = -L/opt/local/lib
 CXXFLAGS    = -Wall -g -O3 ${GSLI}

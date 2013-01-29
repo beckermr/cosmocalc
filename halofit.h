@@ -8,7 +8,7 @@
 
 class HaloFitPowerSpectrum : public PowerSpectrum {
  protected:
-  double _om,_ol,_w0,_wa;
+  double _om,_ol;
   class GrowthFunction *_gf;
   class PowerSpectrum *_pklin;
   class Hubble *_ha;
@@ -19,19 +19,21 @@ class HaloFitPowerSpectrum : public PowerSpectrum {
   double PNL_A_MAX; //max scale factor for nonlinear powspec gaussn norm table 
   double get_nonlinear_gaussnorm_scale(double a);
   void init_nonlinear_powspec_table(void);
-  gsl_spline *nonlinear_powspec_spline[3];
-  gsl_interp_accel *nonlinear_powspec_acc[3];
+  int NUM_SPLINE_NONLINEAR_POWSPEC;
+  gsl_spline *nonlinear_powspec_spline[5];
+  gsl_interp_accel *nonlinear_powspec_acc[5];
   double PNL_RGAUSS_MIN;
   double PNL_RGAUSS_MAX;
     
  public:
   HaloFitPowerSpectrum() {
-    NONLINEAR_POWSPEC_TABLE_LENGTH = 100;
+    NONLINEAR_POWSPEC_TABLE_LENGTH = 500;
+    NUM_SPLINE_NONLINEAR_POWSPEC = 5;
     PNL_A_MIN = 0.2;
     PNL_A_MAX = 1.0;
     PNL_RGAUSS_MIN = 0.0001;
     PNL_RGAUSS_MAX = 100.0;
-    for(int i=0;i<3;++i)
+    for(int i=0;i<NUM_SPLINE_NONLINEAR_POWSPEC;++i)
       {
 	nonlinear_powspec_spline[i] = NULL;
 	nonlinear_powspec_acc[i] = NULL;
@@ -39,7 +41,7 @@ class HaloFitPowerSpectrum : public PowerSpectrum {
   };
 
   ~HaloFitPowerSpectrum() {
-    for(int i=0;i<3;++i)
+    for(int i=0;i<NUM_SPLINE_NONLINEAR_POWSPEC;++i)
       {
 	if(nonlinear_powspec_spline[i] != NULL)
 	  gsl_spline_free(nonlinear_powspec_spline[i]);

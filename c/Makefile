@@ -7,7 +7,12 @@
 #select your computer
 #COMP="orange"
 #COMP="mandor-icc"
-COMP="mandor-gcc"
+#COMP="mandor-gcc"
+
+CC          = gcc -O3
+OPTIMIZE    = -Wall 
+GSLI        =  -I/opt/local/include 
+GSLL        =  -L/opt/local/lib -lm -lgsl -lgslcblas
 
 #edit/add to match your machine
 ifeq ($(COMP),"orange")

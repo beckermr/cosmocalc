@@ -75,7 +75,7 @@ int main(int argc, char **argv)
   for(i=0;i<Nk;++i)
     {
       k = exp(dlnk*i)*kmin;
-      fprintf(fp,"%e %e %e %e\n",k,cd.transfer_function(k),cd.linear_powspec(k,a),cd.nonlinear_powspec(k,a));
+      fprintf(fp,"%e %e %e %e %e\n",k,cd.transfer_function(k),cd.linear_powspec(k,a),cd.linear_powspec(k,a),cd.nonlinear_powspec(k,a));
     }
   t += wtime();
   fprintf(stderr,"trans func loop took %g seconds.\n",t);
