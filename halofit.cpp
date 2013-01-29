@@ -137,29 +137,23 @@ void HaloFitPowerSpectrum::init_nonlinear_powspec_table(void)
     dat.pknl = this;
     F.params = &dat;
     
-    F.function = &onederiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct;
 #pragma omp for
     for(i=0;i<NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
       {
 	dat.param = xtab[i];
 	gaussRad = xtab[i];
+
+	F.function = &onederiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct;
 	gsl_integration_qags(&F,log(1e-4),log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
 	gsl_integration_qags(&F,log(2.0*M_PI/gaussRad),log(1e3),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
 	ytab[i] = I0+I1;
+	
+	F.function = &twoderiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct;
+	gsl_integration_qags(&F,log(1e-4),log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
+        gsl_integration_qags(&F,log(2.0*M_PI/gaussRad),log(1e3),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
+        ztab[i] = I0+I1;
       }
 
-    
-    F.function = &twoderiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct;
-#pragma omp for
-    for(i=0;i<NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
-      {
-	dat.param = xtab[i];
-	gaussRad = xtab[i];
-	gsl_integration_qags(&F,log(1e-4),log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
-	gsl_integration_qags(&F,log(2.0*M_PI/gaussRad),log(1e3),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
-	ztab[i] = I0+I1;
-      }
-    
     gsl_integration_workspace_free(workspace);
   }
   
