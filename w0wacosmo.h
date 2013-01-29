@@ -36,6 +36,13 @@ class w0wa_CosmoData : public CosmoData {
 	    wa == rhs.wa);
   };
   
+  double operator()(double a) {
+    if(a != 1.0)
+      return w0 + wa - wa*(a - 1.0)/log(a);
+    else
+      return w0;
+  };
+  
   //required methods
   void print_header(FILE *fp) {
     fprintf(fp,"#omegm omegal omegab omeganu omegak h sigma8 ns w0 wa\n");

@@ -5,6 +5,7 @@
 #include "w0wacosmo.h"
 #include "eh98_transfunct.h"
 #include "linpowspec.h"
+#include "halofit.h"
 
 #ifndef _OPENMP
 #include <sys/time.h>
@@ -25,7 +26,7 @@ static double wtime(void)
 
 void printcosmo(double a, class Hubble& h, class Distances& d, class GrowthFunction& gf,
 		class TransferFunction& tf, class TransferFunction& tfs,
-		class LinearPowerSpectrum& lp)
+		class LinearPowerSpectrum& lp, class HaloFitPowerSpectrum& pknl)
 {
   fprintf(stderr,"H(%f)/H100 = %f\n",a,h(a));
   fprintf(stderr,"comvdist(%f) = %f\n",a,d.comvdist(a));
@@ -45,7 +46,7 @@ void printcosmo(double a, class Hubble& h, class Distances& d, class GrowthFunct
   for(i=0;i<Nk;++i)
     {
       k = exp(dlnk*i)*kmin;
-      fprintf(fp,"%e %e %e %e\n",k,tf(k),tfs(k),lp(k,a));
+      fprintf(fp,"%e %e %e %e %e\n",k,tf(k),tfs(k),lp(k,a),pknl(k,a));
     }
   fclose(fp);
 }
@@ -59,6 +60,7 @@ int main(int argc, char **argv)
   EH98_TransferFunction tf;
   EH98Smooth_TransferFunction tfs;
   LinearPowerSpectrum lp;
+  HaloFitPowerSpectrum pknl;
   
   double t,a = atof(argv[1]);
   
@@ -83,10 +85,11 @@ int main(int argc, char **argv)
   tf.init(cd.om,cd.ob,cd.h);
   tfs.init(cd.om,cd.ob,cd.h);
   lp.init(cd.s8,cd.ns,gf,tf);
+  pknl.init(cd.om,cd.ol,cd,lp,h,gf);
   t += wtime();
   fprintf(stderr,"\nfirst init took %g seconds.\n\n",t);
   
-  printcosmo(a,h,d,gf,tf,tfs,lp);
+  printcosmo(a,h,d,gf,tf,tfs,lp,pknl);
   fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
   
   //set params
@@ -108,10 +111,11 @@ int main(int argc, char **argv)
   tf.init(cd.om,cd.ob,cd.h);
   tfs.init(cd.om,cd.ob,cd.h);
   lp.init(cd.s8,cd.ns,gf,tf);
+  pknl.init(cd.om,cd.ol,cd,lp,h,gf);
   t += wtime();
   fprintf(stderr,"\nsecond init took %g seconds.\n\n",t);
   
-  printcosmo(a,h,d,gf,tf,tfs,lp);
+  printcosmo(a,h,d,gf,tf,tfs,lp,pknl);
   fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
     
   cosmocalc_assert(cd == h.cosmology(),"cosmology in h object is not the same as that use to init!");

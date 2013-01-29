@@ -15,6 +15,11 @@
 */
 class CosmoData {
  public:
+  //operator method to return weff(a) = \frac{1}{\ln(a)}*\int_{0}^{\ln a}d\ln a' w(a')
+  virtual double operator()(double a) {
+    cosmocalc_assert(false,"In operator() method, CosmoData base class cannot be used alone!");
+  };
+  
   //public methods to output parameters to a file
   virtual void print_header(FILE *fp) {
     cosmocalc_assert(false,"In print_header method, CosmoData base class cannot be used alone!");
