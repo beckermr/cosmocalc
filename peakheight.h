@@ -1,5 +1,5 @@
-#include "cosmocalc_assert.h"
 #include "cosmocalc.h"
+#include "cosmocalc_assert.h"
 
 #ifndef _PEAKHEIGHT_
 #define _PEAKHEIGHT_
@@ -46,11 +46,12 @@ class PeakHeight {
     _om = omegam;
     _gf = &gf;
     _pkl = &pkl;
+    init_peakheight_table();
   };
   
   double sigmaRtophat(double topHatRad, double a)
   {
-    return exp(gsl_spline_eval(R2sigma_spline,log(topHatRad),R2sigma_acc))*(*_gf)(a);
+    return exp(gsl_spline_eval(R2sigma_spline,log(topHatRad),R2sigma_acc))*(*_gf)(1.0,a);
   };
   double sigmaMtophat(double m, double a)
   {
@@ -58,7 +59,7 @@ class PeakHeight {
   };
   double Rsigmatophat(double sigmaR, double a)
   {
-    return exp(gsl_spline_eval(sigma2R_spline,log(sigmaR/(*_gf)(a)),sigma2R_acc));
+    return exp(gsl_spline_eval(sigma2R_spline,log(sigmaR/(*_gf)(1.0,a)),sigma2R_acc));
   };
   double Msigmatophat(double sigmaR, double a)
   {

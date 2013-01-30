@@ -6,6 +6,7 @@
 #include "eh98_transfunct.h"
 #include "linpowspec.h"
 #include "halofit.h"
+#include "peakheight.h"
 
 #ifndef _OPENMP
 #include <sys/time.h>
@@ -22,7 +23,7 @@ static double wtime(void)
 
 void printcosmo(double a, class CosmoData& cd, class Hubble& h, class Distances& d, class GrowthFunction& gf,
 		class TransferFunction& tf, class TransferFunction& tfs,
-		class PowerSpectrum& lp, class PowerSpectrum& pknl)
+		class PowerSpectrum& lp, class PowerSpectrum& pknl, class PeakHeight& ph)
 {
   fprintf(stderr,"weff(%f) = %f\n",a,cd(a));
   fprintf(stderr,"H(%f)/H100 = %f\n",a,h(a));
@@ -31,6 +32,7 @@ void printcosmo(double a, class CosmoData& cd, class Hubble& h, class Distances&
   fprintf(stderr,"angdist(%f) = %f\n",a,d.angdist(a));
   fprintf(stderr,"lumdist(%f) = %f\n",a,d.lumdist(a));
   fprintf(stderr,"growth function(%f) = %f\n",a,gf(1.0,a));
+  fprintf(stderr,"sigma8 = %f\n",ph.sigmaRtophat(8.0,1.0));
   
   double kmin = 1e-6;
   double kmax = 1e4;
@@ -50,7 +52,7 @@ void printcosmo(double a, class CosmoData& cd, class Hubble& h, class Distances&
 
 void initcosmo(class w0wa_CosmoData& cd, class w0wa_Hubble& h, class FLRWDistances& d, class w0wa_GrowthFunction& gf,
 	       class EH98_TransferFunction& tf, class EH98Smooth_TransferFunction& tfs,
-	       class LinearPowerSpectrum& lp, class HaloFitPowerSpectrum& pknl)
+	       class LinearPowerSpectrum& lp, class HaloFitPowerSpectrum& pknl, class PeakHeight& ph)
 {
   double t;
   double t0 = -wtime();
@@ -78,10 +80,17 @@ void initcosmo(class w0wa_CosmoData& cd, class w0wa_Hubble& h, class FLRWDistanc
   lp.init(cd.s8,cd.ns,gf,tf);
   t += wtime();
   fprintf(stderr,"pkl init took %g seconds.\n",t);
+  
   t = -wtime();
   pknl.init(cd.om,cd.ol,cd,lp,h,gf);
   t += wtime();
   fprintf(stderr,"pknl init took %g seconds.\n",t);
+  
+  t = -wtime();
+  ph.init(cd.om,gf,lp);
+  t += wtime();
+  fprintf(stderr,"ph init took %g seconds.\n",t);
+  
   t0 += wtime();
   fprintf(stderr,"total init took %g seconds.\n\n",t0);
 }
@@ -96,7 +105,7 @@ int main(int argc, char **argv)
   EH98Smooth_TransferFunction tfs;
   LinearPowerSpectrum lp;
   HaloFitPowerSpectrum pknl;
-  
+  PeakHeight ph;
   double a = atof(argv[1]);
   
   fprintf(stderr,"Testing the cosmology routines...\n");
@@ -113,24 +122,28 @@ int main(int argc, char **argv)
   cd.w0 = -1.0;
   cd.wa = 0.0;
   
-  initcosmo(cd,h,d,gf,tf,tfs,lp,pknl);
-  printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl);
+  initcosmo(cd,h,d,gf,tf,tfs,lp,pknl,ph);
+  printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl,ph);
+  fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
+  
+  initcosmo(cd,h,d,gf,tf,tfs,lp,pknl,ph);
+  printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl,ph);
   fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
   
   //set params
-  cd.om = 0.3;
-  cd.ol = 0.7;
+  cd.om = 0.25;
+  cd.ol = 0.75;
   cd.ob = 0.045;
   cd.onu = 0.0;
   cd.ok = 0.0;
   cd.h = 0.7;
-  cd.s8 = 0.8;
+  cd.s8 = 0.85;
   cd.ns = 1.0;
   cd.w0 = -1.0;
   cd.wa = 0.0;
   
-  initcosmo(cd,h,d,gf,tf,tfs,lp,pknl);
-  printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl);
+  initcosmo(cd,h,d,gf,tf,tfs,lp,pknl,ph);
+  printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl,ph);
   fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
     
   cosmocalc_assert(cd == h.cosmology(),"cosmology in h object is not the same as that use to init!");

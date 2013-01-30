@@ -16,8 +16,8 @@ CXXSOURCES = main.cpp
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)
 
 CCALCHEADERS = cosmocalc.h cosmocalc_assert.h flrw_distances.h w0wacosmo.h eh98_transfunct.h linpowspec.h halofit.h \
-	halomodel.h
-CCALCSOURCES = flrw_distances.cpp w0wacosmo.cpp eh98_transfunct.cpp linpowspec.cpp halofit.cpp
+	halomodel.h peakheight.h
+CCALCSOURCES = flrw_distances.cpp w0wacosmo.cpp eh98_transfunct.cpp linpowspec.cpp halofit.cpp peakheight.cpp
 CCALCOBJECTS = $(CCALCSOURCES:.cpp=.o)
 
 $(EXEC): $(CXXOBJECTS) $(CCALCOBJECTS)
