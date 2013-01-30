@@ -7,6 +7,7 @@
 #include "linpowspec.h"
 #include "halofit.h"
 #include "peakheight.h"
+#include "tinkerhalostats.h"
 
 #ifndef _OPENMP
 #include <sys/time.h>
@@ -106,6 +107,7 @@ int main(int argc, char **argv)
   LinearPowerSpectrum lp;
   HaloFitPowerSpectrum pknl;
   PeakHeight ph;
+  Tinker08MassFunction mf;
   double a = atof(argv[1]);
   
   fprintf(stderr,"Testing the cosmology routines...\n");
@@ -125,6 +127,9 @@ int main(int argc, char **argv)
   initcosmo(cd,h,d,gf,tf,tfs,lp,pknl,ph);
   printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl,ph);
   fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
+  
+  mf.init(cd.om,200.0,ph);
+  fprintf(stderr,"n(%g,%f) = %g\n",1e13,1.0,mf(1e13,1.0));
   
   initcosmo(cd,h,d,gf,tf,tfs,lp,pknl,ph);
   printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl,ph);
