@@ -127,7 +127,7 @@ void HaloFitPowerSpectrum::init_nonlinear_powspec_table(void)
   gsl_spline_init(nonlinear_powspec_spline[1],xtab,ytab,(size_t) (NONLINEAR_POWSPEC_TABLE_LENGTH));
   
   //get derivs
-#pragma omp parallel default(none) \
+#pragma omp parallel default(none)			\
   private(workspace,i,gaussRad,I0,I1,abserr,dat,F)	\
   shared(xtab,ytab,ztab)
   {
@@ -166,6 +166,7 @@ void HaloFitPowerSpectrum::init_nonlinear_powspec_table(void)
   
   free(xtab);
   free(ytab);
+  free(ztab);
 }
 
 //#define SMITH03

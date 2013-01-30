@@ -12,7 +12,7 @@ class LinearPowerSpectrum : public PowerSpectrum {
   double _s8;
   class GrowthFunction *_gf;
   class TransferFunction *_tf;
-  
+    
   int LINEAR_POWSPEC_TABLE_LENGTH; //number of spline points in k for linear power spec
   double PL_K_MIN;  //min k value for linear powspec in h/Mpc
   double PL_K_MAX;  //max k value for linear powspec in h/Mpc
@@ -61,6 +61,11 @@ class LinearPowerSpectrum : public PowerSpectrum {
       return exp(gsl_spline_eval(linear_powspec_spline,log(k),linear_powspec_acc))*gf*gf*_linear_powspec_norm;
     else
       return exp(_linear_powspec_c0+_linear_powspec_c1*log(k))*gf*gf*_linear_powspec_norm;
+  };
+  
+  double sigma8(double a) {
+    double gf = (*_gf)(1.0,a);
+    return tophatradnorm_linear_powspec_exact_nonorm(8.0)*gf*gf;
   };
 };
 

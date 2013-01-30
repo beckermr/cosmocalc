@@ -27,7 +27,7 @@ class HaloFitPowerSpectrum : public PowerSpectrum {
     
  public:
   HaloFitPowerSpectrum() {
-    NONLINEAR_POWSPEC_TABLE_LENGTH = 500;
+    NONLINEAR_POWSPEC_TABLE_LENGTH = 100;
     NUM_SPLINE_NONLINEAR_POWSPEC = 5;
     PNL_A_MIN = 0.2;
     PNL_A_MAX = 1.0;

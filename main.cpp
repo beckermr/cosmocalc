@@ -80,16 +80,34 @@ int main(int argc, char **argv)
   cd.w0 = -1.0;
   cd.wa = 0.0;
   
+  double t0 = -wtime();
   t = -wtime();
   h.init(cd);
+  t += wtime();
+  fprintf(stderr,"first init took %g seconds.\n",t);
+  t = -wtime();
   d.init(cd.ok,h);
+  t += wtime();
+  fprintf(stderr,"first init took %g seconds.\n",t);
+  t = -wtime();
   gf.init(cd,h);
+  t += wtime();
+  fprintf(stderr,"first init took %g seconds.\n",t);
+  t = -wtime();
   tf.init(cd.om,cd.ob,cd.h);
-  tfs.init(cd.om,cd.ob,cd.h);
+  t += wtime();
+  fprintf(stderr,"first init took %g seconds.\n",t);
+  t = -wtime();
+  //tfs.init(cd.om,cd.ob,cd.h);
   lp.init(cd.s8,cd.ns,gf,tf);
+  t += wtime();
+  fprintf(stderr,"first init took %g seconds.\n",t);
+  t = -wtime();
   pknl.init(cd.om,cd.ol,cd,lp,h,gf);
   t += wtime();
-  fprintf(stderr,"\nfirst init took %g seconds.\n\n",t);
+  fprintf(stderr,"first init took %g seconds.\n",t);
+  t0 += wtime();
+  fprintf(stderr,"total first init took %g seconds.\n\n",t0);
   
   printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl);
   fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
