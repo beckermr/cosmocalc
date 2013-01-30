@@ -17,16 +17,12 @@ static double wtime(void)
 }
 #else
 #include <omp.h>
-static double wtime(void)
-{
-  double t = omp_get_wtime();
-  return t;
-}
+#define wtime omp_get_wtime
 #endif
 
 void printcosmo(double a, class CosmoData& cd, class Hubble& h, class Distances& d, class GrowthFunction& gf,
 		class TransferFunction& tf, class TransferFunction& tfs,
-		class LinearPowerSpectrum& lp, class HaloFitPowerSpectrum& pknl)
+		class PowerSpectrum& lp, class PowerSpectrum& pknl)
 {
   fprintf(stderr,"weff(%f) = %f\n",a,cd(a));
   fprintf(stderr,"H(%f)/H100 = %f\n",a,h(a));
@@ -47,10 +43,47 @@ void printcosmo(double a, class CosmoData& cd, class Hubble& h, class Distances&
   for(i=0;i<Nk;++i)
     {
       k = exp(dlnk*i)*kmin;
-      //fprintf(fp,"%e %e %e %e %e\n",k,tf(k),tfs(k),lp(k,a),pknl(k,a));
-      fprintf(fp,"%e %e %e %e %e\n",k,tf(k),tfs(k),pknl.linear_powspec(k,a),pknl(k,a));
+      fprintf(fp,"%e %e %e %e %e\n",k,tf(k),tfs(k),lp(k,a),pknl(k,a));
     }
   fclose(fp);
+}
+
+void initcosmo(class w0wa_CosmoData& cd, class w0wa_Hubble& h, class FLRWDistances& d, class w0wa_GrowthFunction& gf,
+	       class EH98_TransferFunction& tf, class EH98Smooth_TransferFunction& tfs,
+	       class LinearPowerSpectrum& lp, class HaloFitPowerSpectrum& pknl)
+{
+  double t;
+  double t0 = -wtime();
+  t = -wtime();
+  h.init(cd);
+  t += wtime();
+  fprintf(stderr,"\nh init took %g seconds.\n",t);
+  t = -wtime();
+  d.init(cd.ok,h);
+  t += wtime();
+  fprintf(stderr,"d init took %g seconds.\n",t);
+  t = -wtime();
+  gf.init(cd,h);
+  t += wtime();
+  fprintf(stderr,"gf init took %g seconds.\n",t);
+  t = -wtime();
+  tf.init(cd.om,cd.ob,cd.h);
+  t += wtime();
+  fprintf(stderr,"tf init took %g seconds.\n",t);
+  t = -wtime();
+  tfs.init(cd.om,cd.ob,cd.h);
+  t += wtime();
+  fprintf(stderr,"tfs init took %g seconds.\n",t);
+  t = -wtime();
+  lp.init(cd.s8,cd.ns,gf,tf);
+  t += wtime();
+  fprintf(stderr,"pkl init took %g seconds.\n",t);
+  t = -wtime();
+  pknl.init(cd.om,cd.ol,cd,lp,h,gf);
+  t += wtime();
+  fprintf(stderr,"pknl init took %g seconds.\n",t);
+  t0 += wtime();
+  fprintf(stderr,"total init took %g seconds.\n\n",t0);
 }
 
 int main(int argc, char **argv)
@@ -64,9 +97,9 @@ int main(int argc, char **argv)
   LinearPowerSpectrum lp;
   HaloFitPowerSpectrum pknl;
   
-  double t,a = atof(argv[1]);
+  double a = atof(argv[1]);
   
-  fprintf(stderr,"Testing the cosmology routines...\n\n");
+  fprintf(stderr,"Testing the cosmology routines...\n");
     
   //set params
   cd.om = 0.25;
@@ -80,35 +113,7 @@ int main(int argc, char **argv)
   cd.w0 = -1.0;
   cd.wa = 0.0;
   
-  double t0 = -wtime();
-  t = -wtime();
-  h.init(cd);
-  t += wtime();
-  fprintf(stderr,"first init took %g seconds.\n",t);
-  t = -wtime();
-  d.init(cd.ok,h);
-  t += wtime();
-  fprintf(stderr,"first init took %g seconds.\n",t);
-  t = -wtime();
-  gf.init(cd,h);
-  t += wtime();
-  fprintf(stderr,"first init took %g seconds.\n",t);
-  t = -wtime();
-  tf.init(cd.om,cd.ob,cd.h);
-  t += wtime();
-  fprintf(stderr,"first init took %g seconds.\n",t);
-  t = -wtime();
-  //tfs.init(cd.om,cd.ob,cd.h);
-  lp.init(cd.s8,cd.ns,gf,tf);
-  t += wtime();
-  fprintf(stderr,"first init took %g seconds.\n",t);
-  t = -wtime();
-  pknl.init(cd.om,cd.ol,cd,lp,h,gf);
-  t += wtime();
-  fprintf(stderr,"first init took %g seconds.\n",t);
-  t0 += wtime();
-  fprintf(stderr,"total first init took %g seconds.\n\n",t0);
-  
+  initcosmo(cd,h,d,gf,tf,tfs,lp,pknl);
   printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl);
   fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
   
@@ -124,17 +129,7 @@ int main(int argc, char **argv)
   cd.w0 = -1.0;
   cd.wa = 0.0;
   
-  t = -wtime();
-  h.init(cd);
-  d.init(cd.ok,h);
-  gf.init(cd,h);
-  tf.init(cd.om,cd.ob,cd.h);
-  tfs.init(cd.om,cd.ob,cd.h);
-  lp.init(cd.s8,cd.ns,gf,tf);
-  pknl.init(cd.om,cd.ol,cd,lp,h,gf);
-  t += wtime();
-  fprintf(stderr,"\nsecond init took %g seconds.\n\n",t);
-  
+  initcosmo(cd,h,d,gf,tf,tfs,lp,pknl);
   printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl);
   fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
     
