@@ -1,3 +1,4 @@
+#include <gsl/gsl_math.h>
 #include "cosmocalc.h"
 #include "cosmocalc_assert.h"
 
@@ -49,28 +50,22 @@ class PeakHeight {
     init_peakheight_table();
   };
   
-  double sigmaRtophat(double topHatRad, double a)
-  {
+  double sigmaRtophat(double topHatRad, double a) {
     return exp(gsl_spline_eval(R2sigma_spline,log(topHatRad),R2sigma_acc))*(*_gf)(1.0,a);
   };
-  double sigmaMtophat(double m, double a)
-  {
+  double sigmaMtophat(double m, double a) {
     return sigmaRtophat(pow(m/(4.0/3.0*M_PI*RHO_CRIT*_om),1.0/3.0),a);
   };
-  double Rsigmatophat(double sigmaR, double a)
-  {
+  double Rsigmatophat(double sigmaR, double a) {
     return exp(gsl_spline_eval(sigma2R_spline,log(sigmaR/(*_gf)(1.0,a)),sigma2R_acc));
   };
-  double Msigmatophat(double sigmaR, double a)
-  {
+  double Msigmatophat(double sigmaR, double a) {
     return (4.0/3.0*M_PI*RHO_CRIT*_om)*pow(Rsigmatophat(sigmaR,a),3.0);
   };
-  double Mnutophat(double nu, double a)
-  {
+  double Mnutophat(double nu, double a) {
     return (4.0/3.0*M_PI*RHO_CRIT*_om)*pow(Rsigmatophat(DELTAC/nu,a),3.0);
   };
-  double Rnutophat(double nu, double a)
-  {
+  double Rnutophat(double nu, double a) {
     return Rsigmatophat(DELTAC/nu,a);
   };
 };

@@ -24,7 +24,8 @@ static double wtime(void)
 
 void printcosmo(double a, class CosmoData& cd, class Hubble& h, class Distances& d, class GrowthFunction& gf,
 		class TransferFunction& tf, class TransferFunction& tfs,
-		class PowerSpectrum& lp, class PowerSpectrum& pknl, class PeakHeight& ph)
+		class PowerSpectrum& lp, class PowerSpectrum& pknl, class PeakHeight& ph, 
+		class MassFunction& mf)
 {
   fprintf(stderr,"weff(%f) = %f\n",a,cd(a));
   fprintf(stderr,"H(%f)/H100 = %f\n",a,h(a));
@@ -49,34 +50,53 @@ void printcosmo(double a, class CosmoData& cd, class Hubble& h, class Distances&
       fprintf(fp,"%e %e %e %e %e\n",k,tf(k),tfs(k),lp(k,a),pknl(k,a));
     }
   fclose(fp);
+  
+  double mmin = 1e9;
+  double mmax = 1e16;
+  long Nm = 2000;
+  double m,dlnm = log(mmax/mmin)/Nm;
+  
+  fp = fopen("testm.dat","w");
+  for(i=0;i<Nm;++i)
+    {
+      m = exp(dlnm*i)*mmin;
+      fprintf(fp,"%e %e\n",m,mf(m,1.0));
+    }
+  fclose(fp);
 }
 
 void initcosmo(class w0wa_CosmoData& cd, class w0wa_Hubble& h, class FLRWDistances& d, class w0wa_GrowthFunction& gf,
 	       class EH98_TransferFunction& tf, class EH98Smooth_TransferFunction& tfs,
-	       class LinearPowerSpectrum& lp, class HaloFitPowerSpectrum& pknl, class PeakHeight& ph)
+	       class LinearPowerSpectrum& lp, class HaloFitPowerSpectrum& pknl, class PeakHeight& ph, class Tinker08MassFunction& mf)
 {
   double t;
   double t0 = -wtime();
+
   t = -wtime();
   h.init(cd);
   t += wtime();
   fprintf(stderr,"\nh init took %g seconds.\n",t);
+
   t = -wtime();
   d.init(cd.ok,h);
   t += wtime();
   fprintf(stderr,"d init took %g seconds.\n",t);
+
   t = -wtime();
   gf.init(cd,h);
   t += wtime();
   fprintf(stderr,"gf init took %g seconds.\n",t);
+
   t = -wtime();
   tf.init(cd.om,cd.ob,cd.h);
   t += wtime();
   fprintf(stderr,"tf init took %g seconds.\n",t);
+
   t = -wtime();
   tfs.init(cd.om,cd.ob,cd.h);
   t += wtime();
   fprintf(stderr,"tfs init took %g seconds.\n",t);
+
   t = -wtime();
   lp.init(cd.s8,cd.ns,gf,tf);
   t += wtime();
@@ -91,6 +111,11 @@ void initcosmo(class w0wa_CosmoData& cd, class w0wa_Hubble& h, class FLRWDistanc
   ph.init(cd.om,gf,lp);
   t += wtime();
   fprintf(stderr,"ph init took %g seconds.\n",t);
+  
+  t = -wtime();
+  mf.init(cd.om,200.0,ph);
+  t += wtime();
+  fprintf(stderr,"mf init took %g seconds.\n",t);
   
   t0 += wtime();
   fprintf(stderr,"total init took %g seconds.\n\n",t0);
@@ -111,45 +136,23 @@ int main(int argc, char **argv)
   double a = atof(argv[1]);
   
   fprintf(stderr,"Testing the cosmology routines...\n");
-    
+  
   //set params
-  cd.om = 0.25;
-  cd.ol = 0.75;
-  cd.ob = 0.045;
+  cd.om = 0.3;
+  cd.ol = 0.7;
+  cd.ob = 0.04;
   cd.onu = 0.0;
   cd.ok = 0.0;
   cd.h = 0.7;
-  cd.s8 = 0.8;
+  cd.s8 = 0.9;
   cd.ns = 1.0;
   cd.w0 = -1.0;
   cd.wa = 0.0;
   
-  initcosmo(cd,h,d,gf,tf,tfs,lp,pknl,ph);
-  printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl,ph);
+  initcosmo(cd,h,d,gf,tf,tfs,lp,pknl,ph,mf);
+  printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl,ph,mf);
   fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
-  
-  mf.init(cd.om,200.0,ph);
   fprintf(stderr,"n(%g,%f) = %g\n",1e13,1.0,mf(1e13,1.0));
-  
-  initcosmo(cd,h,d,gf,tf,tfs,lp,pknl,ph);
-  printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl,ph);
-  fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
-  
-  //set params
-  cd.om = 0.25;
-  cd.ol = 0.75;
-  cd.ob = 0.045;
-  cd.onu = 0.0;
-  cd.ok = 0.0;
-  cd.h = 0.7;
-  cd.s8 = 0.85;
-  cd.ns = 1.0;
-  cd.w0 = -1.0;
-  cd.wa = 0.0;
-  
-  initcosmo(cd,h,d,gf,tf,tfs,lp,pknl,ph);
-  printcosmo(a,cd,h,d,gf,tf,tfs,lp,pknl,ph);
-  fprintf(stderr,"exact growth function(%f) = %f, norm = %f\n",a,gf.growth_function_exact(1.0,a,h),gf.growth_function_norm());
     
   cosmocalc_assert(cd == h.cosmology(),"cosmology in h object is not the same as that use to init!");
   
