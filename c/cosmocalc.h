@@ -95,12 +95,9 @@ double linear_corrfunc_exact(double r, double a);
 double linear_corrfunc(double r, double a);
 
 /* in nonlinear_powspec.c */
-double nonlinear_powspec_exact(double k, double a);
 double nonlinear_powspec(double k, double a);
 double get_nonlinear_gaussnorm_scale(double a);
-double gaussiannorm_linear_powspec_exact(double gaussRad);
-double onederiv_gaussiannorm_linear_powspec_exact(double gaussRad);
-double twoderiv_gaussiannorm_linear_powspec_exact(double gaussRad);
+double gaussiannorm_linear_powspec(double gaussRad);
 
 /* nonlinear_corrfunc.c */
 double nonlinear_corrfunc_integ_funct(double k, void *p);
