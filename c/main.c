@@ -10,13 +10,8 @@
 #include "cosmocalc.h"
 #include "weaklens.h"
 
-cosmocalcData cosmoData;
-weaklensData wlData;
-
 int main(int argc, char **argv)
 {
-  
-#ifndef TEST_CODE
   //init cosmology
   cosmoData.cosmoNum = 1;
   cosmoData.OmegaM = 0.25;
@@ -51,19 +46,5 @@ int main(int argc, char **argv)
     }
   fclose(fp);
   
-#else
-  test_nonlinear_corrfunc();
-  test_nonlinear_powspec();
-  test_linxi_fftlog();
-  test_linxi();
-  test_biasfunc();
-  test_massfunc();
-  test_peakheight();
-  test_gf();
-  test_distances();
-  test_transfunct();
-  test_linpk();
-#endif
-    
   return 0;
 }
