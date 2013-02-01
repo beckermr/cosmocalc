@@ -7,6 +7,7 @@
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_fit.h>
+#include <gsl/gsl_roots.h>
 
 #include "cosmocalc.h"
 
@@ -151,3 +152,128 @@ double linear_powspec(double k, double a)
     return exp(c0+c1*log(k))*linear_powspec_norm*gf*gf;
 }
 
+double tophatnorm_linear_powspec(double topHatRad)
+{
+#define NL_RTOPHAT_MIN 0.0001
+#define NL_RTOPHAT_MAX 100.0
+#define WORKSPACE_NUM 10000000
+#define ABSERR 1e-8
+#define RELERR 0.0 
+  
+  static int initFlag = 1;
+  static int currCosmoNum;
+  static gsl_spline *spline = NULL;
+  static gsl_interp_accel *accel = NULL;
+  
+  double I0,I1;
+  double abserr,epsabs,epsrel;
+  gsl_integration_workspace *workspace;
+  gsl_function F;
+  int i;
+  double xtab[COSMOCALC_LINEAR_POWSPEC_NORM_TABLE_LENGTH];
+  double ytab[COSMOCALC_LINEAR_POWSPEC_NORM_TABLE_LENGTH];
+  double dlnr;
+  double lnrmin;
+  double lnr;
+  
+  if(initFlag == 1 || currCosmoNum != cosmoData.cosmoNum)
+    {
+      initFlag = 0;
+      currCosmoNum = cosmoData.cosmoNum;
+
+      workspace = gsl_integration_workspace_alloc((size_t) WORKSPACE_NUM);
+      
+      dlnr = log(NL_RTOPHAT_MAX/NL_RTOPHAT_MIN)/(COSMOCALC_LINEAR_POWSPEC_NORM_TABLE_LENGTH-1.0);
+      lnrmin = log(NL_RTOPHAT_MIN);
+      
+      for(i=0;i<COSMOCALC_LINEAR_POWSPEC_NORM_TABLE_LENGTH;++i)
+        {
+          lnr = dlnr*i + lnrmin;
+          xtab[i] = exp(lnr);
+	  
+	  F.params = &(topHatRad);
+	  if(topHatRad > 1e-4)
+	    {
+	      epsabs = 1e-20;
+	      epsrel = 1e-6;
+	      F.function = &tophatradnorm_linear_powspec_exact_nonorm_k_integ_funct_I0;
+	      gsl_integration_qags(&F,0.0,2.0*M_PI/topHatRad,epsabs,epsrel,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
+	      gsl_integration_qagiu(&F,2.0*M_PI/topHatRad,epsabs,epsrel,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
+	    }
+	  else
+	    {
+	      F.function = &tophatradnorm_linear_powspec_exact_nonorm_lnk_integ_funct_I0;
+	      gsl_integration_qagil(&F,log(2.0*M_PI/topHatRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
+	      gsl_integration_qagiu(&F,log(2.0*M_PI/topHatRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
+	    }
+	  
+          xtab[i] = lnr;
+          ytab[i] = log(I0+I1);
+        }
+      
+      gsl_integration_workspace_free(workspace);
+      
+      if(spline != NULL)
+        gsl_spline_free(spline);
+      spline = gsl_spline_alloc(gsl_interp_cspline,(size_t) (COSMOCALC_LINEAR_POWSPEC_NORM_TABLE_LENGTH));
+      gsl_spline_init(spline,xtab,ytab,(size_t) (COSMOCALC_LINEAR_POWSPEC_NORM_TABLE_LENGTH));
+      if(accel != NULL)
+        gsl_interp_accel_reset(accel);
+      else
+        accel = gsl_interp_accel_alloc();
+      
+#undef ABSERR
+#undef RELERR
+#undef WORKSPACE_NUM
+#undef NL_RTOPHAT_MIN
+#undef NL_RTOPHAT_MAX
+    }
+  
+  return exp(gsl_spline_eval(spline,log(topHatRad),accel));
+}
+
+static double linear_tophatnorm_scale_funct(double rad, void *p)
+{
+  double gf = ((double*)p)[0];
+  
+  return tophatnorm_linear_powspec(rad)*gf*gf-1.0;
+}
+
+double get_linear_tophatnorm_scale(double a)
+{
+  double gf = growth_function(a);
+  double Rsigma,Rlow=0.001,Rhigh=10.0;
+  int itr,maxItr=1000,status;
+  
+#define ABSERR 1e-6
+#define RELERR 1e-6
+  const gsl_root_fsolver_type *T;
+  gsl_root_fsolver *s;
+  gsl_function F;
+       
+  F.function = &linear_tophatnorm_scale_funct;
+  F.params = &gf;
+  
+  T = gsl_root_fsolver_brent;
+  s = gsl_root_fsolver_alloc(T);
+  gsl_root_fsolver_set(s,&F,Rlow,Rhigh);
+  itr = 0;
+  
+  do
+    {
+      itr++;
+      status = gsl_root_fsolver_iterate(s);
+      Rsigma = gsl_root_fsolver_root(s);
+      Rlow = gsl_root_fsolver_x_lower(s);
+      Rhigh = gsl_root_fsolver_x_upper(s);
+      status = gsl_root_test_interval(Rlow,Rhigh,ABSERR,RELERR);
+    }
+  while(status == GSL_CONTINUE && itr < maxItr);
+  
+#undef ABSERR
+#undef RELERR
+
+  gsl_root_fsolver_free(s);
+  
+  return Rsigma;
+}

@@ -71,6 +71,7 @@ extern cosmocalcData cosmoData;
 #define COSMOCALC_PEAKHEIGHT_TABLE_LENGTH          100
 #define COSMOCALC_NONLINEAR_CORRFUNC_TABLE_LENGTH  500
 #define COSMOCALC_LINEAR_CORRFUNC_TABLE_LENGTH     500
+#define COSMOCALC_LINEAR_POWSPEC_NORM_TABLE_LENGTH 100
 
 /* in utils.c */
 double wtime(void);
@@ -101,6 +102,8 @@ double transfunct_eh98_smooth(double kin);
 double linear_powspec(double k, double a);
 double linear_powspec_exact(double k, double a);
 double tophatradnorm_linear_powspec_exact_nonorm(double topHatRad);
+double tophatnorm_linear_powspec(double topHatRad);
+double get_linear_tophatnorm_scale(double a);
 
 /* linear_corrfunc.c */
 double linear_corrfunc_exact(double r, double a);

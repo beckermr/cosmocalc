@@ -31,7 +31,8 @@ endif
 
 CCALCSOURCES = $(FFTLOG) global.c distances.c linear_powspec.c transfer_function.c \
 	growth_function.c hubble.c peakheight.c mass_bias_functions.c \
-	linear_corrfunc.c utils.c nonlinear_powspec.c nonlinear_corrfunc.c weaklens.c
+	linear_corrfunc.c utils.c nonlinear_powspec.c nonlinear_corrfunc.c weaklens.c \
+	haloprofs.c
 CCALCOBJECTS=$(CCALCSOURCES:.c=.o)
 
 CSOURCES = main.c
