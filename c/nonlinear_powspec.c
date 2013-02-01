@@ -40,20 +40,20 @@ static double twoderiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct(double 
 //uses Takahashi et al. (2012) arXiv:1208.2701 unless macro below is set to use true Smith+03
 //#define SMITH03
 
-double nonlinear_powspec(double k, double a) {
-#define NTAB 100
+double nonlinear_powspec(double k, double a) 
+{
   static int initFlag = 1;
   static int currCosmoNum;
   static gsl_spline *spline[4];
   static gsl_interp_accel *accel[4];
   int i;
-  double t,xtab[NTAB],ytab[NTAB];
+  double xtab[COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH],ytab[COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH];
   double Rsigma,C,neff,ksigma,sigma2;
   double an,bn,cn,alphan,gamman,betan,mun,nun;
   double f1,f2,f3;
   double DeltakNL,dsigma2dR,d2sigma2d2R,PkNL,PkL;
   double y,DeltakL,fy,DeltakQ,DeltakHprime,DeltakH;
-  
+  //double t;
   double I0,I1;
   double abserr;
   gsl_integration_workspace *workspace;
@@ -71,7 +71,7 @@ double nonlinear_powspec(double k, double a) {
       if(initFlag)
 	{
 	  for(i=0;i<4;++i)
-	    spline[i] = gsl_spline_alloc(gsl_interp_akima,(size_t) (NTAB));
+	    spline[i] = gsl_spline_alloc(gsl_interp_akima,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
 	  for(i=0;i<4;++i)
 	    accel[i] = gsl_interp_accel_alloc();
           
@@ -82,50 +82,50 @@ double nonlinear_powspec(double k, double a) {
 	  for(i=0;i<4;++i)
 	    gsl_spline_free(spline[i]);
 	  for(i=0;i<4;++i)
-	    spline[i] = gsl_spline_alloc(gsl_interp_akima,(size_t) (NTAB));
+	    spline[i] = gsl_spline_alloc(gsl_interp_akima,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
 	  for(i=0;i<4;++i)
 	    gsl_interp_accel_reset(accel[i]);
 	}
       
-      t = -wtime();
+      //t = -wtime();
       
-      for(i=0;i<NTAB;++i)
+      for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
 	{
-	  xtab[i] = i*(1.0-0.2)/(NTAB-1.0) + 0.2;
+	  xtab[i] = i*(1.0-0.2)/(COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH-1.0) + 0.2;
 	  ytab[i] = get_nonlinear_gaussnorm_scale(xtab[i]);
 	}
-      gsl_spline_init(spline[0],xtab,ytab,(size_t) (NTAB));
+      gsl_spline_init(spline[0],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
       
-      gsl_sort(ytab,(size_t) 1,(size_t) (NTAB));
-      for(i=0;i<NTAB;++i)
+      gsl_sort(ytab,(size_t) 1,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
+      for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
 	{
 	  xtab[i] = ytab[i];
 	  ytab[i] = gaussiannorm_linear_powspec(xtab[i]);
 	}
-      gsl_spline_init(spline[1],xtab,ytab,(size_t) (NTAB));
+      gsl_spline_init(spline[1],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
       
       workspace = gsl_integration_workspace_alloc((size_t) WORKSPACE_NUM);
       F.params = &gaussRad;
     
       F.function = &onederiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct;
-      for(i=0;i<NTAB;++i)
+      for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
 	{
 	  gaussRad = xtab[i];
 	  gsl_integration_qags(&F,log(1e-4),log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
 	  gsl_integration_qags(&F,log(2.0*M_PI/gaussRad),log(1e3),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
 	  ytab[i] = I0+I1;
 	}
-      gsl_spline_init(spline[2],xtab,ytab,(size_t) (NTAB));
+      gsl_spline_init(spline[2],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
       
       F.function = &twoderiv_gaussiannorm_linear_powspec_exact_lnk_integ_funct;
-      for(i=0;i<NTAB;++i)
+      for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
 	{
 	  gaussRad = xtab[i];
 	  gsl_integration_qags(&F,log(1e-4),log(2.0*M_PI/gaussRad),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
 	  gsl_integration_qags(&F,log(2.0*M_PI/gaussRad),log(1e3),ABSERR,RELERR,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
 	  ytab[i] = I0+I1;
 	}
-      gsl_spline_init(spline[3],xtab,ytab,(size_t) (NTAB));
+      gsl_spline_init(spline[3],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
       
       gsl_integration_workspace_free(workspace);
 
@@ -133,8 +133,8 @@ double nonlinear_powspec(double k, double a) {
 #undef RELERR
 #undef WORKSPACE_NUM
       
-      t += wtime();
-      fprintf(stderr,"comp of non-linear Pk took %f seconds.\n",t);
+      //t += wtime();
+      //fprintf(stderr,"comp of non-linear Pk took %f seconds.\n",t);
     }
 
   Rsigma = gsl_spline_eval(spline[0],a,accel[0]);
@@ -146,15 +146,10 @@ double nonlinear_powspec(double k, double a) {
   neff = -1.0*Rsigma/sigma2*dsigma2dR - 3.0;
   C = -1.0*(d2sigma2d2R*Rsigma*Rsigma/sigma2 + dsigma2dR*Rsigma/sigma2 - dsigma2dR*dsigma2dR*Rsigma*Rsigma/sigma2/sigma2);
   
-  double w0,wa,ha,weffa,omegaMz,omegaDEwz;
+  double ha,weffa,omegaMz,omegaDEwz;
   
-  w0 = cosmoData.w0;
-  wa = cosmoData.wa;
   ha = hubble_noscale(a);
-  if(a != 1.0)
-    weffa = w0 + wa - wa*(a - 1.0)/log(a);
-  else
-    weffa = w0;
+  weffa = weff(a);
   omegaMz = cosmoData.OmegaM/a/a/a/ha/ha;
   omegaDEwz = (1.0-cosmoData.OmegaM)/ha/ha/pow(a,3.0*(1.0 + weffa));
   
@@ -200,12 +195,10 @@ double nonlinear_powspec(double k, double a) {
   PkNL = DeltakNL/(k*k*k/2.0/M_PI/M_PI);
   
   return PkNL;
-#undef NTAB
 }
 
 double gaussiannorm_linear_powspec(double gaussRad)
 {
-#define NONLINEAR_POWSPEC_TABLE_LENGTH 100
 #define PNL_RGAUSS_MIN 0.0001
 #define PNL_RGAUSS_MAX 100.0
 #define WORKSPACE_NUM 10000000
@@ -222,8 +215,8 @@ double gaussiannorm_linear_powspec(double gaussRad)
   gsl_integration_workspace *workspace;
   gsl_function F;
   int i;
-  double xtab[NONLINEAR_POWSPEC_TABLE_LENGTH];
-  double ytab[NONLINEAR_POWSPEC_TABLE_LENGTH];
+  double xtab[COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH];
+  double ytab[COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH];
   double dlnr;
   double lnrmin;
   double lnr;
@@ -236,10 +229,10 @@ double gaussiannorm_linear_powspec(double gaussRad)
       workspace = gsl_integration_workspace_alloc((size_t) WORKSPACE_NUM);
       F.function = &gaussiannorm_linear_powspec_exact_lnk_integ_funct;
       
-      dlnr = log(PNL_RGAUSS_MAX/PNL_RGAUSS_MIN)/(NONLINEAR_POWSPEC_TABLE_LENGTH-1.0);
+      dlnr = log(PNL_RGAUSS_MAX/PNL_RGAUSS_MIN)/(COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH-1.0);
       lnrmin = log(PNL_RGAUSS_MIN);
       
-      for(i=0;i<NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
+      for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
 	{
 	  lnr = dlnr*i + lnrmin;
 	  xtab[i] = exp(lnr);
@@ -259,8 +252,8 @@ double gaussiannorm_linear_powspec(double gaussRad)
       
       if(spline != NULL)
 	gsl_spline_free(spline);
-      spline = gsl_spline_alloc(gsl_interp_cspline,(size_t) (NONLINEAR_POWSPEC_TABLE_LENGTH));
-      gsl_spline_init(spline,xtab,ytab,(size_t) (NONLINEAR_POWSPEC_TABLE_LENGTH));
+      spline = gsl_spline_alloc(gsl_interp_cspline,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
+      gsl_spline_init(spline,xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
       if(accel != NULL)
 	gsl_interp_accel_reset(accel);
       else
@@ -269,7 +262,6 @@ double gaussiannorm_linear_powspec(double gaussRad)
 #undef ABSERR
 #undef RELERR
 #undef WORKSPACE_NUM
-#undef NONLINEAR_POWSPEC_TABLE_LENGTH
 #undef PNL_RGAUSS_MIN
 #undef PNL_RGAUSS_MAX
     }

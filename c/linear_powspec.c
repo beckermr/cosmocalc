@@ -10,11 +10,6 @@
 
 #include "cosmocalc.h"
 
-#define COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH 1000
-#define K_MIN 1e-9
-#define K_MAX 1e20
-#define COSMOCALC_LINEAR_POWSPEC_FIT_LENGTH 20
-
 static double fourierTransformTopHat(double y);
 static double tophatradnorm_linear_powspec_exact_nonorm_lnk_integ_funct_I0(double lnk, void *p);
 static double tophatradnorm_linear_powspec_exact_nonorm_k_integ_funct_I0(double k, void *p);
@@ -31,17 +26,17 @@ static double tophatradnorm_linear_powspec_exact_nonorm_lnk_integ_funct_I0(doubl
 {
   // topHatRad = (*((double*)p));
   double k = exp(lnk);
-  return fourierTransformTopHat(k*(*((double*)p)))*fourierTransformTopHat(k*(*((double*)p)))
-    *transfer_function(k)*transfer_function(k)*pow(k,cosmoData.SpectralIndex)
-    *k*k*k/2.0/M_PI/M_PI*k;
+  double ft = fourierTransformTopHat(k*(*((double*)p)));
+  double tf = transfer_function(k);
+  return ft*ft*tf*tf*pow(k,cosmoData.SpectralIndex)*k*k*k/2.0/M_PI/M_PI*k;
 }
 
 static double tophatradnorm_linear_powspec_exact_nonorm_k_integ_funct_I0(double k, void *p)
 {
   // topHatRad = (*((double*)p));
-  return fourierTransformTopHat(k*(*((double*)p)))*fourierTransformTopHat(k*(*((double*)p)))
-    *transfer_function(k)*transfer_function(k)*pow(k,cosmoData.SpectralIndex)
-    *k*k/2.0/M_PI/M_PI;
+  double ft = fourierTransformTopHat(k*(*((double*)p)));
+  double tf = transfer_function(k);
+  return ft*ft*tf*tf*pow(k,cosmoData.SpectralIndex)*k*k/2.0/M_PI/M_PI;
 }
 
 double tophatradnorm_linear_powspec_exact_nonorm(double topHatRad)
@@ -85,8 +80,9 @@ double linear_powspec_exact(double k, double a)
 {
   static int initFlag = 1;
   static int currCosmoNum;
-  static double linear_powspec_norm;
+  static double linear_powspec_norm = 1.0;
   double gf = growth_function(a);
+  double tf = transfer_function(k);
   
   if(initFlag == 1 || currCosmoNum != cosmoData.cosmoNum)
     {
@@ -96,14 +92,14 @@ double linear_powspec_exact(double k, double a)
       linear_powspec_norm = cosmoData.Sigma8*cosmoData.Sigma8/tophatradnorm_linear_powspec_exact_nonorm(8.0);
     }
   
-  return transfer_function(k)*transfer_function(k)*pow(k,cosmoData.SpectralIndex)*gf*gf*linear_powspec_norm;
+  return tf*tf*pow(k,cosmoData.SpectralIndex)*gf*gf*linear_powspec_norm;
 }
 
 double linear_powspec(double k, double a)
 {
   static int initFlag = 1;
   static int currCosmoNum;
-  static double linear_powspec_norm;
+  static double linear_powspec_norm = 1.0;
   static gsl_spline *cosmocalc_linear_powspec_spline = NULL;
   static gsl_interp_accel *cosmocalc_linear_powspec_acc = NULL; 
   static double c0,c1;
@@ -111,7 +107,7 @@ double linear_powspec(double k, double a)
   double linear_powspec_table[COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH];
   double k_table[COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH];
   long i;
-  double gf,cov00,cov01,cov11,sumsq;
+  double gf,cov00,cov01,cov11,sumsq,tf;
   
   if(initFlag == 1 || currCosmoNum != cosmoData.cosmoNum)
     {
@@ -121,7 +117,8 @@ double linear_powspec(double k, double a)
       for(i=0;i<COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH;++i)
 	{
 	  k_table[i] = log(K_MAX/K_MIN)/(COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH-1.0)*((double) i) + log(K_MIN);
-	  linear_powspec_table[i] = log(transfer_function(exp(k_table[i]))*transfer_function(exp(k_table[i]))*pow(exp(k_table[i]),cosmoData.SpectralIndex));
+	  tf = transfer_function(exp(k_table[i]));
+	  linear_powspec_table[i] = log(tf*tf*pow(exp(k_table[i]),cosmoData.SpectralIndex));
 	}
             
       //init the spline and accelerators
@@ -144,14 +141,13 @@ double linear_powspec(double k, double a)
   gf = growth_function(a);
   
   if(k < K_MIN)
-    return transfer_function(k)*transfer_function(k)*pow(k,cosmoData.SpectralIndex)*linear_powspec_norm*gf*gf;
+    {
+      tf = transfer_function(k);
+      return tf*tf*pow(k,cosmoData.SpectralIndex)*linear_powspec_norm*gf*gf;
+    }
   else if(k < K_MAX)
     return exp(gsl_spline_eval(cosmocalc_linear_powspec_spline,log(k),cosmocalc_linear_powspec_acc))*linear_powspec_norm*gf*gf;
   else
     return exp(c0+c1*log(k))*linear_powspec_norm*gf*gf;
 }
 
-#undef COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH
-#undef K_MIN
-#undef K_MAX
-#undef COSMOCALC_LINEAR_POWSPEC_FIT_LENGTH

@@ -26,17 +26,22 @@
 
 #define MAX_FILENAME 1024
 
+//constants
 #define RHO_CRIT 2.77519737e11 /* Critial mass density  in h^2 M_sun/Mpc^3 */
 #define CSOL 299792.458 /* velocity of light in km/s */
 #define DELTAC 1.686 /* peak height factor */
+#define DH 2997.92458 /* Hubble distance in Mpc/h */
 
 typedef struct {
   int cosmoNum;
   double OmegaM;
+  double OmegaB;
+  double OmegaL;
+  double OmegaK;
+  double OmegaNu;
   double h;
   double Sigma8;
   double SpectralIndex;
-  double OmegaB;
   double delta;
   double w0;
   double wa;
@@ -44,6 +49,28 @@ typedef struct {
 } cosmocalcData;
 
 extern cosmocalcData cosmoData;
+
+//lengths and ranges of spline tables
+#define AEXPN_MIN 0.001
+#define AEXPN_MAX 1.0
+#define AEXPN_MIN_GROWTH (1.0/31.0)
+#define K_MIN 1e-9
+#define K_MAX 1e20
+#define PH_R_MIN 1e-3
+#define PH_R_MAX 1e3
+#define CF_R_MIN 1e-10
+#define CF_R_MAX 3e2
+
+#define COSMOCALC_COMVDIST_TABLE_LENGTH            1000
+#define COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH     50
+#define COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH   1000
+#define COSMOCALC_TRANSFER_FUNCTION_FIT_LENGTH     20
+#define COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH      1000
+#define COSMOCALC_LINEAR_POWSPEC_FIT_LENGTH        20
+#define COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH   100
+#define COSMOCALC_PEAKHEIGHT_TABLE_LENGTH          100
+#define COSMOCALC_NONLINEAR_CORRFUNC_TABLE_LENGTH  500
+#define COSMOCALC_LINEAR_CORRFUNC_TABLE_LENGTH     500
 
 #ifdef TEST_CODE
 void test_nonlinear_corrfunc(void);
@@ -72,7 +99,6 @@ void um_fftlog(int m, double mu, double q, double k0, double r0, double L, doubl
 
 /* distances.c - computes distances - assumes flat lambda */
 void init_cosmocalc_comvdist_table(void);
-double comvdist_integ_funct(double a, void *p);
 double angdist(double a);
 double lumdist(double a);
 double comvdist(double a);
@@ -109,6 +135,7 @@ double growth_function_exact(double a);
 double growth_function(double a);
 
 /* in hubble.c */
+double weff(double a);
 double hubble_noscale(double a);
 
 /* in peakheight.c */

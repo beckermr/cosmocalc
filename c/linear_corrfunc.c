@@ -10,10 +10,6 @@
 
 #include "cosmocalc.h"
 
-#define COSMOCALC_LINEAR_CORRFUNC_TABLE_LENGTH 500
-#define R_MIN 1e-10
-#define R_MAX 3e2
-
 static double linear_corrfunc_integ_funct(double k, void *p);
 
 static double linear_corrfunc_integ_funct(double k, void *p)
@@ -72,7 +68,7 @@ double linear_corrfunc(double r, double a)
       
       for(i=0;i<COSMOCALC_LINEAR_CORRFUNC_TABLE_LENGTH;++i)
 	{
-	  r_table[i] = log(R_MAX/R_MIN)/(COSMOCALC_LINEAR_CORRFUNC_TABLE_LENGTH-1.0)*((double) i) + log(R_MIN);
+	  r_table[i] = log(CF_R_MAX/CF_R_MIN)/(COSMOCALC_LINEAR_CORRFUNC_TABLE_LENGTH-1.0)*((double) i) + log(CF_R_MIN);
 	  linear_corrfunc_table[i] = linear_corrfunc_exact(exp(r_table[i]),1.0);
 	}
             
@@ -89,14 +85,11 @@ double linear_corrfunc(double r, double a)
   
   gf = growth_function(a);
   
-  if(r < R_MIN)
+  if(r < CF_R_MIN)
     return 0.0;
-  else if(r < R_MAX)
+  else if(r < CF_R_MAX)
     return gsl_spline_eval(cosmocalc_linear_corrfunc_spline,log(r),cosmocalc_linear_corrfunc_acc)*gf*gf;
   else
     return 0.0;
 }
 
-#undef COSMOCALC_LINEAR_CORRFUNC_TABLE_LENGTH
-#undef R_MIN
-#undef R_MAX

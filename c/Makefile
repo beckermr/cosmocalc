@@ -9,10 +9,10 @@
 #COMP="mandor-icc"
 #COMP="mandor-gcc"
 
-CC          = gcc -O3
+CC          = gcc -g -O3
 OPTIMIZE    = -Wall 
 GSLI        =  -I/opt/local/include 
-GSLL        =  -L/opt/local/lib -lm -lgsl -lgslcblas
+GSLL        =  -L/opt/local/lib
 
 #edit/add to match your machine
 ifeq ($(COMP),"orange")
@@ -52,7 +52,7 @@ endif
 #set it all up
 CLINK=$(CC)
 CFLAGS=$(OPTIMIZE) $(GSLI) $(FFTWI) $(FITSI) $(EXTRACFLAGS) $(OPTS)
-CLIB=$(EXTRACLIB) $(GSLL) $(FFTWL) $(FITSL) $(GSLL) -lm
+CLIB=$(EXTRACLIB) $(GSLL) $(FFTWL) $(FITSL) $(GSLL) -lm -lgsl -lgslcblas
 
 ifneq (TEST_CODE,$(findstring TEST_CODE,$(CFLAGS)))
 TESTCODE=
@@ -87,5 +87,5 @@ clean:
 
 .PHONY : spotless
 spotless: 
-	rm -f *.o $(EXEC) $(TEST)
+	rm -f *.o $(EXEC) $(TEST) *~
 

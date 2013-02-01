@@ -7,11 +7,6 @@
 
 #include "cosmocalc.h"
 
-#define COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH 5000
-#define K_MIN 1e-7
-#define K_MAX 1e20
-#define COSMOCALC_TRANSFER_FUNCTION_FIT_LENGTH 20
-
 double transfer_function(double k)
 {
   static int initFlag = 1;
@@ -61,11 +56,6 @@ double transfer_function(double k)
   else
     return exp(c0+c1*log(k));
 }
-
-#undef COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH
-#undef K_MIN
-#undef K_MAX
-#undef COSMOCALC_TRANSFER_FUNCTION_FIT_LENGTH
 
 double transfunct_eh98(double kin)
 {

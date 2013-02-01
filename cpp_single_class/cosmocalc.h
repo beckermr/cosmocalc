@@ -301,18 +301,18 @@ class cosmoCalc {
     if(a1 < a2)
       {
 	if(_ok > 0.0)
-	  return DH_sqrtok*sinh((comvdist(a1)-comvdist(a2))/DH_sqrtok)/a1;
+	  return DH_sqrtok*sinh((comvdist(a1)-comvdist(a2))/DH_sqrtok)*a1;
 	else if(_ok < 0)
-	  return DH_sqrtok*sin((comvdist(a1)-comvdist(a2))/DH_sqrtok)/a1;
+	  return DH_sqrtok*sin((comvdist(a1)-comvdist(a2))/DH_sqrtok)*a1;
 	else
 	  return (comvdist(a1)-comvdist(a2))*a1;
       }
     else
       {
 	if(_ok > 0.0)
-	  return DH_sqrtok*sinh((comvdist(a2)-comvdist(a1))/DH_sqrtok)/a2;
+	  return DH_sqrtok*sinh((comvdist(a2)-comvdist(a1))/DH_sqrtok)*a2;
 	else if(_ok < 0)
-	  return DH_sqrtok*sin((comvdist(a2)-comvdist(a1))/DH_sqrtok)/a2;
+	  return DH_sqrtok*sin((comvdist(a2)-comvdist(a1))/DH_sqrtok)*a2;
 	else
 	  return (comvdist(a2)-comvdist(a1))*a2;
       }

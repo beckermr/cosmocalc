@@ -6,7 +6,15 @@
 
 #include "cosmocalc.h"
 
+double weff(double a) 
+{
+  if(a != 1.0)
+    return cosmoData.w0 + cosmoData.wa - cosmoData.wa*(a - 1.0)/log(a);
+  else
+    return cosmoData.w0;
+}
+
 double hubble_noscale(double a)
 {
-  return sqrt(cosmoData.OmegaM/a/a/a + (1.0-cosmoData.OmegaM)*exp(3.0*(cosmoData.wa*(a-1) - log(a)*(1.0 + cosmoData.w0 + cosmoData.wa))));
+  return sqrt(cosmoData.OmegaM/a/a/a + cosmoData.OmegaK/a/a + cosmoData.OmegaL*exp(3.0*(1.0 + weff(a))));
 }

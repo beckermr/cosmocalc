@@ -9,17 +9,14 @@
 
 #include "cosmocalc.h"
 
-#define COSMOCALC_COMVDIST_TABLE_LENGTH 1000
-#define AEXPN_MIN 0.001
-#define AEXPN_MAX 1.0
-
 gsl_spline *cosmocalc_aexpn2comvdist_spline = NULL;
 gsl_interp_accel *cosmocalc_aexpn2comvdist_acc = NULL; 
 gsl_spline *cosmocalc_comvdist2aexpn_spline = NULL;
 gsl_interp_accel *cosmocalc_comvdist2aexpn_acc = NULL; 
+double DH_sqrtok;
 
 /* function for integration using gsl integration */
-double comvdist_integ_funct(double a, void *p)
+static double comvdist_integ_funct(double a, void *p)
 {
   return 1.0/a/a/hubble_noscale(a);
 }
@@ -45,7 +42,7 @@ double comvdist_exact(double a)
 #undef RELERR
 #undef WORKSPACE_NUM
   
-  return result*2997.92458;
+  return result*DH;
 }
 
 /* init function  - some help from Gadget-2 applied here */
@@ -72,6 +69,11 @@ void init_cosmocalc_comvdist_table(void)
       initFlag = 0;
       currCosmoNum = cosmoData.cosmoNum;
       
+      if(cosmoData.OmegaK != 0.0)
+	DH_sqrtok = DH/sqrt(cosmoData.OmegaK);
+      else
+	DH_sqrtok = 1.0;
+      
       workspace = gsl_integration_workspace_alloc((size_t) WORKSPACE_NUM);
   
       for(i=0;i<COSMOCALC_COMVDIST_TABLE_LENGTH-1;++i)
@@ -81,7 +83,7 @@ void init_cosmocalc_comvdist_table(void)
 	  F.params = &(cosmoData.OmegaM);
 	  gsl_integration_qag(&F,afact,1.0,ABSERR,RELERR,(size_t) WORKSPACE_NUM,GSL_INTEG_GAUSS51,workspace,&result,&abserr);
 	  aexpn_table[i] = afact;
-	  comvdist_table[i] = result*2997.92458;
+	  comvdist_table[i] = result*DH;
 	}
       aexpn_table[i] = 1.0;
       comvdist_table[i] = 0.0;
@@ -155,19 +157,33 @@ double comvdist(double a)
 
 double angdist(double a)
 {
-  return comvdist(a)*a;
+  if(cosmoData.OmegaK > 0.0)
+    return DH_sqrtok*sinh(comvdist(a)/DH_sqrtok)*a;
+  else if(cosmoData.OmegaK < 0)
+    return DH_sqrtok*sin(comvdist(a)/DH_sqrtok)*a;
+  else
+    return comvdist(a)*a;
 }
 
 double lumdist(double a)
 {
-  return comvdist(a)/a;
+  if(cosmoData.OmegaK > 0.0)
+    return DH_sqrtok*sinh(comvdist(a)/DH_sqrtok)/a;
+  else if(cosmoData.OmegaK < 0)
+    return DH_sqrtok*sin(comvdist(a)/DH_sqrtok)/a;
+  else
+    return comvdist(a)/a;
 }
 
 double angdistdiff(double amin, double amax)
 {
-  return (comvdist(amin)-comvdist(amax))*amin;
+  assert(amin <= amax);
+  
+  if(cosmoData.OmegaK > 0.0)
+    return DH_sqrtok*sinh((comvdist(amin)-comvdist(amax))/DH_sqrtok)*amin;
+  else if(cosmoData.OmegaK < 0)
+    return DH_sqrtok*sin((comvdist(amin)-comvdist(amax))/DH_sqrtok)*amin;
+  else
+    return (comvdist(amin)-comvdist(amax))*amin;
 }
 
-#undef COSMOCALC_COMVDIST_TABLE_LENGTH
-#undef AEXPN_MIN
-#undef AEXPN_MAX

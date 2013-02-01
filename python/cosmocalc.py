@@ -78,15 +78,15 @@ class FLRWDistances:
     def angdistdiff(self,a1,a2):
         if a1 < a2:
             if self.cd.ok > 0.0:
-                return self.DH_sqrtok*np.sinh((self.comvdist(a1)-self.comvdist(a2))/self.DH_sqrtok)/a1;
+                return self.DH_sqrtok*np.sinh((self.comvdist(a1)-self.comvdist(a2))/self.DH_sqrtok)*a1;
             elif self.cd.ok < 0:
-                return self.DH_sqrtok*np.sin((self.comvdist(a1)-self.comvdist(a2))/self.DH_sqrtok)/a1;
+                return self.DH_sqrtok*np.sin((self.comvdist(a1)-self.comvdist(a2))/self.DH_sqrtok)*a1;
             else:
                 return (self.comvdist(a1)-self.comvdist(a2))*a1;
         else:
             if self.cd.ok > 0.0:
-                return self.DH_sqrtok*np.sinh((self.comvdist(a2)-self.comvdist(a1))/self.DH_sqrtok)/a2;
+                return self.DH_sqrtok*np.sinh((self.comvdist(a2)-self.comvdist(a1))/self.DH_sqrtok)*a2;
             elif self.cd.ok < 0:
-                return self.DH_sqrtok*np.sin((self.comvdist(a2)-self.comvdist(a1))/self.DH_sqrtok)/a2;
+                return self.DH_sqrtok*np.sin((self.comvdist(a2)-self.comvdist(a1))/self.DH_sqrtok)*a2;
             else:
                 return (self.comvdist(a2)-self.comvdist(a1))*a2;

@@ -10,10 +10,6 @@
 
 #include "cosmocalc.h"
 
-#define COSMOCALC_NONLINEAR_CORRFUNC_TABLE_LENGTH 500
-#define R_MIN 1e-10
-#define R_MAX 3e2
-
 double nonlinear_corrfunc_integ_funct(double k, void *p)
 {
   double r = ((double*)p)[0];
@@ -74,7 +70,7 @@ double nonlinear_corrfunc(double r, double a)
       
       for(i=0;i<COSMOCALC_NONLINEAR_CORRFUNC_TABLE_LENGTH;++i)
 	{
-	  r_table[i] = log(R_MAX/R_MIN)/(COSMOCALC_NONLINEAR_CORRFUNC_TABLE_LENGTH-1.0)*((double) i) + log(R_MIN);
+	  r_table[i] = log(CF_R_MAX/CF_R_MIN)/(COSMOCALC_NONLINEAR_CORRFUNC_TABLE_LENGTH-1.0)*((double) i) + log(CF_R_MIN);
 	  nonlinear_corrfunc_table[i] = nonlinear_corrfunc_exact(exp(r_table[i]),aint);
 	}
             
@@ -89,14 +85,11 @@ double nonlinear_corrfunc(double r, double a)
 	cosmocalc_nonlinear_corrfunc_acc = gsl_interp_accel_alloc();
     }
   
-  if(r < R_MIN)
+  if(r < CF_R_MIN)
     return 0.0;
-  else if(r < R_MAX)
+  else if(r < CF_R_MAX)
     return gsl_spline_eval(cosmocalc_nonlinear_corrfunc_spline,log(r),cosmocalc_nonlinear_corrfunc_acc);
   else
     return 0.0;
 }
 
-#undef COSMOCALC_NONLINEAR_CORRFUNC_TABLE_LENGTH
-#undef R_MIN
-#undef R_MAX

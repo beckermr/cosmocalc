@@ -14,11 +14,7 @@
 
 #ifdef ODEGROWTH
 
-#define COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH 50
-#define AEXPN_MIN (1.0/31.0)
-#define AEXPN_MAX 1.0
-
-#define LNAINITGROWTH (log(AEXPN_MIN))
+#define LNAINITGROWTH (log(AEXPN_MIN_GROWTH))
 #define ABSERR 0.0
 #define RELERR 1e-8
 #define HSTART 0.0001
@@ -28,22 +24,15 @@ static int growth_ode_sys_w0wa(double t, const double y[], double dydt[], void *
 //ODE for growth from Komatsu et al. 2009, ApJS, 180, 330 (WMAP5 paper)
 static int growth_ode_sys_w0wa(double t, const double y[], double dydt[], void *params)
 {
-  double w0 = cosmoData.w0;
-  double wa = cosmoData.wa;
   double a = exp(t); //t = log(a)
-  
-  double weffa;
-  if(t != 0.0)
-    weffa = w0 + wa - wa*(a - 1.0)/t;
-  else
-    weffa = w0;
-  
+  double weffa = weff(a);
   double ha = hubble_noscale(a);
-  double omegaDEa = (1.0-cosmoData.OmegaM)/ha/ha/pow(a,3.0*(1.0 + weffa));
+  double omegaDEa = cosmoData.OmegaL/ha/ha/pow(a,3.0*(1.0 + weffa));
+  double omegaKa = cosmoData.OmegaK/a/a/ha/ha;
   
   dydt[0] = y[1];
-  dydt[1] = (1.5*weffa*omegaDEa - 2.5)*y[1] - 1.5*(1.0 - weffa)*omegaDEa*y[0];
-  
+  dydt[1] = (1.5*weffa*omegaDEa - 0.5*omegaKa - 2.5)*y[1] - (2.0*omegaKa + 1.5*(1.0 - weffa)*omegaDEa)*y[0];  
+
   return GSL_SUCCESS;
 }
 
@@ -116,18 +105,17 @@ double growth_function(double a)
       //init ODE integrator
       d = gsl_odeiv2_driver_alloc_y_new(&odesys,gsl_odeiv2_step_rk8pd,HSTART,ABSERR,RELERR);
       
-      //init ODE
-      y[0] = 1.0;
-      y[1] = 0.0;
-      lna_init = LNAINITGROWTH;
-      
       for(i=0;i<COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH;++i)
         {
 	  //get scale factor
-	  afact = (AEXPN_MAX - AEXPN_MIN)/(COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH-1.0)*((double) i) + AEXPN_MIN;
+	  afact = (1e-3 + AEXPN_MAX - AEXPN_MIN_GROWTH)/(COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH-1.0)*((double) i) + AEXPN_MIN_GROWTH;
 	  a_table[i] = afact;
 	  
 	  //do growth function integration
+	  //init ODE
+	  y[0] = 1.0;
+	  y[1] = 0.0;
+	  lna_init = LNAINITGROWTH;
 	  lna_final = log(afact);
   	  status = gsl_odeiv2_driver_apply(d,&lna_init,lna_final,y);
 	  growth_function_table[i] = y[0]*afact;
@@ -136,14 +124,22 @@ double growth_function(double a)
 	      fprintf(stderr,"error in integrating growth function! a = %lf\n",a);
 	      assert(status == GSL_SUCCESS);
 	    }
-	  
-	  //step to next interval
-          lna_init = lna_final;
 	}
       
       //get normalization
-      growth_function_norm = growth_function_table[COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH-1];
-            
+      y[0] = 1.0;
+      y[1] = 0.0;
+      lna_init = LNAINITGROWTH;
+      lna_final = 0.0;
+      
+      status = gsl_odeiv2_driver_apply(d,&lna_init,lna_final,y);
+      growth_function_norm = y[0];
+      if(status != GSL_SUCCESS)
+	{
+	  fprintf(stderr,"error in integrating growth function! a = %lf\n",1.0);
+	  assert(status == GSL_SUCCESS);
+	}
+      
       //free ODE stuff
       gsl_odeiv2_driver_free(d);
 
@@ -162,10 +158,6 @@ double growth_function(double a)
 }
 
 #else
-
-#define COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH 25
-#define AEXPN_MIN 0.001
-#define AEXPN_MAX 1.0
 
 static double growth_function_integ_funct(double a, void *p);
 
@@ -238,7 +230,7 @@ double growth_function(double a)
             
       for(i=0;i<COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH;++i)
 	{
-	  afact = (AEXPN_MAX - AEXPN_MIN)/(COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH-1.0)*((double) i) + AEXPN_MIN;
+	  afact = (1e-3 + AEXPN_MAX - AEXPN_MIN)/(COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH-1.0)*((double) i) + AEXPN_MIN;
 	  a_table[i] = afact;
 	  F.params = &(afact);
 	  gsl_integration_qag(&F,0.0,afact,ABSERR,RELERR,(size_t) WORKSPACE_NUM,GSL_INTEG_GAUSS51,workspace,&result,&abserr);
@@ -271,6 +263,3 @@ double growth_function(double a)
 #endif
 
 #undef ODEGROWTH
-#undef COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH
-#undef AEXPN_MIN
-#undef AEXPN_MAX

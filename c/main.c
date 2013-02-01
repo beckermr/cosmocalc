@@ -20,12 +20,16 @@ int main(int argc, char **argv)
   //init cosmology
   cosmoData.cosmoNum = 1;
   cosmoData.OmegaM = 0.25;
+  cosmoData.OmegaL = 0.75;
+  cosmoData.OmegaB = 0.045;
+  cosmoData.OmegaK = 0.0;
+  cosmoData.OmegaNu = 0.0;
   cosmoData.h = 0.7;
   cosmoData.Sigma8 = 0.8;
   cosmoData.SpectralIndex = 1.0;
-  cosmoData.OmegaB = 0.04;
   cosmoData.w0 = -1.0;
   cosmoData.wa = 0.0;
+  
   cosmoData.useSmoothTransFunc = 0;
   
   double a = atof(argv[1]);
