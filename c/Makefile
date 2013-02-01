@@ -37,8 +37,8 @@ CCALCOBJECTS=$(CCALCSOURCES:.c=.o)
 CSOURCES = main.c
 COBJECTS = $(CSOURCES:.c=.o)
 
-$(EXEC): $(COBJECTS) libcosmocalc.a
-	$(CLINK) -o $@ $(COBJECTS) $(CLIB) libcosmocalc.a
+$(EXEC): $(COBJECTS) $(CCALCOBJECTS)
+	$(CLINK) -o $@ $(COBJECTS) $(CLIB) $(CCALCOBJECTS)
 
 libcosmocalc.so: $(CCALCSOURCES) cosmocalc.h Makefile
 	rm -f $(CCALCOBJECTS)
