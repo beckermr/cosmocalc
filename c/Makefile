@@ -2,17 +2,16 @@
 #OPTS += -DFFTLOG #define to compile fft log function
 #OPTS += -DDEBUG_IO #define for some debuggin I/O - none implemented so far
 #OPTS += -DDEBUG -DDEBUG_LEVEL=0 #leave undefined for no debugging - 0,1, and 2 give progressively more output to stderr
-#OPTS += -DTEST_CODE #define to run some basic test code
 
 #select your computer
 #COMP="orange"
 #COMP="mandor-icc"
 #COMP="mandor-gcc"
 
-CC          = gcc -g -O3
-OPTIMIZE    = -Wall 
-GSLI        =  -I/opt/local/include 
-GSLL        =  -L/opt/local/lib
+CC          = gcc
+OPTIMIZE    = -g -O3 -Wall
+GSLI        = -I/opt/local/include
+GSLL        = -L/opt/local/lib
 
 #edit/add to match your machine
 ifeq ($(COMP),"orange")
@@ -49,16 +48,16 @@ EXTRACFLAGS =  -ansi -std=c99 -pedantic -Wall -W -Wmissing-prototypes -Wstrict-p
 EXTRACLIB   =  
 endif
 
-#set it all up
 CLINK=$(CC)
 CFLAGS=$(OPTIMIZE) $(GSLI) $(FFTWI) $(FITSI) $(EXTRACFLAGS) $(OPTS)
 CLIB=$(EXTRACLIB) $(GSLL) $(FFTWL) $(FITSL) $(GSLL) -lm -lgsl -lgslcblas
 
-ifneq (TEST_CODE,$(findstring TEST_CODE,$(CFLAGS)))
-TESTCODE=
-else
-TESTCODE=test_code.o
-endif
+#set it all up
+EXEC = computecosmo
+all: $(EXEC)
+lib: staticlib
+staticlib: libcosmocalc.a
+sharedlib: libcosmocalc.so
 
 ifneq (FFTLOG,$(findstring FFTLOG,$(CFLAGS)))
 FFTLOG=
@@ -66,20 +65,28 @@ else
 FFTLOG=fftlog.o
 endif
 
-OBJS = $(TESTCODE) $(FFTLOG) distances.o linear_powspec.o transfer_function.o \
-	growth_function.o hubble.o peakheight.o mass_bias_functions.o \
-	linear_corrfunc.o utils.o nonlinear_powspec.o nonlinear_corrfunc.o weaklens.o
+CCALCSOURCES = $(FFTLOG) distances.c linear_powspec.c transfer_function.c \
+	growth_function.c hubble.c peakheight.c mass_bias_functions.c \
+	linear_corrfunc.c utils.c nonlinear_powspec.c nonlinear_corrfunc.c weaklens.c
+CCALCOBJECTS=$(CCALCSOURCES:.c=.o)
 
-EXEC = computecosmo
-TEST =
-all: $(EXEC)
-test: $(TEST) clean
+CSOURCES = main.c
+COBJECTS = $(CSOURCES:.c=.o)
 
-OBJS1=$(OBJS) main.o
-$(EXEC): $(OBJS1)
-	$(CLINK) $(CFLAGS) -o $@ $(OBJS1) $(CLIB)
+$(EXEC): $(COBJECTS) libcosmocalc.a
+	$(CLINK) $(GSLL) $(COBJECTS) libcosmocalc.a -o $@ $(CLIB) 
 
-$(OBJS1): cosmocalc.h Makefile
+libcosmocalc.so: $(CCALCSOURCES) cosmocalc.h Makefile
+	rm -f $(CCALCOBJECTS)
+	$(CC) $(CFLAGS) -fPIC -c $(CCALCSOURCES) 
+	$(CLINK) $(CFLAGS) $(CLIB) -shared -o libcosmocalc.so $(CCALCOBJECTS)
+
+libcosmocalc.a: $(CCALCSOURCES) cosmocalc.h Makefile
+	$(CC) $(CFLAGS) -c $(CCALCSOURCES) 
+	ar rcs libcosmocalc.a $(CCALCOBJECTS)
+
+$(COBJECTS): $(CSOURCES) $(CCALCSOURCES) cosmocalc.h Makefile
+$(CCALCOBJECTS): $(CCALCSOURCES) cosmocalc.h Makefile
 
 .PHONY : clean
 clean: 
@@ -87,5 +94,5 @@ clean:
 
 .PHONY : spotless
 spotless: 
-	rm -f *.o $(EXEC) $(TEST) *~
+	rm -f *.o $(EXEC) libcosmocalc.a libcosmocalc.so *~
 

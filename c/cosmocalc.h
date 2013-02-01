@@ -72,20 +72,6 @@ extern cosmocalcData cosmoData;
 #define COSMOCALC_NONLINEAR_CORRFUNC_TABLE_LENGTH  500
 #define COSMOCALC_LINEAR_CORRFUNC_TABLE_LENGTH     500
 
-#ifdef TEST_CODE
-void test_nonlinear_corrfunc(void);
-void test_nonlinear_powspec(void);
-void test_linxi_fftlog(void);
-void test_linxi(void);
-void test_biasfunc(void);
-void test_massfunc(void);
-void test_peakheight(void);
-void test_gf(void);
-void test_distances(void);
-void test_transfunct(void);
-void test_linpk(void);
-#endif
-
 /* in utils.c */
 double wtime(void);
 void gauleg(double x1, double x2, double x[], double w[], int n);
