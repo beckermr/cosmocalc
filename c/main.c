@@ -8,6 +8,7 @@
 #include <gsl/gsl_math.h>
 
 #include "cosmocalc.h"
+#include "haloprofs.h"
 #include "weaklens.h"
 
 int main(int argc, char **argv)
@@ -24,6 +25,7 @@ int main(int argc, char **argv)
   cosmoData.SpectralIndex = 1.0;
   cosmoData.w0 = -1.0;
   cosmoData.wa = 0.0;
+  cosmoData.delta = 200.0;
   
   cosmoData.useSmoothTransFunc = 0;
   
@@ -45,6 +47,10 @@ int main(int argc, char **argv)
       //fprintf(fp,"%e %e %e %e %e\n",k,transfer_function(k),transfer_function(k),linear_powspec(k,a),nonlinear_powspec_for_lens(k,a));
     }
   fclose(fp);
+  
+  double m = atof(argv[2]);
+  fprintf(stderr,"sigma8 = %f\n",sqrt(tophatnorm_linear_powspec(8.0)));
+  fprintf(stderr,"c(%e,%f) = %f\n",m,a,concNFW(m,a));
   
   return 0;
 }

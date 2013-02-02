@@ -164,6 +164,7 @@ double tophatnorm_linear_powspec(double topHatRad)
   static int currCosmoNum;
   static gsl_spline *spline = NULL;
   static gsl_interp_accel *accel = NULL;
+  static double linear_powspec_norm;
   
   double I0,I1;
   double abserr,epsabs,epsrel;
@@ -191,7 +192,7 @@ double tophatnorm_linear_powspec(double topHatRad)
           lnr = dlnr*i + lnrmin;
           xtab[i] = exp(lnr);
 	  
-	  F.params = &(topHatRad);
+	  F.params = &(xtab[i]);
 	  if(topHatRad > 1e-4)
 	    {
 	      epsabs = 1e-20;
@@ -222,6 +223,8 @@ double tophatnorm_linear_powspec(double topHatRad)
       else
         accel = gsl_interp_accel_alloc();
       
+      linear_powspec_norm = cosmoData.Sigma8*cosmoData.Sigma8/exp(gsl_spline_eval(spline,log(8.0),accel));
+      
 #undef ABSERR
 #undef RELERR
 #undef WORKSPACE_NUM
@@ -229,7 +232,7 @@ double tophatnorm_linear_powspec(double topHatRad)
 #undef NL_RTOPHAT_MAX
     }
   
-  return exp(gsl_spline_eval(spline,log(topHatRad),accel));
+  return exp(gsl_spline_eval(spline,log(topHatRad),accel))*linear_powspec_norm;
 }
 
 static double linear_tophatnorm_scale_funct(double rad, void *p)
@@ -244,6 +247,8 @@ double get_linear_tophatnorm_scale(double a)
   double gf = growth_function(a);
   double Rsigma,Rlow=0.001,Rhigh=10.0;
   int itr,maxItr=1000,status;
+  
+  //fprintf(stderr,"sigma2(Rlow) = %f, sigma2(Rhigh) = %f\n",tophatnorm_linear_powspec(Rlow)*gf*gf,tophatnorm_linear_powspec(Rhigh)*gf*gf);
   
 #define ABSERR 1e-6
 #define RELERR 1e-6

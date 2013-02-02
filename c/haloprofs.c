@@ -45,6 +45,7 @@ double concNFW(double m, double a)
       currCosmoNum = cosmoData.cosmoNum;
       
       mstar = get_linear_tophatnorm_scale(1.0);
+      mstar = 4.0*M_PI/3.0*mstar*mstar*mstar*cosmoData.OmegaM*RHO_CRIT;
     }
   
   return 10.0*pow(m/mstar,-0.2)*a;
