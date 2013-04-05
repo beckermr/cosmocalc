@@ -139,5 +139,7 @@ double inverse_nuRtophat(double nu, double a);
 /* in mass_bias_functions.c */
 double mass_function(double m, double a);
 double bias_function(double m, double a);
+double tinker2010_mass_function(double m, double a, double delta);
+double tinker2008_mass_function(double m, double a, double delta);
 
 #endif /* _COSMOCALC_ */

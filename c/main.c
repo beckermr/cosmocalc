@@ -15,42 +15,42 @@ int main(int argc, char **argv)
 {
   //init cosmology
   cosmoData.cosmoNum = 1;
-  cosmoData.OmegaM = 0.25;
-  cosmoData.OmegaL = 0.75;
-  cosmoData.OmegaB = 0.045;
+  cosmoData.OmegaM = 0.29;
+  cosmoData.OmegaL = 0.71;
+  cosmoData.OmegaB = 0.047;
   cosmoData.OmegaK = 0.0;
   cosmoData.OmegaNu = 0.0;
   cosmoData.h = 0.7;
   cosmoData.Sigma8 = 0.8;
-  cosmoData.SpectralIndex = 1.0;
+  cosmoData.SpectralIndex = 0.96;
   cosmoData.w0 = -1.0;
   cosmoData.wa = 0.0;
   cosmoData.delta = 200.0;
   
   cosmoData.useSmoothTransFunc = 0;
   
-  double a = atof(argv[1]);
+  //prints mass function in bins to stdout
+  double a = 1.0;
   
-  double kmin = 1e-6;
-  double kmax = 1e4;
-  long Nk = 2000;
-  double k,dlnk = log(kmax/kmin)/Nk;
+  double mmin = 1e9;
+  double mmax = 1e16;
+  long Nm = 2000;
+  double m,dlnm = log(mmax/mmin)/Nm;
   long i;
+  double sigma;
+  double dm;
+  double dlnsiginvdm;
 
-  FILE *fp;
-  fp = fopen("test.dat","w");
-  for(i=0;i<Nk;++i)
+  fprintf(stdout,"# m t08 t10 s ds\n");
+  for(i=0;i<Nm;++i)
     {
-      k = exp(dlnk*i)*kmin;
-      //fprintf(fp,"%e %e %e %e %e\n",k,tf(k),tfs(k),lp(k,a),pknl(k,a));                                                                                                                                                                                                                    
-      fprintf(fp,"%e %e %e %e %e\n",k,transfer_function(k),transfer_function(k),linear_powspec(k,a),nonlinear_powspec(k,a));
-      //fprintf(fp,"%e %e %e %e %e\n",k,transfer_function(k),transfer_function(k),linear_powspec(k,a),nonlinear_powspec_for_lens(k,a));
+      m = exp(dlnm*i)*mmin;
+      sigma = sigmaMtophat(m,a);
+      dm = 1e-6*m;
+      dlnsiginvdm = log(sigmaMtophat(m-dm/2.0,a)/sigmaMtophat(m+dm/2.0,a))/dm;
+      fprintf(stdout,"%e %e %e %e %e\n",m,tinker2008_mass_function(m,a,cosmoData.delta),
+	      tinker2010_mass_function(m,a,cosmoData.delta),sigma,dlnsiginvdm);
     }
-  fclose(fp);
-  
-  double m = atof(argv[2]);
-  fprintf(stderr,"sigma8 = %f\n",sqrt(tophatnorm_linear_powspec(8.0)));
-  fprintf(stderr,"c(%e,%f) = %f\n",m,a,concNFW(m,a));
   
   return 0;
 }
