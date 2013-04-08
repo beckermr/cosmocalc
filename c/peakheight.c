@@ -116,6 +116,11 @@ double sigmaMtophat(double m, double a)
   return sigmaRtophat(pow(m/(4.0/3.0*M_PI*RHO_CRIT*cosmoData.OmegaM),1.0/3.0),a);
 }
 
+double sigmaMtophat_exact(double m, double a)
+{
+  return sigmaRtophat_exact(pow(m/(4.0/3.0*M_PI*RHO_CRIT*cosmoData.OmegaM),1.0/3.0),a);
+}
+
 double inverse_sigmaRtophat(double sigmaR, double a)
 {
   static int initFlag = 1;

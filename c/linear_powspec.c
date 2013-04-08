@@ -15,6 +15,54 @@ static double fourierTransformTopHat(double y);
 static double tophatradnorm_linear_powspec_exact_nonorm_lnk_integ_funct_I0(double lnk, void *p);
 static double tophatradnorm_linear_powspec_exact_nonorm_k_integ_funct_I0(double k, void *p);
 
+static double convert_cmbnorm2sigma8_k_integ_funct_I0(double k, void *p)
+{
+  //k is in units of 1/Mpc
+  //to get to units of h/Mpc
+  // k -> k/h
+  double ft = fourierTransformTopHat(k*8.0/cosmoData.h);
+  double tf = transfer_function(k/cosmoData.h);
+  
+  /*
+  fprintf(stderr,"Tf^2 = %g, W(k)^2 = %g (2/5/OmegaM)^2 = %g (k/H0)^4/k = %g, nspow = %g\n",
+	  tf*tf,ft*ft,4.0/25.0/cosmoData.OmegaM/cosmoData.OmegaM,
+	  pow(k/100.0,4.0)/k,pow(k*cosmoData.h/cosmoData.As_pivot,cosmoData.SpectralIndex-1.0)
+	  );
+  */
+  return cosmoData.As*4.0/25.0/cosmoData.OmegaM/cosmoData.OmegaM
+    *pow(k/cosmoData.h*DH,4.0)/k*pow(k/cosmoData.As_pivot,cosmoData.SpectralIndex-1.0)
+    *ft*ft*tf*tf;
+}
+
+double convert_cmbnorm2sigma8(void)
+{
+  double I0,I1;
+  double abserr;
+  double epsrel,epsabs;
+  gsl_integration_workspace *workspace;
+  gsl_function F;
+    
+#define WORKSPACE_NUM 10000000
+#define ABSERR 1e-8
+#define RELERR 0.0 
+  workspace = gsl_integration_workspace_alloc((size_t) WORKSPACE_NUM);
+  
+  epsabs = 1e-20;
+  epsrel = 1e-6;
+  F.function = &convert_cmbnorm2sigma8_k_integ_funct_I0;
+  gsl_integration_qags(&F,0.0,2.0*M_PI/8.0,epsabs,epsrel,(size_t) WORKSPACE_NUM,workspace,&I0,&abserr);
+  gsl_integration_qagiu(&F,2.0*M_PI/8.0,epsabs,epsrel,(size_t) WORKSPACE_NUM,workspace,&I1,&abserr);
+  
+  gsl_integration_workspace_free(workspace);
+#undef ABSERR
+#undef RELERR
+#undef WORKSPACE_NUM
+  
+  //fprintf(stderr,"I0 = %g, I1 = %g, g = %g\n",I0,I1,growth_function_exact_nonorm(1.0));
+  
+  return sqrt(I0 + I1)*growth_function_exact_nonorm(1.0);
+}
+
 static double fourierTransformTopHat(double y)
 {
   if(y < 1e-3)

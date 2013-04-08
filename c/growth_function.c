@@ -79,6 +79,33 @@ double growth_function_exact(double a)
   return ga/gnorm;
 }
 
+double growth_function_exact_nonorm(double a)
+{
+  gsl_odeiv2_system odesys = {growth_ode_sys_w0wa, NULL, 2, NULL};
+  gsl_odeiv2_driver *d = gsl_odeiv2_driver_alloc_y_new(&odesys,gsl_odeiv2_step_rk8pd,HSTART,ABSERR,RELERR);
+  
+  double lna_init;
+  double lna_final,y[2];
+  double ga;
+  int status;
+  
+  //do g(a) unormalized
+  y[0] = 1.0;
+  y[1] = 0.0;
+  lna_init = LNAINITGROWTH;
+  lna_final = log(a);
+  
+  status = gsl_odeiv2_driver_apply(d,&lna_init,lna_final,y);
+  ga = y[0]*a;
+  if(status != GSL_SUCCESS)
+    {
+      fprintf(stderr,"error in integrating growth function! a = %lf\n",a);
+      assert(status == GSL_SUCCESS);
+    }
+
+  return ga;
+}
+
 double growth_function(double a)
 {
   static int initFlag = 1;

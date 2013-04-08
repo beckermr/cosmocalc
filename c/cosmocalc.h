@@ -41,6 +41,8 @@ typedef struct {
   double OmegaNu;
   double h;
   double Sigma8;
+  double As;
+  double As_pivot;
   double SpectralIndex;
   double delta;
   double w0;
@@ -104,6 +106,7 @@ double linear_powspec_exact(double k, double a);
 double tophatradnorm_linear_powspec_exact_nonorm(double topHatRad);
 double tophatnorm_linear_powspec(double topHatRad);
 double get_linear_tophatnorm_scale(double a);
+double convert_cmbnorm2sigma8(void);
 
 /* linear_corrfunc.c */
 double linear_corrfunc_exact(double r, double a);
@@ -122,6 +125,7 @@ double nonlinear_corrfunc(double r, double a);
 /* in growth_function.c */
 double growth_function_exact(double a);
 double growth_function(double a);
+double growth_function_exact_nonorm(double a);
 
 /* in hubble.c */
 double weff(double a);
@@ -130,6 +134,7 @@ double hubble_noscale(double a);
 /* in peakheight.c */
 double sigmaRtophat_exact(double topHatRad, double a);
 double sigmaRtophat(double topHatRad, double a);
+double sigmaMtophat_exact(double m, double a);
 double sigmaMtophat(double m, double a);
 double inverse_sigmaRtophat(double sigmaR, double a);
 double inverse_sigmaMtophat(double sigmaR, double a);
