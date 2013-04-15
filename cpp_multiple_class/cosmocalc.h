@@ -16,8 +16,13 @@
 class CosmoData {
  public:
   //operator method to return weff(a) = \frac{1}{\ln(a)}*\int_{0}^{\ln a}d\ln a' w(a')
-  virtual double operator()(double a) {
-    cosmocalc_assert(false,"In operator() method, CosmoData base class cannot be used alone!");
+  virtual double weff(double a) {
+    cosmocalc_assert(false,"In weff(a) method, CosmoData base class cannot be used alone!");
+  };
+  
+  //operator method to return Hubble function
+  virtual double H(double a) {
+    cosmocalc_assert(false,"In H(a) method, CosmoData base class cannot be used alone!");
   };
   
   //public methods to output parameters to a file
@@ -35,17 +40,6 @@ class CosmoData {
   virtual void unpack(double *data) {
     cosmocalc_assert(false,"In unpack method, CosmoData base class cannot be used alone!");
   };    
-};
-
-/*Hubble factor base class 
-  This base class just defines the interface. You must define your own class 
-  to actually use it. See the w0wacosmo.h header file for details.
-*/
-class Hubble {
- public:
-  virtual double operator()(double a) {
-    cosmocalc_assert(false,"In operator() method, Hubble base class cannot be used alone!");
-  };
 };
 
 /*Distances base class 
