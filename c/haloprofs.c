@@ -6,7 +6,7 @@
 #include "cosmocalc.h"
 #include "haloprofs.h"
 
-double fourierTransformNFW(double k, double m, double rvir, double c, double a)
+double fourierTransformNFW(double k, double m, double rvir, double c)
 {
   double rs,rhos;
   double ukm;
@@ -23,7 +23,7 @@ double fourierTransformNFW(double k, double m, double rvir, double c, double a)
   return ukm;
 }
 
-double NFWprof(double r, double m, double rvir, double c, double a)
+double NFWprof(double r, double m, double rvir, double c)
 {
   double rs,rhos;
   
@@ -33,21 +33,43 @@ double NFWprof(double r, double m, double rvir, double c, double a)
   return rhos/(r/rs)/(1+r/rs)/(1+r/rs);
 }
 
+double NFWprof_menc(double r, double m, double rvir, double c)
+{
+  double mc = log(1+c) - c/(1.0+c);
+  double mr = c*r/rvir;
+  mr = log(1.0 + mr) - mr/(1.0+mr);
+  
+  return mr/mc*m;
+}
+
+inline double _duffy2008_concNFW(double m, double a)
+{
+  return 6.71/pow(1.0/a,0.44)*pow(m/2e12,-0.091);
+}
+
 double concNFW(double m, double a)
 {
-  static int init = 1;
-  static int currCosmoNum;
-  static double mstar;
-  
-  if(init || currCosmoNum != cosmoData.cosmoNum)
-    {
-      init = 0;
-      currCosmoNum = cosmoData.cosmoNum;
-      
-      mstar = get_linear_tophatnorm_scale(1.0);
-      mstar = 4.0*M_PI/3.0*mstar*mstar*mstar*cosmoData.OmegaM*RHO_CRIT;
-    }
-  
-  return 10.0*pow(m/mstar,-0.2)*a;
+  return _duffy2008_concNFW(m,a);
 }
+
+double duffy2008_concNFW(double m, double a)
+{
+  return _duffy2008_concNFW(m,a);
+}
+
+/*
+double bh2012_concNFW(double m, double a)
+{
+  double nu = DELTAC/sigmaMtophat(m,a);
+  
+
+}
+
+double prada2011_concNFW(double m, double a)
+{
+
+
+}
+*/
+
 
