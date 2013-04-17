@@ -16,5 +16,5 @@ double weff(double a)
 
 double hubble_noscale(double a)
 {
-  return sqrt(cosmoData.OmegaM/a/a/a + cosmoData.OmegaK/a/a + cosmoData.OmegaL*exp(3.0*(1.0 + weff(a))));
+  return sqrt(cosmoData.OmegaM/a/a/a + cosmoData.OmegaK/a/a + cosmoData.OmegaL/pow(a,3.0*(1.0 + weff(a))));
 }
