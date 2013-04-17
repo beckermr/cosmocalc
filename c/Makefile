@@ -19,7 +19,7 @@ CLIB=$(EXTRACLIB) $(GSLL) $(FFTWL) $(FITSL) -lm -lgsl -lgslcblas
 #set it all up
 EXEC = computecosmo
 all: $(EXEC)
-lib: staticlib
+lib: staticlib sharedlib
 staticlib: libcosmocalc.a
 sharedlib: libcosmocalc.so
 
