@@ -32,7 +32,7 @@ endif
 CCALCSOURCES = $(FFTLOG) global.c distances.c linear_powspec.c transfer_function.c \
 	growth_function.c hubble.c peakheight.c mass_bias_functions.c \
 	linear_corrfunc.c utils.c nonlinear_powspec.c nonlinear_corrfunc.c weaklens.c \
-	haloprofs.c
+	haloprofs.c tf_fit_eh98.c
 CCALCOBJECTS=$(CCALCSOURCES:.c=.o)
 
 CSOURCES = main.c
@@ -55,7 +55,7 @@ $(CCALCOBJECTS): $(CCALCSOURCES) cosmocalc.h Makefile
 
 .PHONY : clean
 clean: 
-	rm -f *.o
+	rm -f *.o $(EXEC) libcosmocalc.a libcosmocalc.so
 
 .PHONY : spotless
 spotless: 

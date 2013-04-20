@@ -82,7 +82,7 @@ double transfunct_eh98(double kin)
   theta2p7 = 2.728/2.7;
   
   //eqn 2
-  zeq = 2.50*1e4*om0*h*h/(theta2p7*theta2p7*theta2p7*theta2p7);
+  zeq = 2.50e4*om0*h*h/(theta2p7*theta2p7*theta2p7*theta2p7);
   
   //eqn 3
   keq = 7.46e-2*om0*h*h/(theta2p7*theta2p7); //Mpc^-{1} (NOT h/Mpc)
@@ -94,11 +94,14 @@ double transfunct_eh98(double kin)
     *(1.0 + b1d*pow(omb*h*h,b2d));
   
   //eqn 5
-  Rd = 31.5*omb*h*h/(theta2p7*theta2p7*theta2p7*theta2p7)/(zd/1e3);
+  Rd = 31.5*omb*h*h
+    /(theta2p7*theta2p7*theta2p7*theta2p7)
+    /((1.0+zd)/1e3); //matches wayne's code, but not the paper
   Req = 31.5*omb*h*h/(theta2p7*theta2p7*theta2p7*theta2p7)/(zeq/1e3);
   
   //eqn 6
-  s = 2.0/3.0/keq*sqrt(6.0/Req)*log((sqrt(1.0 + Rd) + sqrt(Rd + Req))/(1.0 + sqrt(Req)));
+  s = 2.0/3.0/keq*sqrt(6.0/Req)*
+    log((sqrt(1.0 + Rd) + sqrt(Rd + Req))/(1.0 + sqrt(Req)));
   
   //eqn 7
   ksilk = 1.6*pow(omb*h*h,0.52)*pow(om0*h*h,0.73)*(1.0 + pow(10.4*om0*h*h,-0.95));
@@ -117,7 +120,7 @@ double transfunct_eh98(double kin)
   bc = 1.0/(1.0 + b1*(pow(omc/om0,b2) - 1.0));
   
   //eqn 15
-  y = (1.0 + zeq)/(1.0 + zd);
+  y = (zeq)/(1.0 + zd); //matches wayne's code but not the paper
   Gy = y*(-6.0*sqrt(1.0 + y) + (2.0 + 3.0*y)*log((sqrt(1.0 + y) + 1.0)/(sqrt(1.0 + y) - 1.0)));
   
   //eqn 14
@@ -149,7 +152,7 @@ double transfunct_eh98(double kin)
   bb = 0.5 + omb/om0 + (3.0 - 2.0*omb/om0)*sqrt((17.2*om0*h*h)*(17.2*om0*h*h) + 1.0);
   
   //eqn 23
-  bnode = 8.42*pow(om0*h*h,0.435);
+  bnode = 8.41*pow(om0*h*h,0.435);
   
   //eqn 22
   st = s/pow(1.0 + (bnode/k/s)*(bnode/k/s)*(bnode/k/s),1.0/3.0);
