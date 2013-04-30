@@ -77,6 +77,8 @@ extern cosmocalcData cosmoData;
 #define COSMOCALC_LINEAR_CORRFUNC_TABLE_LENGTH     500
 #define COSMOCALC_LINEAR_POWSPEC_NORM_TABLE_LENGTH 100
 
+#define GSL_SPLINE_TYPE gsl_interp_cspline
+
 /* in utils.c */
 double wtime(void);
 void gauleg(double x1, double x2, double x[], double w[], int n);

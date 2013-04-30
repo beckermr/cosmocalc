@@ -173,7 +173,7 @@ double linear_powspec(double k, double a)
       //init the spline and accelerators
       if(cosmocalc_linear_powspec_spline != NULL)
 	gsl_spline_free(cosmocalc_linear_powspec_spline);
-      cosmocalc_linear_powspec_spline = gsl_spline_alloc(gsl_interp_cspline,(size_t) (COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH));
+      cosmocalc_linear_powspec_spline = gsl_spline_alloc(GSL_SPLINE_TYPE,(size_t) (COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH));
       gsl_spline_init(cosmocalc_linear_powspec_spline,k_table,linear_powspec_table,(size_t) (COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH));
       if(cosmocalc_linear_powspec_acc != NULL)
 	gsl_interp_accel_reset(cosmocalc_linear_powspec_acc);
@@ -264,7 +264,7 @@ double tophatnorm_linear_powspec(double topHatRad)
       
       if(spline != NULL)
         gsl_spline_free(spline);
-      spline = gsl_spline_alloc(gsl_interp_cspline,(size_t) (COSMOCALC_LINEAR_POWSPEC_NORM_TABLE_LENGTH));
+      spline = gsl_spline_alloc(GSL_SPLINE_TYPE,(size_t) (COSMOCALC_LINEAR_POWSPEC_NORM_TABLE_LENGTH));
       gsl_spline_init(spline,xtab,ytab,(size_t) (COSMOCALC_LINEAR_POWSPEC_NORM_TABLE_LENGTH));
       if(accel != NULL)
         gsl_interp_accel_reset(accel);

@@ -77,7 +77,7 @@ double nonlinear_corrfunc(double r, double a)
       //init the spline and accelerators
       if(cosmocalc_nonlinear_corrfunc_spline != NULL)
 	gsl_spline_free(cosmocalc_nonlinear_corrfunc_spline);
-      cosmocalc_nonlinear_corrfunc_spline = gsl_spline_alloc(gsl_interp_cspline,(size_t) (COSMOCALC_NONLINEAR_CORRFUNC_TABLE_LENGTH));
+      cosmocalc_nonlinear_corrfunc_spline = gsl_spline_alloc(GSL_SPLINE_TYPE,(size_t) (COSMOCALC_NONLINEAR_CORRFUNC_TABLE_LENGTH));
       gsl_spline_init(cosmocalc_nonlinear_corrfunc_spline,r_table,nonlinear_corrfunc_table,(size_t) (COSMOCALC_NONLINEAR_CORRFUNC_TABLE_LENGTH));
       if(cosmocalc_nonlinear_corrfunc_acc != NULL)
 	gsl_interp_accel_reset(cosmocalc_nonlinear_corrfunc_acc);

@@ -37,7 +37,7 @@ double transfer_function(double k)
       //init the spline and accelerators
       if(cosmocalc_transfer_function_spline != NULL)
         gsl_spline_free(cosmocalc_transfer_function_spline);
-      cosmocalc_transfer_function_spline = gsl_spline_alloc(gsl_interp_cspline,(size_t) (COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH));
+      cosmocalc_transfer_function_spline = gsl_spline_alloc(GSL_SPLINE_TYPE,(size_t) (COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH));
       gsl_spline_init(cosmocalc_transfer_function_spline,k_table,transfer_function_table,(size_t) (COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH));
       if(cosmocalc_transfer_function_acc != NULL)
         gsl_interp_accel_reset(cosmocalc_transfer_function_acc);

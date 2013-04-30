@@ -96,7 +96,7 @@ void init_cosmocalc_comvdist_table(void)
       //init the spline and accelerators
       if(cosmocalc_aexpn2comvdist_spline != NULL)
 	gsl_spline_free(cosmocalc_aexpn2comvdist_spline);
-      cosmocalc_aexpn2comvdist_spline = gsl_spline_alloc(gsl_interp_cspline,(size_t) (COSMOCALC_COMVDIST_TABLE_LENGTH));
+      cosmocalc_aexpn2comvdist_spline = gsl_spline_alloc(GSL_SPLINE_TYPE,(size_t) (COSMOCALC_COMVDIST_TABLE_LENGTH));
       gsl_spline_init(cosmocalc_aexpn2comvdist_spline,aexpn_table,comvdist_table,(size_t) (COSMOCALC_COMVDIST_TABLE_LENGTH));
       if(cosmocalc_aexpn2comvdist_acc != NULL)
 	gsl_interp_accel_reset(cosmocalc_aexpn2comvdist_acc);
@@ -116,7 +116,7 @@ void init_cosmocalc_comvdist_table(void)
       
       if(cosmocalc_comvdist2aexpn_spline != NULL)
 	gsl_spline_free(cosmocalc_comvdist2aexpn_spline);
-      cosmocalc_comvdist2aexpn_spline = gsl_spline_alloc(gsl_interp_cspline,(size_t) (COSMOCALC_COMVDIST_TABLE_LENGTH));
+      cosmocalc_comvdist2aexpn_spline = gsl_spline_alloc(GSL_SPLINE_TYPE,(size_t) (COSMOCALC_COMVDIST_TABLE_LENGTH));
       gsl_spline_init(cosmocalc_comvdist2aexpn_spline,comvdist_table,aexpn_table,(size_t) (COSMOCALC_COMVDIST_TABLE_LENGTH));
       if(cosmocalc_comvdist2aexpn_acc != NULL)
 	gsl_interp_accel_reset(cosmocalc_comvdist2aexpn_acc);

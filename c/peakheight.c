@@ -46,7 +46,7 @@ static void init_cosmocalc_peakheight_table(void)
       //init the spline and accelerators
       if(cosmocalc_sigmaR_spline != NULL)
         gsl_spline_free(cosmocalc_sigmaR_spline);
-      cosmocalc_sigmaR_spline = gsl_spline_alloc(gsl_interp_cspline,(size_t) (COSMOCALC_PEAKHEIGHT_TABLE_LENGTH));
+      cosmocalc_sigmaR_spline = gsl_spline_alloc(GSL_SPLINE_TYPE,(size_t) (COSMOCALC_PEAKHEIGHT_TABLE_LENGTH));
       gsl_spline_init(cosmocalc_sigmaR_spline,topHatRad_table,sigmar_table,(size_t) (COSMOCALC_PEAKHEIGHT_TABLE_LENGTH));
       if(cosmocalc_sigmaR_acc != NULL)
         gsl_interp_accel_reset(cosmocalc_sigmaR_acc);
@@ -67,7 +67,7 @@ static void init_cosmocalc_peakheight_table(void)
       //init the spline and accelerators
       if(cosmocalc_Rsigma_spline != NULL)
         gsl_spline_free(cosmocalc_Rsigma_spline);
-      cosmocalc_Rsigma_spline = gsl_spline_alloc(gsl_interp_cspline,(size_t) (COSMOCALC_PEAKHEIGHT_TABLE_LENGTH));
+      cosmocalc_Rsigma_spline = gsl_spline_alloc(GSL_SPLINE_TYPE,(size_t) (COSMOCALC_PEAKHEIGHT_TABLE_LENGTH));
       gsl_spline_init(cosmocalc_Rsigma_spline,sigmar_table,topHatRad_table,(size_t) (COSMOCALC_PEAKHEIGHT_TABLE_LENGTH));
       if(cosmocalc_Rsigma_acc != NULL)
         gsl_interp_accel_reset(cosmocalc_Rsigma_acc);
