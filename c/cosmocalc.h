@@ -31,6 +31,8 @@
 #define CSOL 299792.458 /* velocity of light in km/s */
 #define DELTAC 1.686 /* peak height factor */
 #define DH 2997.92458 /* Hubble distance in Mpc/h */
+#define TCMB 2.7255 /* EH98 uses 2.728 */
+//#define TCMB 2.728 /* EH98 uses 2.728 */
 
 typedef struct {
   int cosmoNum;
@@ -64,10 +66,10 @@ extern cosmocalcData cosmoData;
 #define CF_R_MAX 3e2
 
 #define COSMOCALC_COMVDIST_TABLE_LENGTH            1000
-#define COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH     50
-#define COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH   1000
+#define COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH     1000
+#define COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH   5000
 #define COSMOCALC_TRANSFER_FUNCTION_FIT_LENGTH     20
-#define COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH      1000
+#define COSMOCALC_LINEAR_POWSPEC_TABLE_LENGTH      5000
 #define COSMOCALC_LINEAR_POWSPEC_FIT_LENGTH        20
 #define COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH   100
 #define COSMOCALC_PEAKHEIGHT_TABLE_LENGTH          100

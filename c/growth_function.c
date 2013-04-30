@@ -17,7 +17,8 @@
 #define LNAINITGROWTH (log(AEXPN_MIN_GROWTH))
 #define ABSERR 0.0
 #define RELERR 1e-8
-#define HSTART 0.0001
+#define HSTART 1e-4
+#define ODE_TYPE gsl_odeiv2_step_rk8pd
 
 static int growth_ode_sys_w0wa(double t, const double y[], double dydt[], void *params);
 
@@ -39,7 +40,7 @@ static int growth_ode_sys_w0wa(double t, const double y[], double dydt[], void *
 double growth_function_exact(double a)
 {
   gsl_odeiv2_system odesys = {growth_ode_sys_w0wa, NULL, 2, NULL};
-  gsl_odeiv2_driver *d = gsl_odeiv2_driver_alloc_y_new(&odesys,gsl_odeiv2_step_rk8pd,HSTART,ABSERR,RELERR);
+  gsl_odeiv2_driver *d = gsl_odeiv2_driver_alloc_y_new(&odesys,ODE_TYPE,HSTART,ABSERR,RELERR);
   
   double lna_init;
   double lna_final,y[2];
@@ -82,7 +83,7 @@ double growth_function_exact(double a)
 double growth_function_exact_nonorm(double a)
 {
   gsl_odeiv2_system odesys = {growth_ode_sys_w0wa, NULL, 2, NULL};
-  gsl_odeiv2_driver *d = gsl_odeiv2_driver_alloc_y_new(&odesys,gsl_odeiv2_step_rk8pd,HSTART,ABSERR,RELERR);
+  gsl_odeiv2_driver *d = gsl_odeiv2_driver_alloc_y_new(&odesys,ODE_TYPE,HSTART,ABSERR,RELERR);
   
   double lna_init;
   double lna_final,y[2];
@@ -130,12 +131,12 @@ double growth_function(double a)
       currCosmoNum = cosmoData.cosmoNum;
       
       //init ODE integrator
-      d = gsl_odeiv2_driver_alloc_y_new(&odesys,gsl_odeiv2_step_rk8pd,HSTART,ABSERR,RELERR);
+      d = gsl_odeiv2_driver_alloc_y_new(&odesys,ODE_TYPE,HSTART,ABSERR,RELERR);
       
       for(i=0;i<COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH;++i)
         {
 	  //get scale factor
-	  afact = (1e-3 + AEXPN_MAX - AEXPN_MIN_GROWTH)/(COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH-1.0)*((double) i) + AEXPN_MIN_GROWTH;
+	  afact = log((1e-3 + AEXPN_MAX)/AEXPN_MIN_GROWTH)/(COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH-1.0)*((double) i) + log(AEXPN_MIN_GROWTH);
 	  a_table[i] = afact;
 	  
 	  //do growth function integration
@@ -143,9 +144,9 @@ double growth_function(double a)
 	  y[0] = 1.0;
 	  y[1] = 0.0;
 	  lna_init = LNAINITGROWTH;
-	  lna_final = log(afact);
+	  lna_final = afact;
   	  status = gsl_odeiv2_driver_apply(d,&lna_init,lna_final,y);
-	  growth_function_table[i] = y[0]*afact;
+	  growth_function_table[i] = y[0]*exp(afact);
 	  if(status != GSL_SUCCESS)
 	    {
 	      fprintf(stderr,"error in integrating growth function! a = %lf\n",a);
@@ -181,7 +182,7 @@ double growth_function(double a)
         cosmocalc_growth_function_acc = gsl_interp_accel_alloc();
     }
 
-  return gsl_spline_eval(cosmocalc_growth_function_spline,a,cosmocalc_growth_function_acc)/growth_function_norm;
+  return gsl_spline_eval(cosmocalc_growth_function_spline,log(a),cosmocalc_growth_function_acc)/growth_function_norm;
 }
 
 #else

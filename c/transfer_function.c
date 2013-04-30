@@ -57,6 +57,8 @@ double transfer_function(double k)
     return exp(c0+c1*log(k));
 }
 
+#define USEPAPER_EH98
+
 double transfunct_eh98(double kin)
 {
   //vars
@@ -79,7 +81,7 @@ double transfunct_eh98(double kin)
   //-----------
   //input parms 
   //-----------
-  theta2p7 = 2.728/2.7;
+  theta2p7 = TCMB/2.7;
   
   //eqn 2
   zeq = 2.50e4*om0*h*h/(theta2p7*theta2p7*theta2p7*theta2p7);
@@ -94,10 +96,17 @@ double transfunct_eh98(double kin)
     *(1.0 + b1d*pow(omb*h*h,b2d));
   
   //eqn 5
+#ifdef USEPAPER_EH98
   Rd = 31.5*omb*h*h
     /(theta2p7*theta2p7*theta2p7*theta2p7)
-    /((1.0+zd)/1e3); //matches wayne's code, but not the paper
-  Req = 31.5*omb*h*h/(theta2p7*theta2p7*theta2p7*theta2p7)/(zeq/1e3);
+    /((zd)/1e3); //matches wayne's paper, but not the code (zd -> 1+zd)
+  //fprintf(stderr,"paper eh 98 1\n");
+#else
+  Rd = 31.5*omb*h*h
+    /(theta2p7*theta2p7*theta2p7*theta2p7)
+    /((1.0+zd)/1e3);
+#endif
+Req = 31.5*omb*h*h/(theta2p7*theta2p7*theta2p7*theta2p7)/(zeq/1e3);
   
   //eqn 6
   s = 2.0/3.0/keq*sqrt(6.0/Req)*
@@ -120,7 +129,12 @@ double transfunct_eh98(double kin)
   bc = 1.0/(1.0 + b1*(pow(omc/om0,b2) - 1.0));
   
   //eqn 15
-  y = (zeq)/(1.0 + zd); //matches wayne's code but not the paper
+#ifdef USEPAPER_EH98
+  y = (1.0 + zeq)/(1.0 + zd); //matches wayne's paper, but not the code (1+zeq -> zeq)
+  //fprintf(stderr,"paper eh 98 2\n");
+#else
+  y = (zeq)/(1.0 + zd);
+#endif
   Gy = y*(-6.0*sqrt(1.0 + y) + (2.0 + 3.0*y)*log((sqrt(1.0 + y) + 1.0)/(sqrt(1.0 + y) - 1.0)));
   
   //eqn 14
@@ -191,7 +205,7 @@ double transfunct_eh98_smooth(double kin)
   //-----------
   //input parms 
   //-----------
-  theta2p7 = 2.728/2.7;
+  theta2p7 = TCMB/2.7;
   
   //eqn 26
   s = 44.5*log(9.83/om0/h/h)/sqrt(1.0 + 10.0*pow(omb*h*h,0.75));
