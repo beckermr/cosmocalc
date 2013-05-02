@@ -77,7 +77,7 @@ static double tophatradnorm_linear_powspec_exact_nonorm_lnk_integ_funct_I0(doubl
   double k = exp(lnk);
   double ft = fourierTransformTopHat(k*(*((double*)p)));
   double tf = transfer_function(k);
-  return ft*ft*tf*tf*pow(k,cosmoData.SpectralIndex)*k*k*k/2.0/M_PI/M_PI*k;
+  return ft*ft*tf*tf*pow(k,cosmoData.SpectralIndex)*k*k/2.0/M_PI/M_PI*k;
 }
 
 static double tophatradnorm_linear_powspec_exact_nonorm_k_integ_funct_I0(double k, void *p)
