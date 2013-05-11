@@ -32,7 +32,9 @@ typedef struct {
   double ell; //temp var for integrals
   gsl_spline *spline;
   gsl_interp_accel *accel;
-} *lensPowerSpectra,_lensPowerSpectra;
+} _lensPowerSpectra;
+
+typedef _lensPowerSpectra *lensPowerSpectra;
 
 typedef struct {
   int initFlag;
@@ -44,7 +46,9 @@ typedef struct {
   gsl_interp_accel *accelP;
   gsl_spline *splineM;
   gsl_interp_accel *accelM;
-} *lensCorrFunc,_lensCorrFunc;
+} _lensCorrFunc;
+
+typedef _lensCorrFunc * lensCorrFunc;
 
 //functions to compute lensing power and cross spectra
 double nonlinear_powspec_for_lens(double k, double a);

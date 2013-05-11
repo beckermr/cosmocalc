@@ -150,5 +150,6 @@ double mass_function(double m, double a);
 double bias_function(double m, double a);
 double tinker2010_mass_function(double m, double a, double delta);
 double tinker2008_mass_function(double m, double a, double delta);
+double tinker2010_bias(double m, double a, double delta);
 
 #endif /* _COSMOCALC_ */

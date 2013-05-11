@@ -15,7 +15,6 @@ static double aTm[9] = {1.47, 1.52, 1.56, 1.61, 1.87, 2.13, 2.30, 2.53, 2.66};
 static double bTm[9] = {2.57, 2.25, 2.05, 1.87, 1.59, 1.51, 1.46, 1.44, 1.41};
 static double cTm[9] = {1.19, 1.27, 1.34, 1.45, 1.58, 1.80, 1.97, 2.24, 2.44};
 
-static double tinker2010_bias(double nu, double delta);
 static double tinker2010_mf_norm_integ(double nu, void *p);
   
 double mass_function(double m, double a)
@@ -305,21 +304,21 @@ static double tinker2010_mf_norm_integ(double nu, void *p)
 
 double bias_function(double m, double a)
 {
+  return tinker2010_bias(m,a,cosmoData.delta);
+}
+
+double tinker2010_bias(double m, double a, double delta)
+{
   double nu;
   nu =  1.686/sigmaMtophat(m,a);
   
-  return tinker2010_bias(nu,cosmoData.delta);
-}
-
-static double tinker2010_bias(double nu, double delta)
-{
   double y = log10(delta);
   double A = 1.0 + 0.24*y*exp(-1.0*pow(4.0/y,4.0));
-  double a = 0.44*y - 0.88;
+  double _a = 0.44*y - 0.88;
   double B = 0.183;
   double b = 1.5;
   double C = 0.019 + 0.107*y + 0.19*exp(-1.0*pow(4.0/y,4.0));
   double c = 2.4;
     
-  return 1.0 - A*pow(nu,a)/(pow(nu,a) + pow(1.686,a)) + B*pow(nu,b) + C*pow(nu,c);
+  return 1.0 - A*pow(nu,_a)/(pow(nu,_a) + pow(1.686,_a)) + B*pow(nu,b) + C*pow(nu,c);
 }
