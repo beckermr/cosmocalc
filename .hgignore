@@ -2,3 +2,4 @@ syntax: glob
 *~
 *.pyc
 c/build/*
+.DS_Store
