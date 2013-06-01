@@ -174,31 +174,31 @@ def transfunct_eh98_smooth(*args):
   return _cosmocalc.transfunct_eh98_smooth(*args)
 
 def linear_powspec(*args):
-  """linear power spectrum P(k) - linear_powspec(k in h/Mpc)"""
+  """linear power spectrum P(k) - linear_powspec(k in h/Mpc, scale factor)"""
   return _cosmocalc.linear_powspec(*args)
 
 def linear_powspec_exact(*args):
-  """linear power spectrum P(k) - linear_powspec_exact(k in h/Mpc) [does integration as opposed to using spline]"""
+  """linear power spectrum P(k) - linear_powspec_exact(k in h/Mpc, scale factor) [does integration as opposed to using spline]"""
   return _cosmocalc.linear_powspec_exact(*args)
 
 def linear_corrfunc_exact(*args):
-  """linear corr. function xi(r) - linear_corrfunc(r in Mpc/h) [does integration as opposed to using spline]"""
+  """linear corr. function xi(r) - linear_corrfunc(r in Mpc/h, scale factor) [does integration as opposed to using spline]"""
   return _cosmocalc.linear_corrfunc_exact(*args)
 
 def linear_corrfunc(*args):
-  """linear corr. function xi(r) - linear_corrfunc(r in Mpc/h)"""
+  """linear corr. function xi(r) - linear_corrfunc(r in Mpc/h, scale factor)"""
   return _cosmocalc.linear_corrfunc(*args)
 
 def nonlinear_powspec(*args):
-  """Takahashi+12 HaloFit nonlinear power spectrum - nonlinear_powspec(k in h/Mpc)"""
+  """Takahashi+12 HaloFit nonlinear power spectrum - nonlinear_powspec(k in h/Mpc, scale factor)"""
   return _cosmocalc.nonlinear_powspec(*args)
 
 def nonlinear_corrfunc_exact(*args):
-  """Takahashi+12 HaloFit nonlinear corr. function xi(r) - nonlinear_corrfunc(r in Mpc/h) [does integration as opposed to using spline]"""
+  """Takahashi+12 HaloFit nonlinear corr. function xi(r) - nonlinear_corrfunc(r in Mpc/h, scale factor) [does integration as opposed to using spline]"""
   return _cosmocalc.nonlinear_corrfunc_exact(*args)
 
 def nonlinear_corrfunc(*args):
-  """Takahashi+12 HaloFit nonlinear corr. function xi(r) - nonlinear_corrfunc(r in Mpc/h)"""
+  """Takahashi+12 HaloFit nonlinear corr. function xi(r) - nonlinear_corrfunc(r in Mpc/h, scale factor)"""
   return _cosmocalc.nonlinear_corrfunc(*args)
 
 def growth_function_exact(*args):
@@ -250,7 +250,7 @@ def tinker2008_mass_function(*args):
 tinker2008_mass_function = _cosmocalc.tinker2008_mass_function
 
 def tinker2010_bias(*args):
-  """Tinker+10 halos bias - tinker2010_bias(mass,scale factor, delta w/ mean density)"""
+  """Tinker+10 halos bias - tinker2010_bias(mass, scale factor, delta w/ mean density)"""
   return _cosmocalc.tinker2010_bias(*args)
 _cosmocalc.cvar.cosmoData.cosmoNum = 0
 
@@ -259,7 +259,11 @@ def _init(cd):
     _cosmocalc.cvar.cosmoData.OmegaM  = _cosmodict_resolve(cd,'om')
     _cosmocalc.cvar.cosmoData.OmegaL  = _cosmodict_resolve(cd,'ol')
     _cosmocalc.cvar.cosmoData.OmegaB  = _cosmodict_resolve(cd,'ob')
-    _cosmocalc.cvar.cosmoData.OmegaK = _cosmodict_resolve(cd,'ok')
+    okval = _cosmodict_resolve(cd,'ok')
+    if okval is None:
+        _cosmocalc.cvar.cosmoData.OmegaK = 1.0 - _cosmocalc.cvar.cosmoData.OmegaM - _cosmocalc.cvar.cosmoData.OmegaL
+    else:
+        _cosmocalc.cvar.cosmoData.OmegaK = okval
     _cosmocalc.cvar.cosmoData.h = _cosmodict_resolve(cd,'h')
     _cosmocalc.cvar.cosmoData.Sigma8 = _cosmodict_resolve(cd,'s8')
     _cosmocalc.cvar.cosmoData.SpectralIndex = _cosmodict_resolve(cd,'ns')

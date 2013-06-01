@@ -21,19 +21,19 @@
 %feature("autodoc", "EH98 transfer function w/ no BAO wiggles - transfunct_eh98_smooth(k in h/Mpc)") transfunct_eh98_smooth;
 
 /* in linear_powspec.c */
-%feature("autodoc", "linear power spectrum P(k) - linear_powspec(k in h/Mpc)") linear_powspec;
-%feature("autodoc", "linear power spectrum P(k) - linear_powspec_exact(k in h/Mpc) [does integration as opposed to using spline]") linear_powspec_exact;
+%feature("autodoc", "linear power spectrum P(k) - linear_powspec(k in h/Mpc, scale factor)") linear_powspec;
+%feature("autodoc", "linear power spectrum P(k) - linear_powspec_exact(k in h/Mpc, scale factor) [does integration as opposed to using spline]") linear_powspec_exact;
 
 /* linear_corrfunc.c */
-%feature("autodoc", "linear corr. function xi(r) - linear_corrfunc(r in Mpc/h)") linear_corrfunc;
-%feature("autodoc", "linear corr. function xi(r) - linear_corrfunc(r in Mpc/h) [does integration as opposed to using spline]") linear_corrfunc_exact;
+%feature("autodoc", "linear corr. function xi(r) - linear_corrfunc(r in Mpc/h, scale factor)") linear_corrfunc;
+%feature("autodoc", "linear corr. function xi(r) - linear_corrfunc(r in Mpc/h, scale factor) [does integration as opposed to using spline]") linear_corrfunc_exact;
 
 /* in nonlinear_powspec.c */
-%feature("autodoc", "Takahashi+12 HaloFit nonlinear power spectrum - nonlinear_powspec(k in h/Mpc)") nonlinear_powspec;
+%feature("autodoc", "Takahashi+12 HaloFit nonlinear power spectrum - nonlinear_powspec(k in h/Mpc, scale factor)") nonlinear_powspec;
 
 /* nonlinear_corrfunc.c */
-%feature("autodoc", "Takahashi+12 HaloFit nonlinear corr. function xi(r) - nonlinear_corrfunc(r in Mpc/h)") nonlinear_corrfunc;
-%feature("autodoc", "Takahashi+12 HaloFit nonlinear corr. function xi(r) - nonlinear_corrfunc(r in Mpc/h) [does integration as opposed to using spline]") nonlinear_corrfunc_exact;
+%feature("autodoc", "Takahashi+12 HaloFit nonlinear corr. function xi(r) - nonlinear_corrfunc(r in Mpc/h, scale factor)") nonlinear_corrfunc;
+%feature("autodoc", "Takahashi+12 HaloFit nonlinear corr. function xi(r) - nonlinear_corrfunc(r in Mpc/h, scale factor) [does integration as opposed to using spline]") nonlinear_corrfunc_exact;
 
 /* in growth_function.c */
 %feature("autodoc", "growth function ODE integration - growth_function(scale factor)") growth_function;
@@ -53,8 +53,8 @@
 %feature("autodoc", "mass M given RMS variance in linear power spectrum - inverse_sigmaMtophat(RMS variance sigma(M,scale factor), scale factor)") inverse_sigmaMtophat;
 
 /* in mass_bias_functions.c */
-%feature("autodoc", "Tinker+08 mass function - tinker2008_mass_function(mass,scale factor, delta w/ mean density)") tinker2010_mass_function;
-%feature("autodoc", "Tinker+10 halos bias - tinker2010_bias(mass,scale factor, delta w/ mean density)") tinker2010_bias;
+%feature("autodoc", "Tinker+08 mass function - tinker2008_mass_function(mass, scale factor, delta w/ mean density)") tinker2010_mass_function;
+%feature("autodoc", "Tinker+10 halos bias - tinker2010_bias(mass, scale factor, delta w/ mean density)") tinker2010_bias;
 
 %include "cosmocalc_swig.h"
 
@@ -66,7 +66,11 @@ def _init(cd):
     _cosmocalc.cvar.cosmoData.OmegaM  = _cosmodict_resolve(cd,'om')
     _cosmocalc.cvar.cosmoData.OmegaL  = _cosmodict_resolve(cd,'ol')
     _cosmocalc.cvar.cosmoData.OmegaB  = _cosmodict_resolve(cd,'ob')
-    _cosmocalc.cvar.cosmoData.OmegaK = _cosmodict_resolve(cd,'ok')
+    okval = _cosmodict_resolve(cd,'ok')
+    if okval is None:
+        _cosmocalc.cvar.cosmoData.OmegaK = 1.0 - _cosmocalc.cvar.cosmoData.OmegaM - _cosmocalc.cvar.cosmoData.OmegaL
+    else:
+        _cosmocalc.cvar.cosmoData.OmegaK = okval
     _cosmocalc.cvar.cosmoData.h = _cosmodict_resolve(cd,'h')
     _cosmocalc.cvar.cosmoData.Sigma8 = _cosmodict_resolve(cd,'s8')
     _cosmocalc.cvar.cosmoData.SpectralIndex = _cosmodict_resolve(cd,'ns')
