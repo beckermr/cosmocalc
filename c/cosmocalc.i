@@ -53,7 +53,7 @@
 %feature("autodoc", "mass M given RMS variance in linear power spectrum - inverse_sigmaMtophat(RMS variance sigma(M,scale factor), scale factor)") inverse_sigmaMtophat;
 
 /* in mass_bias_functions.c */
-%feature("autodoc", "Tinker+08 mass function - tinker2008_mass_function(mass, scale factor, delta w/ mean density)") tinker2010_mass_function;
+%feature("autodoc", "Tinker+08 mass function - tinker2008_mass_function(mass, scale factor, delta w/ mean density)") tinker2008_mass_function;
 %feature("autodoc", "Tinker+10 halos bias - tinker2010_bias(mass, scale factor, delta w/ mean density)") tinker2010_bias;
 
 %include "cosmocalc_swig.h"

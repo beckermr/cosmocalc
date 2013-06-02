@@ -4844,7 +4844,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"sigmaMtophat", _wrap_sigmaMtophat, METH_VARARGS, (char *)"RMS variance for mass M of linear power spectrum - sigmaMtophat(mass in M_{sun}/h, scale factor) [does integration as opposed to using spline]"},
 	 { (char *)"inverse_sigmaRtophat", _wrap_inverse_sigmaRtophat, METH_VARARGS, (char *)"sphere of radius R given RMS variance in linear power spectrum - inverse_sigmaRtophat(RMS variance sigma(R,scale factor), scale factor)"},
 	 { (char *)"inverse_sigmaMtophat", _wrap_inverse_sigmaMtophat, METH_VARARGS, (char *)"mass M given RMS variance in linear power spectrum - inverse_sigmaMtophat(RMS variance sigma(M,scale factor), scale factor)"},
-	 { (char *)"tinker2008_mass_function", _wrap_tinker2008_mass_function, METH_VARARGS, NULL},
+	 { (char *)"tinker2008_mass_function", _wrap_tinker2008_mass_function, METH_VARARGS, (char *)"Tinker+08 mass function - tinker2008_mass_function(mass, scale factor, delta w/ mean density)"},
 	 { (char *)"tinker2010_bias", _wrap_tinker2010_bias, METH_VARARGS, (char *)"Tinker+10 halos bias - tinker2010_bias(mass, scale factor, delta w/ mean density)"},
 	 { NULL, NULL, 0, NULL }
 };

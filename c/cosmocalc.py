@@ -246,8 +246,8 @@ def inverse_sigmaMtophat(*args):
   return _cosmocalc.inverse_sigmaMtophat(*args)
 
 def tinker2008_mass_function(*args):
+  """Tinker+08 mass function - tinker2008_mass_function(mass, scale factor, delta w/ mean density)"""
   return _cosmocalc.tinker2008_mass_function(*args)
-tinker2008_mass_function = _cosmocalc.tinker2008_mass_function
 
 def tinker2010_bias(*args):
   """Tinker+10 halos bias - tinker2010_bias(mass, scale factor, delta w/ mean density)"""
