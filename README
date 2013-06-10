@@ -1,0 +1,77 @@
+###########################################
+cosmocalc by Matthew Becker, UChicago 2013
+###########################################
+
+This is code to do basic cosmological calculations. The routines 
+tf_fit_eh98.c and tf_fit_eh98.h are modified versions of Wayne 
+Hu's code. Everything else is mine.
+
+USE THIS CODE AT YOUR OWN RISK! 
+
+I have done some debugging, but I cannot promise 
+that everything is correct. If you find any bugs, 
+please let me know!
+
+Matthew R. Becker 
+becker.mr [at] gmail [dot] com 
+
+##################
+Install
+##################
+
+You will need to install the GNU Scientific Library. Once you do 
+that follow the instructions below.
+
+C coders: The c code is in the c directory. You can compile static 
+   or shared libs. Also, if you look in c/examples you can see how 
+   to directly link the code.
+
+Python Peeps: The entire C code has been wrapped by SWIG. To install, you 
+should just be able to type
+   
+    python setup.py install
+
+This assumes of course that your GSL is in a reasonable spot. If not, you 
+will have to modify setup.py to include the paths to the headers and compiled 
+libraries for GSL. (You can see this with the /opt/local/lib options in the 
+script already. Just add your paths here. Note that environment variables are 
+not resolved by python for whatever reason, so things like $HOME/lib will have 
+to be resolved by hand. If you know how to do this, let me know!) 
+
+##################
+Usage
+##################
+
+Units: I use h-inverse units, with Mpc/h and Msun/h where needed. Also, 
+I work with scale factor as opposed to redshift, so be careful.
+
+C coders: See the example directory. Note that cosmoData is a global struct with 
+the cosmological parameters. When you want to change them, you need to increment 
+field cosmoData.cosmoNum.
+
+Python Peeps: It works like this.
+
+    import cosmocalc
+    cd = {
+        "om":0.3,
+    	"ob":0.045,
+	"ol":0.7,
+	"ok":,0.0
+	"h" :0.7,
+	"s8":0.8,
+	"ns":0.95,
+	"w0":-1.0,
+	"wa":0.0}
+    cosmocalc.set_cosmology(cd)
+    print cosmocalc.comvdist(0.5)
+
+The above code will print the comoving distance to scale factor = 0.5. Note that the 
+cosmology is a *global* variable in C. Thus you can only have one cosmology working at a time. 
+To set a new cosmology, simply change the dictionary and then call cosmocalc.set_cosmology().
+
+The documentation is complete in the sense that in ipython, simply do this to see what each 
+function does
+
+    cosmocalc.comvdist?
+
+
