@@ -249,6 +249,10 @@ def tinker2008_mass_function(*args):
   """Tinker+08 mass function - tinker2008_mass_function(mass, scale factor, delta w/ mean density)"""
   return _cosmocalc.tinker2008_mass_function(*args)
 
+def tinker2010_mass_function(*args):
+  """Tinker+10 mass function - tinker2010_mass_function(mass, scale factor, delta w/ mean density)"""
+  return _cosmocalc.tinker2010_mass_function(*args)
+
 def tinker2010_bias(*args):
   """Tinker+10 halos bias - tinker2010_bias(mass, scale factor, delta w/ mean density)"""
   return _cosmocalc.tinker2010_bias(*args)

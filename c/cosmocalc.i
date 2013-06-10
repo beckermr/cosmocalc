@@ -55,6 +55,7 @@
 /* in mass_bias_functions.c */
 %feature("autodoc", "Tinker+08 mass function - tinker2008_mass_function(mass, scale factor, delta w/ mean density)") tinker2008_mass_function;
 %feature("autodoc", "Tinker+10 halos bias - tinker2010_bias(mass, scale factor, delta w/ mean density)") tinker2010_bias;
+%feature("autodoc", "Tinker+10 mass function - tinker2010_mass_function(mass, scale factor, delta w/ mean density)") tinker2010_mass_function;
 
 %include "cosmocalc_swig.h"
 

@@ -73,4 +73,5 @@ double inverse_sigmaMtophat(double sigmaR, double a);
 
 /* in mass_bias_functions.c */
 double tinker2008_mass_function(double m, double a, double delta);
+double tinker2010_mass_function(double m, double a, double delta);
 double tinker2010_bias(double m, double a, double delta);

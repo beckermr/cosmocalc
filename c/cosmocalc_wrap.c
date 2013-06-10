@@ -4742,6 +4742,46 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_tinker2010_mass_function(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  double arg1 ;
+  double arg2 ;
+  double arg3 ;
+  double val1 ;
+  int ecode1 = 0 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  double val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  double result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:tinker2010_mass_function",&obj0,&obj1,&obj2)) SWIG_fail;
+  ecode1 = SWIG_AsVal_double(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "tinker2010_mass_function" "', argument " "1"" of type '" "double""'");
+  } 
+  arg1 = (double)(val1);
+  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "tinker2010_mass_function" "', argument " "2"" of type '" "double""'");
+  } 
+  arg2 = (double)(val2);
+  ecode3 = SWIG_AsVal_double(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "tinker2010_mass_function" "', argument " "3"" of type '" "double""'");
+  } 
+  arg3 = (double)(val3);
+  result = (double)tinker2010_mass_function(arg1,arg2,arg3);
+  resultobj = SWIG_From_double((double)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_tinker2010_bias(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   double arg1 ;
@@ -4845,6 +4885,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"inverse_sigmaRtophat", _wrap_inverse_sigmaRtophat, METH_VARARGS, (char *)"sphere of radius R given RMS variance in linear power spectrum - inverse_sigmaRtophat(RMS variance sigma(R,scale factor), scale factor)"},
 	 { (char *)"inverse_sigmaMtophat", _wrap_inverse_sigmaMtophat, METH_VARARGS, (char *)"mass M given RMS variance in linear power spectrum - inverse_sigmaMtophat(RMS variance sigma(M,scale factor), scale factor)"},
 	 { (char *)"tinker2008_mass_function", _wrap_tinker2008_mass_function, METH_VARARGS, (char *)"Tinker+08 mass function - tinker2008_mass_function(mass, scale factor, delta w/ mean density)"},
+	 { (char *)"tinker2010_mass_function", _wrap_tinker2010_mass_function, METH_VARARGS, (char *)"Tinker+10 mass function - tinker2010_mass_function(mass, scale factor, delta w/ mean density)"},
 	 { (char *)"tinker2010_bias", _wrap_tinker2010_bias, METH_VARARGS, (char *)"Tinker+10 halos bias - tinker2010_bias(mass, scale factor, delta w/ mean density)"},
 	 { NULL, NULL, 0, NULL }
 };
