@@ -49,7 +49,7 @@ C coders: See the example directory. Note that cosmoData is a global struct with
 the cosmological parameters. When you want to change them, you need to increment 
 field cosmoData.cosmoNum.
 
-Python Peeps: It works like this.
+Python Peeps: It works like this
 
     import cosmocalc
     cd = {
@@ -66,12 +66,31 @@ Python Peeps: It works like this.
     print cosmocalc.comvdist(0.5)
 
 The above code will print the comoving distance to scale factor = 0.5. Note that the 
-cosmology is a *global* variable in C. Thus you can only have one cosmology working at a time. 
-To set a new cosmology, simply change the dictionary and then call cosmocalc.set_cosmology().
+cosmology is a *global* variable in C. Thus you can only have one cosmology working 
+at a time. To set a new cosmology, simply change the dictionary and then call 
+cosmocalc.set_cosmology().
 
-The documentation is complete in the sense that in ipython, simply do this to see what each 
-function does
+The documentation is complete in the sense that in ipython, simply do this 
 
     cosmocalc.comvdist?
 
+to see what each function does.
 
+##################
+How It Works
+##################
+
+So the C code internally typically computes a given quantity as a function of 
+scale factor, k, or whatever, and then builds a spline. The splines are built 
+on-the-fly as needed. Thus the first call to a given quantity is slower than 
+subsequent calls.
+
+There is a single global variable (cosmoData) for the cosmology and the splines 
+are rebuilt when the field cosmoData.cosmoNum is changed. The python interface 
+does this automatically, but it has to be done by hand in the C code. 
+
+The integrations are all done with various adaptive integrators in GSL. The 
+details are not too important, except to say that the integrations are good to 
+at least few percent (and a lot are much, much better). 
+
+ 

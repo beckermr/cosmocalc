@@ -113,9 +113,27 @@ def _cosmodict_resolve(cd,skey,keynames=None):
     return None
 
 def set_cosmology(cd):
+    """Set the cosmology using a dictionary like this
+
+           import cosmocalc
+           cd = {
+               "OmegaM":0.3,
+               "OmegaB":0.045,
+               "OmegaDE":0.7,
+               "OmegaK":0.0,
+               "h":0.7,
+               "Sigma8":0.8,
+               "SpectralIndex":0.95,
+               "w0":-1.0,
+               "wa":0.0}
+           cosmocalc.set_cosmology(cd)
+       
+       Note that the cosmology is set *globally*, so you can only use 1 at a time!
+       """
     _init(cd)
 
 def get_cosmology():
+    "Return the cosmology as a dictionary. See cosmocalc.set_cosmology() for an example."
     return {'OmegaM':_cosmocalc.cvar.cosmoData.OmegaM,
             'OmegaDE':_cosmocalc.cvar.cosmoData.OmegaL,
             'OmegaB':_cosmocalc.cvar.cosmoData.OmegaB,
