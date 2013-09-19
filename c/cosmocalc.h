@@ -57,7 +57,7 @@ extern cosmocalcData cosmoData;
 //lengths and ranges of spline tables
 #define AEXPN_MIN 0.001
 #define AEXPN_MAX 1.0
-#define AEXPN_MIN_GROWTH (1.0/31.0)
+#define AEXPN_MIN_GROWTH (1.0/501.0)
 #define K_MIN 1e-9
 #define K_MAX 1e20
 #define PH_R_MIN 1e-3
