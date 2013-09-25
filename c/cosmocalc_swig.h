@@ -42,6 +42,7 @@ double transfunct_eh98_smooth(double kin);
 /* in linear_powspec.c */
 double linear_powspec(double k, double a);
 double linear_powspec_exact(double k, double a);
+double convert_cmbnorm2sigma8(void);
 
 /* linear_corrfunc.c */
 double linear_corrfunc_exact(double r, double a);

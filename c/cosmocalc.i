@@ -23,6 +23,7 @@
 /* in linear_powspec.c */
 %feature("autodoc", "linear power spectrum P(k) - linear_powspec(k in h/Mpc, scale factor)") linear_powspec;
 %feature("autodoc", "linear power spectrum P(k) - linear_powspec_exact(k in h/Mpc, scale factor) [does integration as opposed to using spline]") linear_powspec_exact;
+%feature("autodoc", "convert CMB power spectrum amplitude to sigma8 - convert_cmbnorm2sigma8()") convert_cmbnorm2sigma8;
 
 /* linear_corrfunc.c */
 %feature("autodoc", "linear corr. function xi(r) - linear_corrfunc(r in Mpc/h, scale factor)") linear_corrfunc;
@@ -73,8 +74,8 @@ def _init(cd):
     else:
         _cosmocalc.cvar.cosmoData.OmegaK = okval
     _cosmocalc.cvar.cosmoData.h = _cosmodict_resolve(cd,'h')
-    _cosmocalc.cvar.cosmoData.Sigma8 = _cosmodict_resolve(cd,'s8')
     _cosmocalc.cvar.cosmoData.SpectralIndex = _cosmodict_resolve(cd,'ns')
+
     _cosmocalc.cvar.cosmoData.w0 = -1.0
     _cosmocalc.cvar.cosmoData.wa = 0.0
     if _cosmodict_resolve(cd,'w') is not None:
@@ -83,6 +84,16 @@ def _init(cd):
     elif _cosmodict_resolve(cd,'w0') is not None and _cosmodict_resolve(cd,'wa') is not None:
         _cosmocalc.cvar.cosmoData.w0 = _cosmodict_resolve(cd,'w0')
         _cosmocalc.cvar.cosmoData.wa = _cosmodict_resolve(cd,'wa')
+
+    asval = _cosmodict_resolve(cd,'as')
+    as_pivot_val = _cosmodict_resolve(cd,'as_pivot')
+    s8val = _cosmodict_resolve(cd,'s8')
+    if asval is not None and as_pivot_val is not None and s8val is None:
+        _cosmocalc.cvar.cosmoData.As = asval
+        _cosmocalc.cvar.cosmoData.As_pivot = as_pivot_val
+	_cosmocalc.cvar.cosmoData.Sigma8 = _cosmocalc.convert_cmbnorm2sigma8()
+    elif s8val is not None:
+        _cosmocalc.cvar.cosmoData.Sigma8 = s8val
 
 def _cosmodict_resolve(cd,skey,keynames=None):
     _keynames = [
@@ -98,6 +109,7 @@ def _cosmodict_resolve(cd,skey,keynames=None):
         ['h','hubble'],
         ['s8','sigma8','Sigma8','sigma_8','Sigma_8'],
         ['as','As'],
+	['as_pivot','As_pivot','AsPivot','as_Pivot','As_Pivot'],
         ['ns','SpectralIndex','spectral_index','spectralindex'],
         ['w','W'],
         ['w0','W0'],
@@ -125,7 +137,9 @@ def set_cosmology(cd):
                "Sigma8":0.8,
                "SpectralIndex":0.95,
                "w0":-1.0,
-               "wa":0.0}
+               "wa":0.0
+               "As":2.1e-9,
+               "As_pivot":0.05}
            cosmocalc.set_cosmology(cd)
        
        Note that the cosmology is set *globally*, so you can only use 1 at a time!

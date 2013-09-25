@@ -15,8 +15,8 @@ for src in csrc:
         
 cosmocalc_module = Extension('_cosmocalc',
                              sources=srcs,
-                             extra_compile_args = ["-I/opt/local/include"],
-                             extra_link_args = ["-L/opt/local/lib","-lm","-lgsl","-lgslcblas"],
+                             extra_compile_args = ["-I/afs/slac.stanford.edu/g/ki/software/gsl/1.15/@sys/include"],
+                             extra_link_args = ["-L/afs/slac.stanford.edu/g/ki/software/gsl/1.15/@sys/lib","-lm","-lgsl","-lgslcblas"],
                              )
 
 setup (name = 'cosmocalc',
