@@ -47,9 +47,9 @@
 
 /* in peakheight.c */
 %feature("autodoc", "RMS variance in top hat sphere of radius R of linear power spectrum - sigmaRtophat(radius in Mpc/h, scale factor)") sigmaRtophat;
-%feature("autodoc", "RMS variance in top hat sphere of radius R of linear power spectrum - sigmaRtophat(radius in Mpc/h, scale factor) [does integration as opposed to using spline]") sigmaRtophat;
+%feature("autodoc", "RMS variance in top hat sphere of radius R of linear power spectrum - sigmaRtophat(radius in Mpc/h, scale factor) [does integration as opposed to using spline]") sigmaRtophat_exact;
 %feature("autodoc", "RMS variance for mass M of linear power spectrum - sigmaMtophat(mass in M_{sun}/h, scale factor)") sigmaMtophat;
-%feature("autodoc", "RMS variance for mass M of linear power spectrum - sigmaMtophat(mass in M_{sun}/h, scale factor) [does integration as opposed to using spline]") sigmaMtophat;
+%feature("autodoc", "RMS variance for mass M of linear power spectrum - sigmaMtophat(mass in M_{sun}/h, scale factor) [does integration as opposed to using spline]") sigmaMtophat_exact;
 %feature("autodoc", "sphere of radius R given RMS variance in linear power spectrum - inverse_sigmaRtophat(RMS variance sigma(R,scale factor), scale factor)") inverse_sigmaRtophat;
 %feature("autodoc", "mass M given RMS variance in linear power spectrum - inverse_sigmaMtophat(RMS variance sigma(M,scale factor), scale factor)") inverse_sigmaMtophat;
 

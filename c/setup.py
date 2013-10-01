@@ -4,6 +4,7 @@
 setup.py file for SWIG wrapping of cosmocalc
 """
 
+import os
 from distutils.core import setup, Extension
 import glob
 
@@ -15,8 +16,8 @@ for src in csrc:
         
 cosmocalc_module = Extension('_cosmocalc',
                              sources=srcs,
-                             extra_compile_args = ["-I/afs/slac.stanford.edu/g/ki/software/gsl/1.15/@sys/include"],
-                             extra_link_args = ["-L/afs/slac.stanford.edu/g/ki/software/gsl/1.15/@sys/lib","-lm","-lgsl","-lgslcblas"],
+                             extra_compile_args = [os.path.expandvars("-I${SLAC_GSL_INC}")],
+                             extra_link_args = [os.path.expandvars("-L${SLAC_GSL_LIB}"),"-lm","-lgsl","-lgslcblas"],
                              )
 
 setup (name = 'cosmocalc',
