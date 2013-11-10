@@ -15,7 +15,7 @@
 #ifdef ODEGROWTH
 
 #define LNAINITGROWTH (log(AEXPN_MIN_GROWTH))
-#define ABSERR 0.0
+#define ABSERR 1e-8
 #define RELERR 1e-8
 #define HSTART 1e-4
 #define ODE_TYPE gsl_odeiv2_step_rk8pd
