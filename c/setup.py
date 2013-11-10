@@ -16,8 +16,8 @@ for src in csrc:
         
 cosmocalc_module = Extension('_cosmocalc',
                              sources=srcs,
-                             extra_compile_args = [os.path.expandvars("-I${SLAC_GSL_INC}")],
-                             extra_link_args = [os.path.expandvars("-L${SLAC_GSL_LIB}"),"-lm","-lgsl","-lgslcblas"],
+                             extra_compile_args = [os.path.expandvars("-I${SLAC_GSL_INC}"),"-I/opt/local/include"],
+                             extra_link_args = [os.path.expandvars("-L${SLAC_GSL_LIB}"),"-L/opt/local/lib","-lm","-lgsl","-lgslcblas"],
                              )
 
 setup (name = 'cosmocalc',
