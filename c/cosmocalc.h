@@ -64,6 +64,7 @@ extern cosmocalcData cosmoData;
 #define PH_R_MAX 1e3
 #define CF_R_MIN 1e-10
 #define CF_R_MAX 3e2
+#define AEXPN_MIN_NONLINPK 0.1
 
 #define COSMOCALC_COMVDIST_TABLE_LENGTH            1000
 #define COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH     500

@@ -91,7 +91,7 @@ double nonlinear_powspec(double k, double a)
       
       for(i=0;i<COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH;++i)
 	{
-	  xtab[i] = i*(1.0-0.2)/(COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH-1.0) + 0.2;
+	  xtab[i] = i*(1.0-AEXPN_MIN_NONLINPK)/(COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH-1.0) + AEXPN_MIN_NONLINPK;
 	  ytab[i] = get_nonlinear_gaussnorm_scale(xtab[i]);
 	}
       gsl_spline_init(spline[0],xtab,ytab,(size_t) (COSMOCALC_NONLINEAR_POWSPEC_TABLE_LENGTH));
