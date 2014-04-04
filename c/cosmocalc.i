@@ -158,6 +158,10 @@ def get_cosmology():
             'w0':_cosmocalc.cvar.cosmoData.w0,
             'wa':_cosmocalc.cvar.cosmoData.wa}
 
+def lcdm():
+    "Return a random cosmology."
+    return {'OmegaM':0.3,'OmegaDE':0.7,'OmegaB':0.045,'OmegaK':0.0,'h':0.7,'Sigma8':0.8,'SpectralIndex':0.95,'w0':-1.0,'wa':0.0}
+
 %}
 
 

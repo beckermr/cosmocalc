@@ -144,7 +144,7 @@ double comvdist(double a)
 {
   static int initFlag = 1;
   static int currCosmoNum;
-  
+
   if(initFlag == 1 || currCosmoNum != cosmoData.cosmoNum)
     {
       initFlag = 0;
@@ -155,35 +155,45 @@ double comvdist(double a)
   return gsl_spline_eval(cosmocalc_aexpn2comvdist_spline,a,cosmocalc_aexpn2comvdist_acc);
 }
 
+//NOTE: you must call comvdist *FIRST* to init DH_sqrtok!
 double angdist(double a)
 {
+  double cd;
+  cd = comvdist(a);
+
   if(cosmoData.OmegaK > 0.0)
-    return DH_sqrtok*sinh(comvdist(a)/DH_sqrtok)*a;
+    return DH_sqrtok*sinh(cd/DH_sqrtok)*a;
   else if(cosmoData.OmegaK < 0)
-    return DH_sqrtok*sin(comvdist(a)/DH_sqrtok)*a;
+    return DH_sqrtok*sin(cd/DH_sqrtok)*a;
   else
-    return comvdist(a)*a;
+    return cd*a;
 }
 
 double lumdist(double a)
 {
+  double cd;
+  cd = comvdist(a);
+  
   if(cosmoData.OmegaK > 0.0)
-    return DH_sqrtok*sinh(comvdist(a)/DH_sqrtok)/a;
+    return DH_sqrtok*sinh(cd/DH_sqrtok)/a;
   else if(cosmoData.OmegaK < 0)
-    return DH_sqrtok*sin(comvdist(a)/DH_sqrtok)/a;
+    return DH_sqrtok*sin(cd/DH_sqrtok)/a;
   else
-    return comvdist(a)/a;
+    return cd/a;
 }
 
 double angdistdiff(double amin, double amax)
 {
+  double cdmin,cdmax;
   assert(amin <= amax);
+  cdmin = comvdist(amin);
+  cdmax = comvdist(amax);
   
   if(cosmoData.OmegaK > 0.0)
-    return DH_sqrtok*sinh((comvdist(amin)-comvdist(amax))/DH_sqrtok)*amin;
+    return DH_sqrtok*sinh((cdmin-cdmax)/DH_sqrtok)*amin;
   else if(cosmoData.OmegaK < 0)
-    return DH_sqrtok*sin((comvdist(amin)-comvdist(amax))/DH_sqrtok)*amin;
+    return DH_sqrtok*sin((cdmin-cdmax)/DH_sqrtok)*amin;
   else
-    return (comvdist(amin)-comvdist(amax))*amin;
+    return (cdmin-cdmax)*amin;
 }
 
