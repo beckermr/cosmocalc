@@ -70,7 +70,7 @@ void init_cosmocalc_comvdist_table(void)
       currCosmoNum = cosmoData.cosmoNum;
       
       if(cosmoData.OmegaK != 0.0)
-	DH_sqrtok = DH/sqrt(cosmoData.OmegaK);
+	DH_sqrtok = DH/sqrt(fabs(cosmoData.OmegaK));
       else
 	DH_sqrtok = 1.0;
       
