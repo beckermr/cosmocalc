@@ -3956,6 +3956,18 @@ SWIGINTERN PyObject *Swig_var_cosmoData_get(void) {
 }
 
 
+SWIGINTERN PyObject *_wrap_turn_off_gsl_errs(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  
+  if (!PyArg_ParseTuple(args,(char *)":turn_off_gsl_errs")) SWIG_fail;
+  turn_off_gsl_errs();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_angdist(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   double arg1 ;
@@ -4844,6 +4856,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_cosmocalcData", _wrap_new_cosmocalcData, METH_VARARGS, NULL},
 	 { (char *)"delete_cosmocalcData", _wrap_delete_cosmocalcData, METH_VARARGS, NULL},
 	 { (char *)"cosmocalcData_swigregister", cosmocalcData_swigregister, METH_VARARGS, NULL},
+	 { (char *)"turn_off_gsl_errs", _wrap_turn_off_gsl_errs, METH_VARARGS, (char *)"turn off GSL error handling"},
 	 { (char *)"angdist", _wrap_angdist, METH_VARARGS, (char *)"angular diameter distance in Mpc/h - angdist(scale factor)"},
 	 { (char *)"lumdist", _wrap_lumdist, METH_VARARGS, (char *)"luminosity distance in Mpc/h - lumdist(scale factor)"},
 	 { (char *)"comvdist", _wrap_comvdist, METH_VARARGS, (char *)"comoving distance in Mpc/h - comvdist(scale factor)"},

@@ -24,7 +24,9 @@ typedef struct {
   int useSmoothTransFunc;
 } cosmocalcData;
 
+//global.c
 extern cosmocalcData cosmoData;
+void turn_off_gsl_errs(void);
 
 /* distances.c - computes distances - assumes flat lambda */
 double angdist(double a);

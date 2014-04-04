@@ -139,6 +139,10 @@ cosmocalcData_swigregister = _cosmocalc.cosmocalcData_swigregister
 cosmocalcData_swigregister(cosmocalcData)
 
 
+def turn_off_gsl_errs():
+  """turn off GSL error handling"""
+  return _cosmocalc.turn_off_gsl_errs()
+
 def angdist(*args):
   """angular diameter distance in Mpc/h - angdist(scale factor)"""
   return _cosmocalc.angdist(*args)
@@ -262,7 +266,8 @@ def tinker2010_mass_function(*args):
 def tinker2010_bias(*args):
   """Tinker+10 halos bias - tinker2010_bias(mass, scale factor, delta w/ mean density)"""
   return _cosmocalc.tinker2010_bias(*args)
-_cosmocalc.cvar.cosmoData.cosmoNum = 0
+_cosmocalc.cvar.cosmoData.cosmoNum = 1
+_cosmocalc.turn_off_gsl_errs()
 
 def _init(cd):
     _cosmocalc.cvar.cosmoData.cosmoNum += 1

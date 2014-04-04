@@ -7,6 +7,9 @@
 #include "weaklens.h"
 %}
 
+/* in global.c */
+%feature("autodoc", "turn off GSL error handling") turn_off_gsl_errs;
+
 /* in distances.c */
 %feature("autodoc", "comoving distance in Mpc/h - comvdist(scale factor)") comvdist;
 %feature("autodoc", "comoving distance in Mpc/h - comvdist_exact(scale factor) [does integration as opposed to using spline]") comvdist_exact;
@@ -61,7 +64,8 @@
 %include "cosmocalc_swig.h"
 
 %pythoncode %{
-_cosmocalc.cvar.cosmoData.cosmoNum = 0
+_cosmocalc.cvar.cosmoData.cosmoNum = 1
+_cosmocalc.turn_off_gsl_errs()
 
 def _init(cd):
     _cosmocalc.cvar.cosmoData.cosmoNum += 1

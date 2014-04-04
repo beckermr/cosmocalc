@@ -52,7 +52,9 @@ typedef struct {
   int useSmoothTransFunc;
 } cosmocalcData;
 
+//global.c
 extern cosmocalcData cosmoData;
+void turn_off_gsl_errs(void);
 
 //lengths and ranges of spline tables
 #define AEXPN_MIN 0.001
