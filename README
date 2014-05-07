@@ -22,8 +22,8 @@ Install
 You will need to install the GNU Scientific Library. Once you do 
 that follow the instructions below.
 
-C coders: The c code is in the c directory. You can compile static 
-   or shared libs. Also, if you look in c/examples you can see how 
+C coders: You can compile static 
+   or shared libs. Also, if you look in examples/ you can see how 
    to directly link the code.
 
 Python Peeps: The entire C code has been wrapped by SWIG. To install, you 
