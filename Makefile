@@ -53,6 +53,9 @@ libcosmocalc.a: $(CCALCSOURCES) cosmocalc.h Makefile
 $(COBJECTS): $(CSOURCES) $(CCALCSOURCES) cosmocalc.h Makefile
 $(CCALCOBJECTS): $(CCALCSOURCES) cosmocalc.h Makefile
 
+swig: cosmocalc_swig.h $(CSOURCES) $(CCALCSOURCES) cosmocalc.h Makefile
+	swig -python cosmocalc.i
+
 .PHONY : clean
 clean: 
 	rm -f *.o $(EXEC) libcosmocalc.a libcosmocalc.so _cosmocalc.so cosmocalc.py cosmocalc_wrap.c *.pyc
