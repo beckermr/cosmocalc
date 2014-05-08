@@ -13,7 +13,7 @@ srcs = []
 for src in csrc:
     if src != "main.c" and src != "fftlog.c" and src != "test_code.c":
         srcs.append(src)
-        
+srcs.append("cosmocalc.i")        
 cosmocalc_module = Extension('_cosmocalc',
                              sources=srcs,
                              extra_compile_args = [os.path.expandvars("-I${SLAC_GSL_INC}"),"-I/opt/local/include"],
