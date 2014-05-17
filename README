@@ -2,10 +2,7 @@
 cosmocalc by Matthew Becker, UChicago & Stanford, Copyright (c) 2013-2014, New BSD License
 ###########################################
 
-This is code to do basic cosmological calculations. The routines 
-tf_fit_eh98.c and tf_fit_eh98.h are modified versions of Wayne 
-Hu's code (http://background.uchicago.edu/~whu/transfer). Everything 
-else is mine.
+cosmocalc does basic cosmological calculations.
 
 USE THIS CODE AT YOUR OWN RISK! 
 
