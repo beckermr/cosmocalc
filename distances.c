@@ -78,7 +78,7 @@ void init_cosmocalc_comvdist_table(void)
   
       for(i=0;i<COSMOCALC_COMVDIST_TABLE_LENGTH-1;++i)
 	{
-	  afact = (AEXPN_MAX - AEXPN_MIN)/(COSMOCALC_COMVDIST_TABLE_LENGTH-1.0)*((double) i) + AEXPN_MIN;
+	  afact = (AEXPN_MAX - AEXPN_MIN_DIST)/(COSMOCALC_COMVDIST_TABLE_LENGTH-1.0)*((double) i) + AEXPN_MIN_DIST;
 	  F.function = &comvdist_integ_funct;
 	  F.params = &(cosmoData.OmegaM);
 	  gsl_integration_qag(&F,afact,1.0,ABSERR,RELERR,(size_t) WORKSPACE_NUM,GSL_INTEG_GAUSS51,workspace,&result,&abserr);
