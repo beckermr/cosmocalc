@@ -19,8 +19,8 @@
 %feature("autodoc", "angular diatameter distance difference in Mpc/h for lensing - angdistdiff(amin,amax) [amin <= amax]") angdistdiff;
 
 /* ages.c */
-%feature("autodoc", "age in Gyr - age(scale factor)") age;
-%feature("autodoc", "lookback time in Gyr - lookback(scale factor)") lookback;
+%feature("autodoc", "age in yr - age(scale factor)") age;
+%feature("autodoc", "lookback time in yr - lookback(scale factor)") lookback;
 
 /* in transfer_function.c */
 %feature("autodoc", "EH98 transfer function - transfer_function(k in h/Mpc) [uses spline]") transfer_function;

@@ -172,11 +172,11 @@ def comvdist_exact(*args):
   return _cosmocalc.comvdist_exact(*args)
 
 def age(*args):
-  """age in Gyr - age(scale factor)"""
+  """age in yr - age(scale factor)"""
   return _cosmocalc.age(*args)
 
 def lookback(*args):
-  """lookback time in Gyr - lookback(scale factor)"""
+  """lookback time in yr - lookback(scale factor)"""
   return _cosmocalc.lookback(*args)
 
 def transfer_function(*args):
