@@ -4161,6 +4161,50 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_age(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  double arg1 ;
+  double val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  double result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:age",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_double(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "age" "', argument " "1"" of type '" "double""'");
+  } 
+  arg1 = (double)(val1);
+  result = (double)age(arg1);
+  resultobj = SWIG_From_double((double)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_lookback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  double arg1 ;
+  double val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  double result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:lookback",&obj0)) SWIG_fail;
+  ecode1 = SWIG_AsVal_double(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "lookback" "', argument " "1"" of type '" "double""'");
+  } 
+  arg1 = (double)(val1);
+  result = (double)lookback(arg1);
+  resultobj = SWIG_From_double((double)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_transfer_function(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   double arg1 ;
@@ -4917,6 +4961,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"angdistdiff", _wrap_angdistdiff, METH_VARARGS, (char *)"angular diatameter distance difference in Mpc/h for lensing - angdistdiff(amin,amax) [amin <= amax]"},
 	 { (char *)"acomvdist", _wrap_acomvdist, METH_VARARGS, (char *)"scale factor for a given comoving distance in Mpc/h - acomvdist(comv. dist in Mpc/h)"},
 	 { (char *)"comvdist_exact", _wrap_comvdist_exact, METH_VARARGS, (char *)"comoving distance in Mpc/h - comvdist_exact(scale factor) [does integration as opposed to using spline]"},
+	 { (char *)"age", _wrap_age, METH_VARARGS, (char *)"age in Gyr - age(scale factor)"},
+	 { (char *)"lookback", _wrap_lookback, METH_VARARGS, (char *)"lookback time in Gyr - lookback(scale factor)"},
 	 { (char *)"transfer_function", _wrap_transfer_function, METH_VARARGS, (char *)"EH98 transfer function - transfer_function(k in h/Mpc) [uses spline]"},
 	 { (char *)"transfunct_eh98", _wrap_transfunct_eh98, METH_VARARGS, (char *)"EH98 transfer function - transfunct_eh98(k in h/Mpc) [evaluates fitting formula - slower than transfer_function]"},
 	 { (char *)"transfunct_eh98_smooth", _wrap_transfunct_eh98_smooth, METH_VARARGS, (char *)"EH98 transfer function w/ no BAO wiggles - transfunct_eh98_smooth(k in h/Mpc)"},
@@ -5651,6 +5697,7 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "DELTAC",SWIG_From_double((double)(1.686)));
   SWIG_Python_SetConstant(d, "DH",SWIG_From_double((double)(2997.92458)));
   SWIG_Python_SetConstant(d, "TCMB",SWIG_From_double((double)(2.7255)));
+  SWIG_Python_SetConstant(d, "TH",SWIG_From_double((double)(9.77813106e9)));
   PyDict_SetItemString(md,(char*)"cvar", SWIG_globals());
   SWIG_addvarlink(SWIG_globals(),(char*)"cosmoData",Swig_var_cosmoData_get, Swig_var_cosmoData_set);
 #if PY_VERSION_HEX >= 0x03000000

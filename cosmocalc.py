@@ -78,6 +78,7 @@ CSOL = _cosmocalc.CSOL
 DELTAC = _cosmocalc.DELTAC
 DH = _cosmocalc.DH
 TCMB = _cosmocalc.TCMB
+TH = _cosmocalc.TH
 class cosmocalcData(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, cosmocalcData, name, value)
@@ -169,6 +170,14 @@ def acomvdist(*args):
 def comvdist_exact(*args):
   """comoving distance in Mpc/h - comvdist_exact(scale factor) [does integration as opposed to using spline]"""
   return _cosmocalc.comvdist_exact(*args)
+
+def age(*args):
+  """age in Gyr - age(scale factor)"""
+  return _cosmocalc.age(*args)
+
+def lookback(*args):
+  """lookback time in Gyr - lookback(scale factor)"""
+  return _cosmocalc.lookback(*args)
 
 def transfer_function(*args):
   """EH98 transfer function - transfer_function(k in h/Mpc) [uses spline]"""

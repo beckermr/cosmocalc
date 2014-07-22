@@ -18,6 +18,10 @@
 %feature("autodoc", "scale factor for a given comoving distance in Mpc/h - acomvdist(comv. dist in Mpc/h)") acomvdist;
 %feature("autodoc", "angular diatameter distance difference in Mpc/h for lensing - angdistdiff(amin,amax) [amin <= amax]") angdistdiff;
 
+/* ages.c */
+%feature("autodoc", "age in Gyr - age(scale factor)") age;
+%feature("autodoc", "lookback time in Gyr - lookback(scale factor)") lookback;
+
 /* in transfer_function.c */
 %feature("autodoc", "EH98 transfer function - transfer_function(k in h/Mpc) [uses spline]") transfer_function;
 %feature("autodoc", "EH98 transfer function - transfunct_eh98(k in h/Mpc) [evaluates fitting formula - slower than transfer_function]") transfunct_eh98;

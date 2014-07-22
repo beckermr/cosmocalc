@@ -4,6 +4,7 @@
 #define DELTAC 1.686 /* peak height factor */
 #define DH 2997.92458 /* Hubble distance in Mpc/h */
 #define TCMB 2.7255 /* EH98 uses 2.728 */
+#define TH 9.77813106e9 /* Hubble time in yr/h */
 //#define TCMB 2.728 /* EH98 uses 2.728 */
 
 typedef struct {
@@ -36,6 +37,10 @@ double comvdist(double a);
 double angdistdiff(double amin, double amax);
 double acomvdist(double dist);
 double comvdist_exact(double a);
+
+/* ages.c - ages */
+double age(double a);
+double lookback(double a);
 
 /* in transfer_function.c */
 double transfer_function(double k);

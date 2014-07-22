@@ -32,6 +32,7 @@
 #define DELTAC 1.686 /* peak height factor */
 #define DH 2997.92458 /* Hubble distance in Mpc/h */
 #define TCMB 2.7255 /* EH98 uses 2.728 */
+#define TH 9.77813106e9/* Hubble time in yr/h */
 //#define TCMB 2.728 /* EH98 uses 2.728 */
 
 typedef struct {
@@ -71,6 +72,7 @@ void turn_off_gsl_errs(void);
 #define AEXPN_MIN_NONLINPK 0.1
 
 #define COSMOCALC_COMVDIST_TABLE_LENGTH            2500
+#define COSMOCALC_AGE_TABLE_LENGTH            2500
 #define COSMOCALC_GROWTH_FUNCTION_TABLE_LENGTH     500
 #define COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH   5000
 #define COSMOCALC_TRANSFER_FUNCTION_FIT_LENGTH     20
@@ -95,7 +97,7 @@ double get_k0_fftlog(int N, double mu, double q, double r0, double L, double k0g
 void um_fftlog(int m, double mu, double q, double k0, double r0, double L, double *realpart, double *imagpart);
 #endif
 
-/* distances.c - computes distances - assumes flat lambda */
+/* distances.c - computes distances */
 void init_cosmocalc_comvdist_table(void);
 double angdist(double a);
 double lumdist(double a);
@@ -103,6 +105,11 @@ double comvdist(double a);
 double angdistdiff(double amin, double amax);
 double acomvdist(double dist);
 double comvdist_exact(double a);
+
+/* ages.c - ages */
+void init_cosmocalc_age_table(void);
+double age(double a);
+double lookback(double a);
 
 /* in transfer_function.c */
 double transfer_function(double k);
