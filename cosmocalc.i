@@ -66,6 +66,23 @@
 %pythoncode %{
 _cosmocalc.cvar.cosmoData.cosmoNum = 1
 _cosmocalc.turn_off_gsl_errs()
+_cosmocalc.cvar.cosmoData.useSmoothTransFunc = 0
+_cosmocalc.cvar.cosmoData.useNoTransFunc = 0
+
+def useEH98SmoothTransFunc():
+    _cosmocalc.cvar.cosmoData.useSmoothTransFunc = 1
+    _cosmocalc.cvar.cosmoData.useNoTransFunc = 0
+    _cosmocalc.cvar.cosmoData.cosmoNum += 1
+
+def useNoTransFunc():
+    _cosmocalc.cvar.cosmoData.useSmoothTransFunc = 0
+    _cosmocalc.cvar.cosmoData.useNoTransFunc = 1
+    _cosmocalc.cvar.cosmoData.cosmoNum += 1
+
+def useEH98TransFunc():
+    _cosmocalc.cvar.cosmoData.useSmoothTransFunc = 0
+    _cosmocalc.cvar.cosmoData.useNoTransFunc = 0
+    _cosmocalc.cvar.cosmoData.cosmoNum += 1
 
 def _init(cd):
     _cosmocalc.cvar.cosmoData.cosmoNum += 1

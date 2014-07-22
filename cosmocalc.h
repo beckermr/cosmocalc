@@ -50,6 +50,7 @@ typedef struct {
   double w0;
   double wa;
   int useSmoothTransFunc;
+  int useNoTransFunc;
 } cosmocalcData;
 
 //global.c

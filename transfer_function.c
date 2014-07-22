@@ -30,6 +30,8 @@ double transfer_function(double k)
           k_table[i] = log(K_MAX/K_MIN)/(COSMOCALC_TRANSFER_FUNCTION_TABLE_LENGTH-1.0)*((double) i) + log(K_MIN);
           if(cosmoData.useSmoothTransFunc)
 	    transfer_function_table[i] = log(transfunct_eh98_smooth(exp(k_table[i])));
+	  else if(cosmoData.useNoTransFunc)
+	    transfer_function_table[i] = 0.0;
 	  else
 	    transfer_function_table[i] = log(transfunct_eh98(exp(k_table[i])));
         }
