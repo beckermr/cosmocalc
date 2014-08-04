@@ -21,7 +21,7 @@ cosmocalc_module = Extension('_cosmocalc',
                              )
 
 setup (name = 'cosmocalc',
-       version = '0.1',
+       version = '0.2',
        author      = "Matthew R. Becker",
        description = """cosmocalc wrapped by SWIG""",
        ext_modules = [cosmocalc_module],
