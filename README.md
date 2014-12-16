@@ -2,7 +2,7 @@ cosmocalc
 ========
 cosmocalc does basic cosmological calculations.
 
-Matthew Becker, UChicago & Stanford/SLAC
+Matthew R. Becker, UChicago & Stanford/SLAC
 Copyright (c) 2013-2014, New BSD License
 
 USE THIS CODE AT YOUR OWN RISK! 
