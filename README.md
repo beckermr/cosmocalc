@@ -29,9 +29,9 @@ should just be able to type
 
 This assumes of course that your GSL is in a reasonable spot. If not, you 
 will have to modify setup.py to include the paths to the headers and compiled 
-libraries for GSL. (You can see this with the /opt/local/lib options in the 
+libraries for GSL. (You can see this with the `/opt/local/lib options` in the 
 script already. Just add your paths here. Note that environment variables are 
-not resolved by python for whatever reason, so things like $HOME/lib will have 
+not resolved by python for whatever reason, so things like `$HOME/lib` will have 
 to be resolved by hand. If you know how to do this, let me know!) 
 
 Usage
@@ -50,9 +50,9 @@ Python Peeps: It works like this
 #!python
 
 import cosmocalc  
-cd = {"om":0.3,"ob":0.045,"ol":0.7,
-         "ok":0.0,"h" :0.7,"s8":0.8,"ns":0.95,
-         "w0":-1.0,"wa":0.0}
+cd = {"om":0.3,"ob":0.045,"ol":0.7, \
+      "ok":0.0,"h" :0.7,"s8":0.8,"ns":0.95, \
+      "w0":-1.0,"wa":0.0}
 cosmocalc.set_cosmology(cd)
 print cosmocalc.comvdist(0.5)
 ```
@@ -64,13 +64,16 @@ cosmocalc.set_cosmology().
 
 The documentation is complete in the sense that in ipython, simply do this 
 
-    cosmocalc.comvdist?
+```
+#!python
 
+cosmocalc.comvdist?
+```
 to see what each function does.
 
-##################
+
 How It Works
-##################
+------------------
 
 So the C code internally typically computes a given quantity as a function of 
 scale factor, k, or whatever, and then builds a spline. The splines are built 
@@ -85,11 +88,10 @@ The integrations are all done with various adaptive integrators in GSL. The
 details are not too important, except to say that the integrations are good to 
 at least few percent (and a lot are much, much better). 
 
-###################
 New BSD License
-###################
+------------------------
 
-Copyright (c) <year>, <copyright holder>
+Copyright (c) 2013-2014, Matthew R. Becker  
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
