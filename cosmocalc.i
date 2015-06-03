@@ -2,6 +2,7 @@
 %module(docstring="Cosmology and LSS calculations - python interface to (fast) C code") cosmocalc
 %{
 /* Put headers and other declarations here */
+#define SWIG_FILE_WITH_INIT
 #include "cosmocalc.h"
 #include "haloprofs.h"
 #include "weaklens.h"
