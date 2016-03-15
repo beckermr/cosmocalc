@@ -47,7 +47,6 @@ field cosmoData.cosmoNum.
 Python Peeps: It works like this
 
 ```python
-
 import cosmocalc  
 cd = {"om":0.3,"ob":0.045,"ol":0.7, \
       "ok":0.0,"h" :0.7,"s8":0.8,"ns":0.95, \
@@ -64,8 +63,7 @@ cosmocalc.set_cosmology().
 The documentation is complete in the sense that in ipython, simply do this 
 
 ```python
-
-cosmocalc.comvdist?
+>>> cosmocalc.comvdist?
 ```
 to see what each function does.
 
