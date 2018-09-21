@@ -3,9 +3,9 @@
 %{
 /* Put headers and other declarations here */
 #define SWIG_FILE_WITH_INIT
-#include "cosmocalc.h"
-#include "haloprofs.h"
-#include "weaklens.h"
+#include "../src/cosmocalc.h"
+#include "../src/haloprofs.h"
+#include "../src/weaklens.h"
 %}
 
 /* in global.c */
@@ -74,72 +74,75 @@ _cosmocalc.turn_off_gsl_errs()
 _cosmocalc.cvar.cosmoData.useSmoothTransFunc = 0
 _cosmocalc.cvar.cosmoData.useNoTransFunc = 0
 
-def useEH98SmoothTransFunc():
+def use_eh98_smooth_trans_func():
     _cosmocalc.cvar.cosmoData.useSmoothTransFunc = 1
     _cosmocalc.cvar.cosmoData.useNoTransFunc = 0
     _cosmocalc.cvar.cosmoData.cosmoNum += 1
 
-def useNoTransFunc():
+def use_no_trans_func():
     _cosmocalc.cvar.cosmoData.useSmoothTransFunc = 0
     _cosmocalc.cvar.cosmoData.useNoTransFunc = 1
     _cosmocalc.cvar.cosmoData.cosmoNum += 1
 
-def useEH98TransFunc():
+def use_eh98_trans_func():
     _cosmocalc.cvar.cosmoData.useSmoothTransFunc = 0
     _cosmocalc.cvar.cosmoData.useNoTransFunc = 0
     _cosmocalc.cvar.cosmoData.cosmoNum += 1
 
 def _init(cd):
     _cosmocalc.cvar.cosmoData.cosmoNum += 1
-    _cosmocalc.cvar.cosmoData.OmegaM  = _cosmodict_resolve(cd,'om')
-    _cosmocalc.cvar.cosmoData.OmegaL  = _cosmodict_resolve(cd,'ol')
-    _cosmocalc.cvar.cosmoData.OmegaB  = _cosmodict_resolve(cd,'ob')
-    okval = _cosmodict_resolve(cd,'ok')
+    _cosmocalc.cvar.cosmoData.OmegaM = _cosmodict_resolve(cd, 'om')
+    _cosmocalc.cvar.cosmoData.OmegaL = _cosmodict_resolve(cd, 'ol')
+    _cosmocalc.cvar.cosmoData.OmegaB = _cosmodict_resolve(cd, 'ob')
+    okval = _cosmodict_resolve(cd, 'ok')
     if okval is None:
-        _cosmocalc.cvar.cosmoData.OmegaK = 1.0 - _cosmocalc.cvar.cosmoData.OmegaM - _cosmocalc.cvar.cosmoData.OmegaL
+        _cosmocalc.cvar.cosmoData.OmegaK = (
+            1.0 - _cosmocalc.cvar.cosmoData.OmegaM -
+            _cosmocalc.cvar.cosmoData.OmegaL)
     else:
         _cosmocalc.cvar.cosmoData.OmegaK = okval
-    _cosmocalc.cvar.cosmoData.h = _cosmodict_resolve(cd,'h')
-    _cosmocalc.cvar.cosmoData.SpectralIndex = _cosmodict_resolve(cd,'ns')
+    _cosmocalc.cvar.cosmoData.h = _cosmodict_resolve(cd, 'h')
+    _cosmocalc.cvar.cosmoData.SpectralIndex = _cosmodict_resolve(cd, 'ns')
 
     _cosmocalc.cvar.cosmoData.w0 = -1.0
     _cosmocalc.cvar.cosmoData.wa = 0.0
-    if _cosmodict_resolve(cd,'w') is not None:
-        _cosmocalc.cvar.cosmoData.w0 = _cosmodict_resolve(cd,'w')
+    if _cosmodict_resolve(cd, 'w') is not None:
+        _cosmocalc.cvar.cosmoData.w0 = _cosmodict_resolve(cd, 'w')
         _cosmocalc.cvar.cosmoData.wa = 0.0
-    elif _cosmodict_resolve(cd,'w0') is not None and _cosmodict_resolve(cd,'wa') is not None:
-        _cosmocalc.cvar.cosmoData.w0 = _cosmodict_resolve(cd,'w0')
-        _cosmocalc.cvar.cosmoData.wa = _cosmodict_resolve(cd,'wa')
+    elif (_cosmodict_resolve(cd, 'w0') is not None and
+            _cosmodict_resolve(cd, 'wa') is not None):
+        _cosmocalc.cvar.cosmoData.w0 = _cosmodict_resolve(cd, 'w0')
+        _cosmocalc.cvar.cosmoData.wa = _cosmodict_resolve(cd, 'wa')
 
-    asval = _cosmodict_resolve(cd,'as')
-    as_pivot_val = _cosmodict_resolve(cd,'as_pivot')
-    s8val = _cosmodict_resolve(cd,'s8')
+    asval = _cosmodict_resolve(cd, 'as')
+    as_pivot_val = _cosmodict_resolve(cd, 'as_pivot')
+    s8val = _cosmodict_resolve(cd, 's8')
     if asval is not None and as_pivot_val is not None and s8val is None:
         _cosmocalc.cvar.cosmoData.As = asval
         _cosmocalc.cvar.cosmoData.As_pivot = as_pivot_val
-	_cosmocalc.cvar.cosmoData.Sigma8 = _cosmocalc.convert_cmbnorm2sigma8()
+        _cosmocalc.cvar.cosmoData.Sigma8 = _cosmocalc.convert_cmbnorm2sigma8()
     elif s8val is not None:
         _cosmocalc.cvar.cosmoData.Sigma8 = s8val
 
-def _cosmodict_resolve(cd,skey,keynames=None):
+def _cosmodict_resolve(cd, skey, keynames=None):
     _keynames = [
-        ['omega_m','om','OmegaM','Omega_M','omegam'],
-        ['omega_l','ol','OmegaL','Omega_L','omegal',
-         'omega_de','ode','OmegaDE','Omega_DE','omegade'],
-        ['omega_k','ok','OmegaK','Omega_K','omegak'],
-        ['omega_r','or','OmegaR','Omega_R','omegar'],
-        ['omega_nu','onu','OmegaNu','Omega_Nu','omeganu',
-         'OmegaNU','Omega_NU'],
-        ['omega_b','ob','OmegaB','Omega_B','omegab'],
+        ['omega_m', 'om', 'OmegaM', 'Omega_M', 'omegam'],
+        ['omega_l', 'ol', 'OmegaL', 'Omega_L', 'omegal',
+         'omega_de', 'ode', 'OmegaDE', 'Omega_DE', 'omegade'],
+        ['omega_k', 'ok', 'OmegaK', 'Omega_K', 'omegak'],
+        ['omega_r', 'or', 'OmegaR', 'Omega_R', 'omegar'],
+        ['omega_nu', 'onu', 'OmegaNu', 'Omega_Nu', 'omeganu',
+         'OmegaNU', 'Omega_NU'],
+        ['omega_b', 'ob', 'OmegaB', 'Omega_B', 'omegab'],
         ['H0'],
-        ['h','hubble'],
-        ['s8','sigma8','Sigma8','sigma_8','Sigma_8'],
-        ['as','As'],
-	['as_pivot','As_pivot','AsPivot','as_Pivot','As_Pivot'],
-        ['ns','SpectralIndex','spectral_index','spectralindex'],
-        ['w','W'],
-        ['w0','W0'],
-        ['wa','wA','WA']
+        ['h', 'hubble'],
+        ['s8', 'sigma8', 'Sigma8', 'sigma_8', 'Sigma_8'],
+        ['as', 'As'],
+        ['as_pivot', 'As_pivot', 'AsPivot', 'as_Pivot', 'As_Pivot'],
+        ['ns', 'SpectralIndex', 'spectral_index', 'spectralindex'],
+        ['w', 'W'],
+        ['w0', 'W0'],
+        ['wa', 'wA', 'WA']
         ]
     if keynames is None:
         keynames = _keynames
@@ -155,39 +158,46 @@ def set_cosmology(cd):
 
            import cosmocalc
            cd = {
-               "OmegaM":0.3,
-               "OmegaB":0.045,
-               "OmegaDE":0.7,
-               "OmegaK":0.0,
-               "h":0.7,
-               "Sigma8":0.8,
-               "SpectralIndex":0.95,
-               "w0":-1.0,
-               "wa":0.0
-               "As":2.1e-9,
-               "As_pivot":0.05}
+               "OmegaM": 0.3,
+               "OmegaB": 0.045,
+               "OmegaDE": 0.7,
+               "OmegaK": 0.0,
+               "h": 0.7,
+               "Sigma8": 0.8,
+               "SpectralIndex": 0.95,
+               "w0": -1.0,
+               "wa": 0.0
+               "As": 2.1e-9,
+               "As_pivot": 0.05}
            cosmocalc.set_cosmology(cd)
-       
+
        Note that the cosmology is set *globally*, so you can only use 1 at a time!
        """
     _init(cd)
 
 def get_cosmology():
-    "Return the cosmology as a dictionary. See cosmocalc.set_cosmology() for an example."
-    return {'OmegaM':_cosmocalc.cvar.cosmoData.OmegaM,
-            'OmegaDE':_cosmocalc.cvar.cosmoData.OmegaL,
-            'OmegaB':_cosmocalc.cvar.cosmoData.OmegaB,
-            'OmegaK':_cosmocalc.cvar.cosmoData.OmegaK,
-            'h':_cosmocalc.cvar.cosmoData.h,
-            'Sigma8':_cosmocalc.cvar.cosmoData.Sigma8,
-            'SpectralIndex':_cosmocalc.cvar.cosmoData.SpectralIndex,
-            'w0':_cosmocalc.cvar.cosmoData.w0,
-            'wa':_cosmocalc.cvar.cosmoData.wa}
+    """Return the cosmology as a dictionary.
+    See cosmocalc.set_cosmology() for an example."""
+    return {'OmegaM': _cosmocalc.cvar.cosmoData.OmegaM,
+            'OmegaDE': _cosmocalc.cvar.cosmoData.OmegaL,
+            'OmegaB': _cosmocalc.cvar.cosmoData.OmegaB,
+            'OmegaK': _cosmocalc.cvar.cosmoData.OmegaK,
+            'h': _cosmocalc.cvar.cosmoData.h,
+            'Sigma8': _cosmocalc.cvar.cosmoData.Sigma8,
+            'SpectralIndex': _cosmocalc.cvar.cosmoData.SpectralIndex,
+            'w0': _cosmocalc.cvar.cosmoData.w0,
+            'wa': _cosmocalc.cvar.cosmoData.wa}
 
 def lcdm():
     "Return a random cosmology."
-    return {'OmegaM':0.3,'OmegaDE':0.7,'OmegaB':0.045,'OmegaK':0.0,'h':0.7,'Sigma8':0.8,'SpectralIndex':0.95,'w0':-1.0,'wa':0.0}
-
+    return {
+        'OmegaM': 0.3,
+        'OmegaDE': 0.7,
+        'OmegaB': 0.045,
+        'OmegaK': 0.0,
+        'h': 0.7,
+        'Sigma8': 0.8,
+        'SpectralIndex': 0.95,
+        'w0': -1.0,
+        'wa': 0.0}
 %}
-
-
